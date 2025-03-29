@@ -1,0 +1,24 @@
+{
+    "name": "Arthas",
+    "player_class": "necromancer",
+    "level": 1,
+    "health": 20,
+    "max_health": 20,
+    "defense": 3,
+    "inventory": {
+        "gold": 26,
+        "health_potions": 5,
+        "equipment": [
+            "Frostmourne",
+            "Helmet of Damnation",
+            "Chest Plate",
+            "Underwear",
+            "Boots"
+        ]
+    },
+    "skills": [
+        "Life Steal",
+        "Necrotic Orb",
+        "Soul Rend"
+    ]
+}

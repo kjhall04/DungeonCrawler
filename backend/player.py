@@ -3,29 +3,82 @@ import json
 FILENAME = 'data\\player_save.json'
 
 class Player():
-    def __init__(self, name: str, player_class: str):
+    def __init__(self, name: str, player_class: str, level=1, health=20, max_health=20,
+                 defense=3, inventory=None, skills=None):
 
         self.name = name
         self.player_class = player_class
-        self.level = 1
-        self.health = 100
-        self.max_health = 100
-        self.defense = 3
-        self.inventory = []
-        self.skills = self.load_skills(player_class)
+        self.level = level
+        self.health = health
+        self.max_health = max_health
+        self.defense = defense
+        self.inventory = inventory if inventory is not None else {'gold': 5, 'health_potions': 3, 'equipment': []}
+        self.skills = skills if skills is not None else self.load_skills(player_class)
+
+    @classmethod
+    def load_or_create_player(cls, filename=FILENAME):
+        """Loads player data if it exists, otherwise creates a new character."""
+        try:
+            with open(filename, 'r') as file:
+                player_data = json.load(file)
+                return cls(
+                    player_data['name'],
+                    player_data['player_class'],
+                    player_data['level'],
+                    player_data['health'],
+                    player_data['max_health'],
+                    player_data['defense'],
+                    player_data['inventory'],
+                    player_data['skills']
+                )
+        except FileNotFoundError:
+            print('No save file found. Creating a new character.')
+            name = input('Enter character name: ')
+            player_class = input("Choose class (mage, warrior, rogue, necromancer): ")
+            return cls(name, player_class)
 
     def load_skills(self, player_class):
         """Returns skills based off of player class."""
         class_skills = {
-            'mage': ['fireball', 'lightning', 'staff hit'],
-            'warrior': ['punch', 'stab', 'headbut'],
-            'rogue': ['slash', 'throw poison', 'pick pocket'],
-            'necromancer': ['life steal', 'necrotic orb', 'bone jab']
+            'mage': ['Fireball', 'Lightning', 'Arcane Blast'],
+            'warrior': ['Punch', 'Cleave', 'Headbutt'],
+            'rogue': ['Slash', 'Throw Poison', 'Backstab'],
+            'necromancer': ['Life Steal', 'Necrotic Orb', 'Soul Rend']
         }
 
         return class_skills.get(player_class, [])
     
-    def data_to_dict(self):
+    def take_damage(self, damage: int):
+        """Reduces health based on incoming damage and defense."""
+        damage_taken = max(damage - self.defense, 0)
+        self.health -= damage_taken
+        if self.health < 0:
+            self.health = 0
+        return damage_taken
+    
+    def heal(self):
+        """Heal the player if they have health potions."""
+        if self.inventory['health_potions'] > 0:
+            self.health = min(self.health + 5, self.max_health)
+            self.inventory['health_potions'] -= 1
+            return True
+        return False
+    
+    def add_item_to_inventory(self, item: str, amount: int):
+        """ Adds new items to the player inventory"""
+        if amount is None:
+            amount = 1
+
+        if item in self.inventory:
+            self.inventory[item] += amount
+            return True
+        elif len(self.inventory['equipment']) < 5:
+            self.inventory['equipment'].append(item)
+            return True
+        else:
+            return False
+
+    def player_stats_to_dict(self):
         """Turns player data into a dictionary for saving."""
         return {
             "name": self.name,
@@ -41,28 +94,13 @@ class Player():
     def save_player_data(self, filename=FILENAME):
         """Saves player data into a json file."""
         with open(filename, 'w') as file:
-            json.dump(self.data_to_dict(), file, indent=4)
-
-    @classmethod
-    def load_from_file(cls, filename=FILENAME):
-        """Loads player data from a json file."""
-        try:
-            with open(filename, 'r') as file:
-                player_data = json.load(file)
-                player = cls(player_data['name'], player_data['player_class'])
-                player.level = player_data['level']
-                player.health = player_data['health']
-                player.max_health = player_data['max_health']
-                player.defense = player_data['defense']
-                player.inventory = player_data['inventory']
-                return player
-            
-        except FileNotFoundError:
-            print(f'Error: {filename} not found.')
-            return None
+            json.dump(self.player_stats_to_dict(), file, indent=4)
         
+
+
 if __name__ == '__main__':
     
-    player = Player('Aariq', 'mage')
-
+    player = Player.load_or_create_player()
     player.save_player_data()
+
+    print(player.player_stats_to_dict())
