@@ -31,7 +31,7 @@ class Enemy():
                     data['skills']
                 )
             else:
-                print(f'Enemy {enemy_name} not found in data.')
+                print(f"Enemy '{enemy_name}' not found in data.")
                 return None
         except FileNotFoundError:
             print('Enemy data file not found.')
@@ -46,6 +46,7 @@ class Enemy():
 
 
 if __name__ == '__main__':
+
     enemy = Enemy.create_enemy('skeleton')
     if enemy:
         print(vars(enemy))
