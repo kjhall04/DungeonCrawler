@@ -1,0 +1,44 @@
+{
+    "mage": [
+        {
+            "name": "fireball",
+            "damage": 5
+        },
+        {
+            "name": "lightning",
+            "damage": 2 
+        },
+        {
+            "name": "arcane blast",
+            "damage": 3 
+        }
+    ],
+    "warrior": [
+        {
+            "name": "punch",
+            "damage": 2
+        },
+        {
+            "name": "cleave",
+            "damage": 5 
+        },
+        {
+            "name": "headbutt",
+            "damage": 3 
+        }
+    ],
+    "rogue": [
+        {
+            "name": "slash",
+            "damage": 3
+        },
+        {
+            "name": "throw poison",
+            "damage": 2 
+        },
+        {
+            "name": "backstab",
+            "damage": 5 
+        }
+    ]
+}

@@ -1,24 +1,27 @@
 {
-    "name": "Arthas",
-    "player_class": "necromancer",
+    "name": "Jones",
+    "player_class": "rogue",
     "level": 1,
     "health": 20,
     "max_health": 20,
     "defense": 3,
     "inventory": {
-        "gold": 26,
-        "health_potions": 5,
-        "equipment": [
-            "Frostmourne",
-            "Helmet of Damnation",
-            "Chest Plate",
-            "Underwear",
-            "Boots"
-        ]
+        "gold": 5,
+        "health_potions": 3,
+        "equipment": []
     },
     "skills": [
-        "Life Steal",
-        "Necrotic Orb",
-        "Soul Rend"
+        {
+            "name": "slash",
+            "damage": 3
+        },
+        {
+            "name": "throw poison",
+            "damage": 2
+        },
+        {
+            "name": "backstab",
+            "damage": 5
+        }
     ]
 }

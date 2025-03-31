@@ -1,0 +1,58 @@
+{
+    "goblin": {
+        "health": 5,
+        "defense": 1,
+        "skills": [
+            {
+                "name": "kick",
+                "damage": 1
+            },
+            {
+                "name": "stab",
+                "damage": 2
+            }
+        ]
+    },
+    "orc": {
+        "health": 7,
+        "defense": 3,
+        "skills": [
+            {
+                "name": "club strike",
+                "damage": 3
+            },
+            {
+                "name": "headbutt",
+                "damage": 2
+            }
+        ]
+    },
+    "zombie": {
+        "health": 4,
+        "defense": 0,
+        "skills": [
+            {
+                "name": "bite",
+                "damage": 2
+            },
+            {
+                "name": "punch",
+                "damage": 1
+            }
+        ]
+    },
+    "skeleton": {
+        "health": 3,
+        "defense": 0,
+        "skills": [
+            {
+                "name": "slash",
+                "damage": 2
+            },
+            {
+                "name": "stare",
+                "damage": 0
+            }
+        ]
+    }
+}
