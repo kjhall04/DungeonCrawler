@@ -1,3 +1,22 @@
 {
-    
+    "items":[
+        "gold",
+        "health potions",
+        "bones",
+        "flesh"
+    ],
+    "gear": [
+        {
+            "name": "rusty sword",
+            "attack": 2
+        },
+        {
+            "name": "iron sword",
+            "attack": 3
+        },
+        {
+            "name": "rusty armor",
+            "defense": 1
+        }
+    ]
 }
