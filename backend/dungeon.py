@@ -194,9 +194,10 @@ class DungeonGenerator():
 if __name__ == '__main__':
 
     width, height = 10, 10
-    rooms = rand.randint(12, 15)
+    rooms = rand.randint(14, 20)
     
     dungeon = DungeonGenerator(width, height, rooms)
     dungeon.delete_current_dungeon()
     dungeon.generate()
     dungeon.save_to_json()
+    dungeon.plot_graph()
