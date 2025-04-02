@@ -1,6 +1,7 @@
 import json
 import random as rand
 import re
+import os
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -8,6 +9,7 @@ DUNGEON_SAVE = 'data\\dungeon_floor_save.json'
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
+MERCHANT_CHANCE = 0.6  # Chance to add a merchant in the dungeon
 
 class DungeonGenerator():
     def __init__(self, width, height, num_rooms):
@@ -17,8 +19,12 @@ class DungeonGenerator():
         self.grid = [[None for _ in range(width)] for _ in range(height)]
         self.rooms = {}
         self.room_positions = {}
+        self.start_location = []
+        self.exit_location = []
+        self.merchant_location = []
 
     def generate(self):
+        # Designed with help of Chatgpt
         """Generate a dungeon with a mix of linear paths and branching connections."""
         start_x, start_y = rand.randint(0, self.width - 1), rand.randint(0, self.height - 1)
         self.grid[start_y][start_x] = 0
@@ -63,6 +69,10 @@ class DungeonGenerator():
 
         self._connect_extra_paths()
 
+        self.add_start()
+        self.add_exit()
+        self.add_merchant()
+
     def _connect_extra_paths(self):
         """Add extra connections between nearby rooms for more interconnectivity."""
         for room_id, (x, y) in self.room_positions.items():
@@ -78,14 +88,25 @@ class DungeonGenerator():
                         self.rooms[neighbor_id].append(room_id)
 
 
-    def add_start():
-        pass
+    def add_start(self):
+        """Randomly select a room to be the start location."""
+        start_id = rand.choice([0, max(self.room_positions.keys())])
+        self.start_location = (start_id, self.room_positions[start_id])
 
-    def add_exit():
-        pass
+    def add_exit(self):
+        """Randomly select a room to be the exit location."""
+        if self.start_location[0] == max(self.rooms):
+            exit_id = min(self.rooms)  # Choose the smallest room ID if the start is the largest
+        else:
+            exit_id = max(self.rooms)  # Choose the largest room ID otherwise
+        self.exit_location = (exit_id, self.room_positions[exit_id])
 
-    def add_merchant():
-        pass
+    def add_merchant(self):
+        """Randomly select a room to be the merchant location."""
+        if rand.random() < MERCHANT_CHANCE:
+            merchant_candidates = [room for room in self.room_positions.keys() if room not in (self.start_location[0], self.exit_location[0])]
+            merchant_id = rand.choice(merchant_candidates)
+            self.merchant_location = (merchant_id, self.room_positions[merchant_id])
 
     def save_to_json(self, filename=DUNGEON_SAVE):
         """Saves the dungeon layout to a json file."""
@@ -95,7 +116,10 @@ class DungeonGenerator():
             "grid_size": {"width": self.width, "height": self.height},
             "num_rooms": self.num_rooms,
             "room_positions": {str(room_id): list(position) for room_id, position in self.room_positions.items()},
-            "connections": cleaned_connections
+            "connections": cleaned_connections,
+            "start": self.start_location,
+            "exit": self.exit_location,
+            "merchant": self.merchant_location
         }
 
         json_str = json.dumps(data, indent=4, sort_keys=False)
@@ -105,20 +129,62 @@ class DungeonGenerator():
         json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2]', json_str)  # For 2-item lists
         json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2, \3]', json_str)  # For 3-item lists
         json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+),\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2, \3, \4]', json_str)  # For 4-item lists
-
+        
         with open(filename, 'w') as file:
             file.write(json_str)
         return None
+    
+    def delete_current_dungeon(self, filename=DUNGEON_SAVE):
+        """Deletes the current dungeon file to generate a new one."""
+        try:
+            os.remove(filename)
+            print(f"File '{filename}' deleted successfully.")
+        except FileNotFoundError:
+            print(f"Error: File '{filename}' not found.")
+        except PermissionError:
+            print(f"Error: Permission denied to delete '{filename}'.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     def plot_graph(self):
-        """Plots the dungeon layout as a graph using NetworkX. For debugging purposes."""
+        """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms.For debugging purposes."""
         graph = nx.Graph()
+
         for room, connections in self.rooms.items():
             for connection in connections:
                 graph.add_edge(room, connection)
 
         pos = {room: (self.room_positions[room][0], -self.room_positions[room][1]) for room in self.rooms}
-        nx.draw(graph, pos, with_labels=True, node_size=500, node_color='skyblue', font_size=10, font_weight='bold', edge_color='gray')
+
+        # Define colors and sizes
+        node_colors = []
+        node_sizes = []
+
+        for room in self.rooms:
+            if self.room_positions[room] == self.start_location[1]:
+                node_colors.append('green')   # Start room
+                node_sizes.append(700)
+            elif self.room_positions[room] == self.exit_location[1]:
+                node_colors.append('red')     # Exit room
+                node_sizes.append(700)
+            elif self.room_positions[room] == self.merchant_location[1] if self.merchant_location else None:
+                node_colors.append('orange')  # Merchant room
+                node_sizes.append(700)
+            else:
+                node_colors.append('skyblue') # Regular rooms
+                node_sizes.append(500)
+
+        # Draw the graph
+        plt.figure(figsize=(8, 6))
+        nx.draw(graph, pos, with_labels=True, node_size=node_sizes, node_color=node_colors, 
+                font_size=10, font_weight='bold', edge_color='gray')
+
+        # Add legend
+        plt.scatter([], [], c='green', s=100, label="Start Room")
+        plt.scatter([], [], c='red', s=100, label="Exit Room")
+        plt.scatter([], [], c='orange', s=100, label="Merchant Room")
+        plt.scatter([], [], c='skyblue', s=100, label="Regular Rooms")
+        plt.legend(loc="upper right")
 
         plt.title("Dungeon Layout")
         plt.show()
@@ -131,6 +197,6 @@ if __name__ == '__main__':
     rooms = rand.randint(12, 15)
     
     dungeon = DungeonGenerator(width, height, rooms)
+    dungeon.delete_current_dungeon()
     dungeon.generate()
-    dungeon.plot_graph()
     dungeon.save_to_json()
