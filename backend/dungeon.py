@@ -147,7 +147,7 @@ class DungeonGenerator():
             print(f"An error occurred: {e}")
 
     def plot_graph(self):
-        """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms.For debugging purposes."""
+        """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms. For debugging purposes."""
         graph = nx.Graph()
 
         for room, connections in self.rooms.items():
