@@ -12,7 +12,7 @@ ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
 MERCHANT_CHANCE = 0.6  # Chance to add a merchant in the dungeon
 
 class DungeonGenerator():
-    def __init__(self, width, height, num_rooms):
+    def __init__(self, width, height, num_rooms, floor_level):
         self.width = width
         self.height = height
         self.num_rooms = num_rooms
@@ -22,6 +22,7 @@ class DungeonGenerator():
         self.start_location = []
         self.exit_location = []
         self.merchant_location = []
+        self.floor_level = floor_level
 
     def generate(self):
         # Designed with help of Chatgpt

@@ -9,7 +9,7 @@ class Merchant():
         self.inventory = inventory if inventory is not None else []
         self.gold_amount = gold_amount
         
-    def generate_inventory(self, filename=LOOT, max_items=2, max_gear=4):
+    def generate_inventory(self, dungeon, filename=LOOT, max_items=3, max_gear=4):
         """
         Generates a random inventory for the merchant based on the loot table.
         
@@ -21,10 +21,13 @@ class Merchant():
         try:
             with open(filename, 'r') as file:
                 loot_data = json.load(file)
+
+            # Determine the loot level based on the dungeon floor
+            level_key = f'level_{dungeon.floor_level}'
             
             # Only generate health potions for items
             health_potions = [
-                item for item in loot_data['items'] if item['name'] == 'health potion'
+                item for item in loot_data['items'][level_key] if item['name'] == 'health potion'
             ]
             if health_potions:
                 health_potion = health_potions[0]  # Assume there's only one health potion definition
@@ -33,7 +36,7 @@ class Merchant():
             else:
                 items = []
 
-            gear = rand.sample(loot_data['gear'], min(max_gear, len(loot_data['gear'])))
+            gear = rand.sample(loot_data['gear'][level_key], min(max_gear, len(loot_data['gear'][level_key])))
 
             self.inventory = items + gear
 

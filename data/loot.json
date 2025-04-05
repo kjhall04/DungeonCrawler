@@ -1,37 +1,167 @@
 {
-    "items": [
-        {
-            "name": "gold",
-            "value": 1
-        },
-        {
-            "name": "health potion",
-            "value": 10
-        },
-        {
-            "name": "bones",
-            "value": 2
-        },
-        {
-            "name": "flesh",
-            "value": 3
-        }
-    ],
-    "gear": [
-        {
-            "name": "rusty sword",
-            "attack": 2,
-            "value": 15
-        },
-        {
-            "name": "iron sword",
-            "attack": 3,
-            "value": 25
-        },
-        {
-            "name": "rusty armor",
-            "defense": 1,
-            "value": 20
-        }
-    ]
+    "items": {
+        "level_1": [
+            {
+                "name": "health potion",
+                "value": 10
+            },
+            {
+                "name": "bones",
+                "value": 2
+            },
+            {
+                "name": "flesh",
+                "value": 3
+            },
+            {
+                "name": "broken tooth",
+                "value": 1
+            },
+            {
+                "name": "stale bread",
+                "value": 2
+            },
+            {
+                "name": "gold",
+                "value": 1
+            }
+        ],
+        "level_2": [
+            {
+                "name": "health potion",
+                "value": 10
+            },
+            {
+                "name": "dark essence",
+                "value": 15
+            },
+            {
+                "name": "withered heart",
+                "value": 12
+            },
+            {
+                "name": "bandages",
+                "value": 8
+            },
+            {
+                "name": "fire bomb",
+                "value": 20
+            },
+            {
+                "name": "gold",
+                "value": 5
+            }
+        ],
+        "level_3": [
+            {
+                "name": "health potion",
+                "value": 10
+            },
+            {
+                "name": "phantom dust",
+                "value": 80
+            },
+            {
+                "name": "dragon scale",
+                "value": 120
+            },
+            {
+                "name": "ancient scroll",
+                "value": 90
+            },
+            {
+                "name": "demon ichor",
+                "value": 110
+            },
+            {
+                "name": "gold",
+                "value": 20
+            }
+        ]
+    },
+    "gear": {
+        "level_1": [
+            {
+                "name": "rusty sword",
+                "attack": 2,
+                "value": 15
+            },
+            {
+                "name": "wooden club",
+                "attack": 1,
+                "value": 10
+            },
+            {
+                "name": "rusty armor",
+                "defense": 1,
+                "value": 20
+            },
+            {
+                "name": "leather cap",
+                "defense": 1,
+                "value": 10
+            },
+            {
+                "name": "iron dagger",
+                "attack": 2,
+                "value": 12
+            }
+        ],
+        "level_2": [
+            {
+                "name": "iron sword",
+                "attack": 3,
+                "value": 25
+            },
+            {
+                "name": "steel axe",
+                "attack": 4,
+                "value": 35
+            },
+            {
+                "name": "iron armor",
+                "defense": 3,
+                "value": 40
+            },
+            {
+                "name": "spiked shield",
+                "defense": 2,
+                "attack": 1,
+                "value": 30
+            },
+            {
+                "name": "iron helm",
+                "defense": 2,
+                "value": 20
+            }
+        ],
+        "level_3": [
+            {
+                "name": "obsidian blade",
+                "attack": 6,
+                "value": 75
+            },
+            {
+                "name": "dragonbone spear",
+                "attack": 7,
+                "value": 90
+            },
+            {
+                "name": "enchanted plate armor",
+                "defense": 6,
+                "value": 100
+            },
+            {
+                "name": "phantom cloak",
+                "defense": 4,
+                "value": 85
+            },
+            {
+                "name": "warlord's helm",
+                "defense": 3,
+                "attack": 1,
+                "value": 60
+            }
+        ]
+    }
 }
