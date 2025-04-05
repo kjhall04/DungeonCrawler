@@ -4,10 +4,10 @@ import random as rand
 LOOT = 'data\\loot.json'
 
 class Merchant():
-    def __init__(self, inventory=None, gold_amount=100):
+    def __init__(self, dungeon, inventory=None):
         
         self.inventory = inventory if inventory is not None else []
-        self.gold_amount = gold_amount
+        self.gold_amount = 50 * dungeon.floor_level
         
     def generate_inventory(self, dungeon, filename=LOOT, max_items=3, max_gear=4):
         """
