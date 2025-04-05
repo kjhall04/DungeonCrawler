@@ -5,7 +5,7 @@ import os
 import networkx as nx
 import matplotlib.pyplot as plt
 
-DUNGEON_SAVE = 'data\\dungeon_floor_save.json'
+DUNGEON_SAVE = 'save_data\\dungeon_floor_save.json'
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms

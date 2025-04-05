@@ -49,7 +49,7 @@ class Enemy():
             gold_range (tuple): Min and max amount of gold that can drop.
             
         Returns:
-            list: A list of dropped items.
+            dict: A dictionary of dropped items.
         """
         try:
             with open(filename, 'r') as file:
@@ -63,9 +63,9 @@ class Enemy():
 
             for item in selected_items:
                 if item == 'gold':
-                    loot_drops[item] = rand.randint(*gold_range)  # Random gold amount.
+                    loot_drops[item['name']] = rand.randint(*gold_range)  # Random gold amount.
                 else:
-                    loot_drops[item] = rand.randint(1, 3)  # Random amount for other items
+                    loot_drops[item['name']] = rand.randint(1, 3)  # Random amount for other items
 
             if rand.random() < gear_chance:
                 num_gear = rand.randint(1, max_gear)

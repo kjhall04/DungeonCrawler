@@ -1,22 +1,37 @@
 {
-    "items":[
-        "gold",
-        "health potions",
-        "bones",
-        "flesh"
+    "items": [
+        {
+            "name": "gold",
+            "value": 1
+        },
+        {
+            "name": "health potion",
+            "value": 10
+        },
+        {
+            "name": "bones",
+            "value": 2
+        },
+        {
+            "name": "flesh",
+            "value": 3
+        }
     ],
     "gear": [
         {
             "name": "rusty sword",
-            "attack": 2
+            "attack": 2,
+            "value": 15
         },
         {
             "name": "iron sword",
-            "attack": 3
+            "attack": 3,
+            "value": 25
         },
         {
             "name": "rusty armor",
-            "defense": 1
+            "defense": 1,
+            "value": 20
         }
     ]
 }

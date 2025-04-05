@@ -1,6 +1,6 @@
 import json
 
-PLAYER_SAVE = 'data\\player_save.json'
+PLAYER_SAVE = 'save_data\\player_save.json'
 CLASS_SKILLS = 'data\\class_skills.json'
 
 class Player():
