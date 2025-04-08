@@ -1,7 +1,9 @@
 import json
 import random as rand
+import os
 
-LOOT = 'data\\loot.json'
+BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot.json')
 
 class Merchant():
     def __init__(self, dungeon, inventory=None):

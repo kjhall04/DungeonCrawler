@@ -1,8 +1,10 @@
 import json
 import random as rand
+import os
 
-ENEMIES = 'data\\enemies.json'
-LOOT = 'data\\loot.json'
+BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+ENEMIES = os.path.join(BASE_DIRECTORY, '..', 'data', 'enemies.json')
+LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot')
 
 class Enemy():
     def __init__(self, name, health, max_health, defense, skills, dungeon, loot=None):
