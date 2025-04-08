@@ -109,6 +109,20 @@ class DungeonGenerator():
             merchant_id = rand.choice(merchant_candidates)
             self.merchant_location = (merchant_id, self.room_positions[merchant_id])
 
+    def get_valid_directions(self, room_id):
+        """Returns the valid directions (north, south, east, west) the player can move in a given room."""
+        directions = {}
+        x, y = self.room_positions[room_id]
+
+        # Check each direction
+        for dx, dy, direction in [(0, -1, 'north'), (0, 1, 'south'), (1, 0, 'east'), (-1, 0, 'west')]:
+            nx, ny = x + dx, y + dy
+            neighbor_id = next((id for id, pos in self.room_positions.items() if pos == (nx, ny)), None)
+            if neighbor_id:
+                directions[direction] = neighbor_id
+
+        return directions
+
     def save_to_json(self, filename=DUNGEON_SAVE):
         """Saves the dungeon layout to a json file."""
         cleaned_connections = {str(room_id): connections for room_id, connections in sorted(self.rooms.items()) if connections}
@@ -197,7 +211,7 @@ if __name__ == '__main__':
     width, height = 10, 10
     rooms = rand.randint(14, 20)
     
-    dungeon = DungeonGenerator(width, height, rooms)
+    dungeon = DungeonGenerator(width, height, rooms, 1)
     dungeon.delete_current_dungeon()
     dungeon.generate()
     dungeon.save_to_json()

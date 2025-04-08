@@ -90,6 +90,26 @@ class Player():
             self.inventory['health_potions'] -= 1
             return True
         return False
+    
+    def move(self, direction, dungeon):
+        """
+        Moves the player in the specified direction if it's valid.
+
+        Parameters:
+            direction (str): The direction to move in ('north', 'south', 'east', 'west').
+            dungeon (DungeonGenerator): The current dungeon instance.
+
+        Returns:
+            bool: True if the move was successful, False otherwise.
+        """
+        current_room = self.player_location
+        valid_directions = dungeon.get_valid_directions(current_room)
+
+        if direction in valid_directions:
+            self.player_location = valid_directions[direction]
+            return True
+        else:
+            return False
         
     def player_stats_to_dict(self):
         """Turns player data into a dictionary for saving."""
