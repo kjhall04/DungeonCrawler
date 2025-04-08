@@ -5,7 +5,7 @@ CLASS_SKILLS = 'data\\class_skills.json'
 
 class Player():
     def __init__(self, name: str, player_class: str, level=0, experience=0, health=20, max_health=20,
-                 defense=3, inventory=None, skills=None, dungeon_floor=1, dungeon_coordinates=None):
+                 defense=3, inventory=None, skills=None, dungeon_floor=1, player_location=None):
 
         self.name = name
         self.player_class = player_class
@@ -17,7 +17,7 @@ class Player():
         self.inventory = inventory if inventory is not None else {'gold': 5, 'health_potions': 3, 'equipment': []}
         self.skills = skills if skills is not None else self.load_skills(player_class)
         self.dungeon_floor = dungeon_floor
-        self.dungeon_coordinates = dungeon_coordinates
+        self.player_location = player_location
 
     @classmethod
     def load_or_create_player(cls, filename=PLAYER_SAVE):
@@ -36,7 +36,7 @@ class Player():
                     player_data['inventory'],
                     player_data['skills'],
                     player_data['dungeon_floor'],
-                    player_data['dungeon_coordinates']
+                    player_data['player_location']
                 )
         except FileNotFoundError:
             print('No save file found. Creating a new character.')
@@ -53,6 +53,28 @@ class Player():
         except FileNotFoundError:
             print('Class skills file not found.')
     
+    def add_item_to_inventory(self, item: str, amount: int):
+        """Adds new items to the player inventory"""
+        if amount is None:
+            amount = 1
+
+        if item in self.inventory:
+            self.inventory[item] += amount
+            return True
+        elif len(self.inventory['equipment']) < 5:
+            self.inventory['equipment'].append(item)
+            return True
+        else:
+            return False
+        
+    def move(self):
+        """Takes player input to move around the dungeon."""
+        pass
+
+    def attack_enemy(self):
+        """Reduce enemy health based on outgoing damage."""
+        pass
+
     def take_damage(self, damage: int):
         """Reduces health based on incoming damage and defense."""
         damage_taken = max(damage - self.defense, 0)
@@ -68,20 +90,6 @@ class Player():
             self.inventory['health_potions'] -= 1
             return True
         return False
-    
-    def add_item_to_inventory(self, item: str, amount: int):
-        """Adds new items to the player inventory"""
-        if amount is None:
-            amount = 1
-
-        if item in self.inventory:
-            self.inventory[item] += amount
-            return True
-        elif len(self.inventory['equipment']) < 5:
-            self.inventory['equipment'].append(item)
-            return True
-        else:
-            return False
         
     def player_stats_to_dict(self):
         """Turns player data into a dictionary for saving."""
