@@ -1,0 +1,66 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#login-container {
+    text-align: center;
+    background-color: #222;
+    padding: 20px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #00ff00;
+    width: 300px;
+}
+
+#game-title {
+    font-size: 24px;
+    color: #00ff00;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; 
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    background-color: #111;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+}
+
+button {
+    background-color: #00ff00;
+    color: black;
+    font-family: 'Press Start 2P', monospace;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+}
+
+button:hover {
+    background-color: #00ff00;
+    box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
+}
+
+a {
+    color: #00ff00;
+    text-decoration: none;
+    font-family: 'Press Start 2P', monospace;
+}
+
+a:hover {
+    text-rendering: underline;
+}
