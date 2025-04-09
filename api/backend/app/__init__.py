@@ -7,10 +7,11 @@ import os
 def create_app():
     """Create and configure the flask app."""
     load_dotenv()
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
     app = Flask(
-        __name__, 
-        template_folder='../frontend/templates', 
-        static_folder='../frontend/static'
+        __name__,
+        template_folder=os.path.join(base_dir, 'frontend/templates'),
+        static_folder=os.path.join(base_dir, 'frontend/static')
     )
     app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 
