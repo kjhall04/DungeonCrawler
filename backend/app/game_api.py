@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.game.player import Player
 from backend.game.dungeon import DungeonGenerator
 
-game_api = Blueprint('game_api', methods=['POST'])
+game_api = Blueprint('game_api', __name__)
 
 @game_api.route('/api/move', methods=['POST'])
 def move_player():
@@ -10,6 +10,10 @@ def move_player():
     direction = data.get('direction')
     player_location = data.get('player_location')
     dungeon_data = data.get('dungeon')
+
+    # Validate input
+    if not direction or player_location is None or not dungeon_data:
+        return jsonify({'error': 'Invalid input'}), 400
 
     # Load dungeon and player
     dungeon = DungeonGenerator(**dungeon_data)

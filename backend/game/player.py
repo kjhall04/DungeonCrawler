@@ -2,7 +2,7 @@ import json
 import os
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-PLAYER_SAVE = os.path.join(BASE_DIRECTORY, '..', 'save_data', 'player_save.json')
+PLAYER_SAVE = os.path.join(BASE_DIRECTORY, 'save_data', 'player_save.json')
 CLASS_SKILLS = os.path.join(BASE_DIRECTORY, '..', 'data', 'class_skills.json')
 
 class Player():

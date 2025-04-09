@@ -9,8 +9,11 @@ def load_users():
     """Load user data from the JSON file."""
     if not os.path.exists(USER_DATA_FILE):
         return {}
-    with open(USER_DATA_FILE, 'r') as file:
-        return json.load(file)
+    try:
+        with open(USER_DATA_FILE, 'r') as file:
+            return json.load(file)
+    except json.JSONDecodeError:
+        return {}
     
 def save_users(users):
     """Save user data to the JSON file."""

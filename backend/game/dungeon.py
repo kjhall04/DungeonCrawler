@@ -6,7 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-DUNGEON_SAVE = os.path.join(BASE_DIRECTORY, '..', 'save_data', 'dungeon_floor_save.json')
+DUNGEON_SAVE = os.path.join(BASE_DIRECTORY, 'save_data', 'dungeon_floor_save.json')
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
@@ -126,6 +126,10 @@ class DungeonGenerator():
 
     def save_to_json(self, filename=DUNGEON_SAVE):
         """Saves the dungeon layout to a json file."""
+        directory = os.path.dirname(filename)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
         cleaned_connections = {str(room_id): connections for room_id, connections in sorted(self.rooms.items()) if connections}
 
         data = {

@@ -1,5 +1,6 @@
 from flask import Flask
 from backend.app.routes import auth_routes
+from backend.app.game_api import game_api
 from dotenv import load_dotenv
 import os
 
@@ -11,5 +12,6 @@ def create_app():
 
     # Register blueprints
     app.register_blueprint(auth_routes)
+    app.register_blueprint(game_api)
 
     return app

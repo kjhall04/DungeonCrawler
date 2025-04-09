@@ -4,7 +4,7 @@ import os
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 ENEMIES = os.path.join(BASE_DIRECTORY, '..', 'data', 'enemies.json')
-LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot')
+LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot.json')
 
 class Enemy():
     def __init__(self, name, health, max_health, defense, skills, dungeon, loot=None):
