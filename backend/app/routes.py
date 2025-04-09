@@ -3,6 +3,11 @@ from backend.app.auth import create_account, login
 
 auth_routes = Blueprint('auth', __name__)
 
+@auth_routes.route('/')
+def index():
+    """Redirect to the login page."""
+    return redirect(url_for('auth.login_route'))
+
 @auth_routes.route('/login', methods=['GET', 'POST'])
 def login_route():
     """Handle user login."""
