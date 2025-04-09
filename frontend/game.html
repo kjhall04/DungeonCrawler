@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Dungeon Crawler</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <div id="game-container">
+        <h1>Welcome to the Dungeon Crawler!</h1>
+        <div id="player-stats">
+            <h2>Player Stats</h2>
+            <p id="player-name"></p>
+            <p id="player-class"></p>
+            <p id="player-health"></p>
+            <p id="player-gold"></p>
+        </div>
+        <div id="dungeon-map">
+            <h2>Dungeon Map</h2>
+            <p id="current-room"></p>
+            <button id="move-north">Move North</button>
+            <button id="move-south">Move South</button>
+            <button id="move-east">Move East</button>
+            <button id="move-west">Move West</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
 </body>
 </html>
