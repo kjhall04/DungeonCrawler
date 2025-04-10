@@ -1,5 +1,5 @@
 {
-    "test_user": {
-        "password": "scrypt:32768:8:1$9N4G0rqtEEj6qG9N$cefb14ba0dfe84cbccc6391ad0933e7232ec7e535da9e96a9cb987a3f98a4e9323dfe9103db7828b98f69e270bcac122b2d313a2495bea643bcaddfc08a10a25"
+    "test": {
+        "password": "scrypt:32768:8:1$FkBmTJc2fNMjXwOH$e38610a8eeb8d1d1a5c2ab3d48d1a11afa33fe7f2356235f99eac89ef8a0b4ede015f32cda97bf5e17ed4b500e6cf6d86d6e319b3f179ca4fdd93a42765bca23"
     }
 }

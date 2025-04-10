@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - One More Descent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div id="login-container">
-        <h1 id="game-title">One More Descent</h1>
-        <form id="login-form" method="POST" action="/login">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Login</button>
+    <div class="wrapper" id="login-container">
+        <form action="/login" method="POST">
+            <h1>One More Descent</h1>
+            <h2>-- Login --</h2>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <div class="input-box">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="register-link">
+                <p>Don't have an account? <a href="/create_account">Create Account</a></p>
+            </div>
         </form>
-        <p>Don't have an account? <a href="/create_account">Create one</a></p>
     </div>
-    <script src="login.js"></script>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
 </body>
 </html>

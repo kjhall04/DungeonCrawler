@@ -12,33 +12,31 @@ def index():
 def login_route():
     """Handle user login."""
     if request.method == 'POST':
-        data = request.json
-        username = data.get('username')
-        password= data.get('password')
+        username = request.form.get('username')
+        password = request.form.get('password')
 
         result = login(username, password)
         if 'error' in result:
-            return jsonify(result), 400
+            return render_template('login.html', error=result['error'])
         
         # Store the username in the session
         session['username'] = username
-        return jsonify(result)
+        return redirect(url_for('game_api.get_player_stats'))
     
     return render_template('login.html')
 
-@auth_routes.route('/create_account', methods=['POST', 'GET'])
+@auth_routes.route('/create_account', methods=['GET', 'POST'])
 def create_account_route():
     """Handle account creation."""
     if request.method == 'POST':
-        data = request.json
-        username = data.get('username')
-        password = data.get('password')
+        username = request.form.get('username')
+        password = request.form.get('password')
 
         result = create_account(username, password)
         if 'error' in result:
-            return jsonify(result), 400
+            return render_template('create_account.html', error=result['error'])
         
-        return jsonify(result)
+        return redirect(url_for('auth.login_route'))
     
     return render_template('create_account.html')
 

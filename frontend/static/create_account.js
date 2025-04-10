@@ -1,20 +1,19 @@
-document.getElementById('create-account-form').addEventListener('submit', async (event) => {
+document.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.querySelector('input[type="text"]').value;
+    const password = document.querySelector('input[type="password"]').value;
 
     const response = await fetch('/create_account', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username, password })
     });
 
-    const result = await response.json();
-    if (response.ok) {
-        alert('Account created successfully!');
-        window.location.href = '/login';
+    if (response.redirected) {
+        window.location.href = response.url;
     } else {
+        const result = await response.json();
         alert(result.error);
     }
 });

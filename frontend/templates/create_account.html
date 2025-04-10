@@ -4,20 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div id="create-account-container">
-        <h1>Create Account</h1>
-        <form id="create-account-form">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <button type="submit">Create Account</button>
+    <div class="wrapper" id="create_account-container">
+        <form action="/create_account" method="POST">
+            <h2>-- Create an account --</h2>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <div class="input-box">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="input-box">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="Create Account" class="btn">Create</button>
+            <div class="login-link">
+                <p>Alrady have an account? <a href="/login">Login</a></p>
+            </div>
         </form>
-        <p>Already have an account? <a href="/login">Login</a></p>
     </div>
-    <script src="create_account.js"></script>
+    <script src="{{ url_for('static', filename='create_account.js') }}"></script>
 </body>
 </html>
