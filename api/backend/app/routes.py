@@ -30,9 +30,11 @@ def create_account_route():
     """Handle account creation."""
     if request.method == 'POST':
         username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
 
-        result = create_account(username, password)
+        result = create_account(username, email, password, confirm_password)
         if 'error' in result:
             return render_template('create_account.html', error=result['error'])
         

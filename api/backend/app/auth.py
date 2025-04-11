@@ -20,13 +20,15 @@ def save_users(users):
     with open(USER_DATA_FILE, 'w') as file:
         json.dump(users, file, indent=4)
 
-def create_account(username, password):
+def create_account(username, email, password, confirm_password):
     """
     Creates a new user account.
 
     Args:
         username (str): The username for the new account.
+        email (str): The email for the new account.
         password (str): The password for the new account.
+        confirm_password (str): The password confirmation.
 
     Returns:
         dict: A success message or an error message
@@ -35,6 +37,12 @@ def create_account(username, password):
 
     if username in users:
         return {'error': 'Username already exists'}
+    
+    if any(user.get('email') == email for user in users.values()):
+        return {'error': 'Email already in user'}
+    
+    if password != confirm_password:
+        return {'error': 'Passwords do not match'}
     
     hashed_password = generate_password_hash(password)
     users[username] = {'password': hashed_password}
