@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from backend.game.player import Player
 from backend.game.dungeon import DungeonGenerator
 
@@ -27,6 +27,10 @@ def move_player():
     
 @game_api.route('/api/dungeon', methods=['POST'])
 def generate_dungeon():
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'User not logged in'}), 401
+
     data = request.json
     width = data.get('width', 10)
     height = data.get('height', 10)
@@ -49,5 +53,8 @@ def generate_dungeon():
 
 @game_api.route('/api/player', methods=['GET'])
 def get_player_stats():
-    player = Player.load_or_create_player()
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'User not logged in'}), 401
+    player = Player.load_or_create_player(username)
     return jsonify(player.player_stats_to_dict())

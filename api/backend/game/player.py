@@ -21,9 +21,14 @@ class Player():
         self.dungeon_floor = dungeon_floor
         self.player_location = player_location
 
+    def get_player_save_path(username):
+        """Generate a unique save file path for each user."""
+        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_player_save.json')
+
     @classmethod
-    def load_or_create_player(cls, filename=PLAYER_SAVE):
+    def load_or_create_player(cls, username):
         """Loads player data if it exists, otherwise creates a new character."""
+        filename = cls.get_player_save_path(username)
         try:
             with open(filename, 'r') as file:
                 player_data = json.load(file)
@@ -129,8 +134,9 @@ class Player():
             "dungeon_coordinates": self.dungeon_coordinates
         }
 
-    def save_player_data(self, filename=PLAYER_SAVE):
+    def save_player_data(self, username):
         """Saves player data into a json file."""
+        filename = self.get_player_save_path(username)
         with open(filename, 'w') as file:
             json.dump(self.player_stats_to_dict(), file, indent=4)
         
@@ -140,3 +146,5 @@ if __name__ == '__main__':
     
     player = Player.load_or_create_player()
     player.save_player_data()
+
+    

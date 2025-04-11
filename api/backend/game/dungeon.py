@@ -124,8 +124,13 @@ class DungeonGenerator():
 
         return directions
 
-    def save_to_json(self, filename=DUNGEON_SAVE):
+    def get_dungeon_save_path(username):
+        """Generate a unique save file path for each user."""
+        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_dungoen_floor_save.json')
+
+    def save_to_json(self, username):
         """Saves the dungeon layout to a json file."""
+        filename = self.get_dungeon_save_path(username)
         directory = os.path.dirname(filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
