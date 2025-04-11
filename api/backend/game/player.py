@@ -2,7 +2,7 @@ import json
 import os
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-PLAYER_SAVE = os.path.join(BASE_DIRECTORY, 'save_data', 'player_save.json')
+
 CLASS_SKILLS = os.path.join(BASE_DIRECTORY, '..', 'data', 'class_skills.json')
 
 class Player():
@@ -21,6 +21,7 @@ class Player():
         self.dungeon_floor = dungeon_floor
         self.player_location = player_location
 
+    @staticmethod
     def get_player_save_path(username):
         """Generate a unique save file path for each user."""
         return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_player_save.json')
@@ -145,6 +146,4 @@ class Player():
 if __name__ == '__main__':
     
     player = Player.load_or_create_player()
-    player.save_player_data()
-
-    
+    player.save_player_data()  

@@ -6,11 +6,10 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-DUNGEON_SAVE = os.path.join(BASE_DIRECTORY, 'save_data', 'dungeon_floor_save.json')
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
-MERCHANT_CHANCE = 0.6  # Chance to add a merchant in the dungeon
+MERCHANT_CHANCE = 0.7  # Chance to add a merchant in the dungeon
 
 class DungeonGenerator():
     def __init__(self, width, height, num_rooms, floor_level):
@@ -24,6 +23,11 @@ class DungeonGenerator():
         self.exit_location = []
         self.merchant_location = []
         self.floor_level = floor_level
+
+    @staticmethod
+    def get_dungeon_save_path(username):
+        """Generate a unique save file path for each user."""
+        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_dungoen_floor_save.json')
 
     def generate(self):
         # Designed with help of Chatgpt
@@ -124,10 +128,6 @@ class DungeonGenerator():
 
         return directions
 
-    def get_dungeon_save_path(username):
-        """Generate a unique save file path for each user."""
-        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_dungoen_floor_save.json')
-
     def save_to_json(self, username):
         """Saves the dungeon layout to a json file."""
         filename = self.get_dungeon_save_path(username)
@@ -159,8 +159,9 @@ class DungeonGenerator():
             file.write(json_str)
         return None
     
-    def delete_current_dungeon(self, filename=DUNGEON_SAVE):
-        """Deletes the current dungeon file to generate a new one."""
+    def delete_current_dungeon(self, username):
+        """Deletes the current dungeon file for the specified user."""
+        filename = self.get_dungeon_save_path(username)
         try:
             os.remove(filename)
             print(f"File '{filename}' deleted successfully.")
@@ -220,9 +221,10 @@ if __name__ == '__main__':
 
     width, height = 10, 10
     rooms = rand.randint(14, 20)
+    username = 'hallkj04'
     
     dungeon = DungeonGenerator(width, height, rooms, 1)
-    dungeon.delete_current_dungeon()
+    dungeon.delete_current_dungeon(username)
     dungeon.generate()
-    dungeon.save_to_json()
+    dungeon.save_to_json(username)
     dungeon.plot_graph()
