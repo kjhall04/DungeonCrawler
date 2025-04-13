@@ -6,6 +6,17 @@ from werkzeug.security import generate_password_hash, check_password_hash
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 USER_DATA_FILE = os.path.join(BASE_DIRECTORY, '..', 'data', 'users.json')
 
+ENCRYPTION_KEY = os.getenv('EMAIL_ENCRYPTION_KEY')
+fernet = Fernet(ENCRYPTION_KEY)
+
+def encrypt_email(email):
+    """Encrypt the email address."""
+    return fernet.encrypt(email.encode()).decode()
+
+def decrypt_email(encrypted_email):
+    """Decrypt the email address."""
+    return fernet.decrypt(encrypted_email.encode()).decode()
+
 def load_users():
     """Load user data from the JSON file."""
     if not os.path.exists(USER_DATA_FILE):
@@ -39,14 +50,15 @@ def create_account(username, email, password, confirm_password):
     if username in users:
         return {'error': 'Username already exists'}
     
-    if any(user.get('email') == email for user in users.values()):
+    encrypted_email = encrypt_email(email)
+    if any(user.get('email') == encrypted_email for user in users.values()):
         return {'error': 'Email already in user'}
     
     if password != confirm_password:
         return {'error': 'Passwords do not match'}
     
     hashed_password = generate_password_hash(password)
-    users[username] = {'password': hashed_password}
+    users[username] = {'eamil': encrypted_email, 'password': hashed_password}
     save_users(users)
 
     return {'success': 'Account created successfully'}
@@ -70,4 +82,4 @@ def login(username, password):
     if not check_password_hash(users[username]['password'], password):
         return {'error': 'Invalid username or password'}
     
-    return {'success': 'Invalid username or password'}
+    return {'success': 'Login successful'}

@@ -11,7 +11,7 @@ BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
 MERCHANT_CHANCE = 0.7  # Chance to add a merchant in the dungeon
 
-class DungeonGenerator():
+class Dungeon():
     def __init__(self, width, height, num_rooms, floor_level):
         self.width = width
         self.height = height
@@ -127,6 +127,25 @@ class DungeonGenerator():
                 directions[direction] = neighbor_id
 
         return directions
+    
+    def get_room_description():
+        pass
+    
+    def load_from_json(username):
+        """Loads the dungeon layout from the JSON file."""
+        filename = Dungeon.get_dungeon_save_path(username)
+        try:
+            with open(filename, 'r') as file:
+                data = json.load(file)
+                dungeon = Dungeon(
+                    width=data['grid_size']['width'],
+                    height=data['grid_size']['height'],
+                    num_rooms=data['num_rooms'],
+                    floor_level=data['floor_level']
+                )
+        except FileNotFoundError:
+            print(f"No dungeon save file found for user '{username}'.")
+            return None
 
     def save_to_json(self, username):
         """Saves the dungeon layout to a json file."""
@@ -144,7 +163,8 @@ class DungeonGenerator():
             "connections": cleaned_connections,
             "start": self.start_location,
             "exit": self.exit_location,
-            "merchant": self.merchant_location
+            "merchant": self.merchant_location,
+            "floor_level": self.floor_level
         }
 
         json_str = json.dumps(data, indent=4, sort_keys=False)
@@ -223,7 +243,7 @@ if __name__ == '__main__':
     rooms = rand.randint(14, 20)
     username = 'hallkj04'
     
-    dungeon = DungeonGenerator(width, height, rooms, 1)
+    dungeon = Dungeon(width, height, rooms, 1)
     dungeon.delete_current_dungeon(username)
     dungeon.generate()
     dungeon.save_to_json(username)

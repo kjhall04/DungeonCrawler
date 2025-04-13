@@ -1,0 +1,57 @@
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+    border: 5px solid #000;
+    background: #222;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+#pause-button {
+    position: absolute;
+    top : 10px;
+    left: 10px;
+}
+
+#story-text {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+}
+
+#room-contents {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+}
+
+#actions {
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    text-align: center;
+}
+
+#inventory-button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+#inventory-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #333;
+    color: #fff;
+    padding: 20px;
+    border: 2px solid #fff;
+    z-index: 1000;
+}

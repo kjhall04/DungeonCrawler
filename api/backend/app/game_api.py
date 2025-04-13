@@ -1,29 +1,31 @@
 from flask import Blueprint, request, jsonify, session
 from backend.game.player import Player
-from backend.game.dungeon import DungeonGenerator
+from backend.game.dungeon import Dungeon
 
 game_api = Blueprint('game_api', __name__)
 
 @game_api.route('/api/move', methods=['POST'])
 def move_player():
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'User not logged in'}), 401
+    
     data = request.json
     direction = data.get('direction')
-    player_location = data.get('player_location')
-    dungeon_data = data.get('dungeon')
 
-    # Validate input
-    if not direction or player_location is None or not dungeon_data:
-        return jsonify({'error': 'Invalid input'}), 400
+    player = Player.load_or_create_player(username)
+    dungeon = Dungeon.load_from_json(username)
 
-    # Load dungeon and player
-    dungeon = DungeonGenerator(**dungeon_data)
-    player = Player(**data.get('player'))
-
-    # Attempt to move the player
     if player.move(direction, dungeon):
-        return jsonify({'success': True, 'new_location': player.player_location})
-    else:
-        return jsonify({'success': False, 'error': 'Invalid move'}), 400
+        dungeon.save_to_json(username)
+        player.save_player_data(username)
+        return jsonify({
+            'succes': True,
+            'room_description': dungeon.get_room_description(player.player_location),
+            'story_log': f"You moved {direction}."
+        })
+    else: 
+        return jsonify({'succes': False, 'error': 'Invalid move'}), 400
     
 @game_api.route('/api/dungeon', methods=['POST'])
 def generate_dungeon():
@@ -37,7 +39,7 @@ def generate_dungeon():
     num_rooms = data.get('num_rooms', 15)
     floor_level = data.get('floor_level', 1)
 
-    dungoen = DungeonGenerator(width, height, num_rooms, floor_level)
+    dungoen = Dungeon(width, height, num_rooms, floor_level)
     dungoen.generate()
     dungoen.save_to_json()
 
