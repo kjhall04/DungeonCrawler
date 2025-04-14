@@ -155,4 +155,4 @@ class Player():
 if __name__ == '__main__':
     
     player = Player.load_or_create_player()
-    player.save_player_data()  
+    player.save_player_data()

@@ -228,7 +228,5 @@ if __name__ == '__main__':
     username = 'hallkj04'
     
     dungeon = Dungeon(width, height, rooms, 1)
-    dungeon.delete_current_dungeon(username)
     dungeon.generate()
-    dungeon.save_to_json(username)
     dungeon.plot_graph()
