@@ -1,8 +1,9 @@
+from sqlalchemy.orm import Session
+from backend.app.models import PlayerSave, User
 import json
 import os
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-
 CLASS_SKILLS = os.path.join(BASE_DIRECTORY, '..', 'data', 'class_skills.json')
 
 class Player():
@@ -21,36 +22,66 @@ class Player():
         self.dungeon_floor = dungeon_floor
         self.player_location = player_location
 
-    @staticmethod
-    def get_player_save_path(username):
-        """Generate a unique save file path for each user."""
-        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_player_save.json')
-
     @classmethod
-    def load_or_create_player(cls, username):
-        """Loads player data if it exists, otherwise creates a new character."""
-        filename = cls.get_player_save_path(username)
-        try:
-            with open(filename, 'r') as file:
-                player_data = json.load(file)
-                return cls(
-                    player_data['name'],
-                    player_data['player_class'],
-                    player_data['level'],
-                    player_data['experience'],
-                    player_data['health'],
-                    player_data['max_health'],
-                    player_data['defense'],
-                    player_data['inventory'],
-                    player_data['skills'],
-                    player_data['dungeon_floor'],
-                    player_data['player_location']
-                )
-        except FileNotFoundError:
-            print('No save file found. Creating a new character.')
+    def load_or_create_player(cls, db: Session, username: str):
+        """Load player data from the database or create a new player."""
+        player_save = db.query(PlayerSave).filter(PlayerSave.user.has(username=username)).first()
+        if player_save:
+            return cls(
+                name=player_save.name,
+                player_class=player_save.player_class,
+                level=player_save.level,
+                experience=player_save.experience,
+                health=player_save.health,
+                max_health=player_save.max_health,
+                defense=player_save.defense,
+                inventory=json.loads(player_save.inventory),
+                skills=json.loads(player_save.skills),
+                dungeon_floor=player_save.dungeon_floor,
+                player_location=json.loads(player_save.player_location)
+            )
+        else:
+            # Create a new player
             name = input('Enter character name: ')
             player_class = input("Choose class (mage, warrior, rogue): ")
-            return cls(name, player_class.lower())
+            new_player = cls(name, player_class.lower())
+            new_player.save_player_data(db, username)
+            return new_player
+
+    def save_player_data(self, db: Session, username: str):
+        """Save player data to the database."""
+        player_save = db.query(PlayerSave).filter(PlayerSave.user.has(username=username)).first()
+        if not player_save:
+            # Create a new PlayerSave entry
+            player_save = PlayerSave(
+                user=db.query(User).filter(User.username == username).first(),
+                name=self.name,
+                player_class=self.player_class,
+                level=self.level,
+                experience=self.experience,
+                health=self.health,
+                max_health=self.max_health,
+                defense=self.defense,
+                inventory=json.dumps(self.inventory),
+                skills=json.dumps(self.skills),
+                dungeon_floor=self.dungeon_floor,
+                player_location=json.dumps(self.player_location)
+            )
+            db.add(player_save)
+        else:
+            # Update existing PlayerSave entry
+            player_save.name = self.name
+            player_save.player_class = self.player_class
+            player_save.level = self.level
+            player_save.experience = self.experience
+            player_save.health = self.health
+            player_save.max_health = self.max_health
+            player_save.defense = self.defense
+            player_save.inventory = json.dumps(self.inventory)
+            player_save.skills = json.dumps(self.skills)
+            player_save.dungeon_floor = self.dungeon_floor
+            player_save.player_location = json.dumps(self.player_location)
+        db.commit()
 
     def load_skills(self, player_class, filename=CLASS_SKILLS):
         """Returns skills based off of player class."""
@@ -118,28 +149,6 @@ class Player():
             return True
         else:
             return False
-        
-    def player_stats_to_dict(self):
-        """Turns player data into a dictionary for saving."""
-        return {
-            "name": self.name,
-            "player_class": self.player_class,
-            "level": self.level,
-            "experience": self.experience,
-            "health": self.health,
-            "max_health": self.max_health,
-            "defense": self.defense,
-            "inventory": self.inventory,
-            "skills": self.skills,
-            "dungeon_floor": self.dungeon_floor,
-            "dungeon_coordinates": self.dungeon_coordinates
-        }
-
-    def save_player_data(self, username):
-        """Saves player data into a json file."""
-        filename = self.get_player_save_path(username)
-        with open(filename, 'w') as file:
-            json.dump(self.player_stats_to_dict(), file, indent=4)
         
 
 

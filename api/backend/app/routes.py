@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify, session, redirect, render_template, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from backend.app.auth import create_account, login
 
 auth_routes = Blueprint('auth', __name__)
+limiter = Limiter(get_remote_address)
 
 @auth_routes.route('/')
 def index():
@@ -9,6 +12,7 @@ def index():
     return redirect(url_for('auth.login_route'))
 
 @auth_routes.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login_route():
     """Handle user login."""
     if request.method == 'POST':

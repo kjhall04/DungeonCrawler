@@ -1,11 +1,11 @@
+from sqlalchemy.orm import Session
+from backend.app.models import Dungeon as DungeonModel
 import json
 import random as rand
 import re
 import os
 import networkx as nx
 import matplotlib.pyplot as plt
-
-BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
@@ -24,10 +24,55 @@ class Dungeon():
         self.merchant_location = []
         self.floor_level = floor_level
 
-    @staticmethod
-    def get_dungeon_save_path(username):
-        """Generate a unique save file path for each user."""
-        return os.path.join(BASE_DIRECTORY, 'save_data', f'{username}_dungoen_floor_save.json')
+    @classmethod
+    def load_from_db(cls, db: Session, player_save_id: int):
+        """Load dungeon data from the database."""
+        dungeon_data = db.query(DungeonModel).filter(DungeonModel.player_save_id == player_save_id).first()
+        if not dungeon_data:
+            return None
+        dungeon = cls(
+            width=dungeon_data.width,
+            height=dungeon_data.height,
+            num_rooms=dungeon_data.num_rooms,
+            floor_level=dungeon_data.floor_level
+        )
+        dungeon.room_positions = json.loads(dungeon_data.room_positions)
+        dungeon.rooms = json.loads(dungeon_data.connections)
+        dungeon.start_location = json.loads(dungeon_data.start_location)
+        dungeon.exit_location = json.loads(dungeon_data.exit_location)
+        dungeon.merchant_location = json.loads(dungeon_data.merchant_location) if dungeon_data.merchant_location else None
+        return dungeon
+
+    def save_to_db(self, db: Session, player_save_id: int):
+        """Save dungeon data to the database."""
+        dungeon_data = db.query(DungeonModel).filter(DungeonModel.player_save_id == player_save_id).first()
+        if not dungeon_data:
+            # Create a new Dungeon entry
+            dungeon_data = DungeonModel(
+                player_save_id=player_save_id,
+                width=self.width,
+                height=self.height,
+                num_rooms=self.num_rooms,
+                room_positions=json.dumps(self.room_positions),
+                connections=json.dumps(self.rooms),
+                start_location=json.dumps(self.start_location),
+                exit_location=json.dumps(self.exit_location),
+                merchant_location=json.dumps(self.merchant_location) if self.merchant_location else None,
+                floor_level=self.floor_level
+            )
+            db.add(dungeon_data)
+        else:
+            # Update existing Dungeon entry
+            dungeon_data.width = self.width
+            dungeon_data.height = self.height
+            dungeon_data.num_rooms = self.num_rooms
+            dungeon_data.room_positions = json.dumps(self.room_positions)
+            dungeon_data.connections = json.dumps(self.rooms)
+            dungeon_data.start_location = json.dumps(self.start_location)
+            dungeon_data.exit_location = json.dumps(self.exit_location)
+            dungeon_data.merchant_location = json.dumps(self.merchant_location) if self.merchant_location else None
+            dungeon_data.floor_level = self.floor_level
+        db.commit()
 
     def generate(self):
         # Designed with help of Chatgpt
@@ -130,67 +175,6 @@ class Dungeon():
     
     def get_room_description():
         pass
-    
-    def load_from_json(username):
-        """Loads the dungeon layout from the JSON file."""
-        filename = Dungeon.get_dungeon_save_path(username)
-        try:
-            with open(filename, 'r') as file:
-                data = json.load(file)
-                dungeon = Dungeon(
-                    width=data['grid_size']['width'],
-                    height=data['grid_size']['height'],
-                    num_rooms=data['num_rooms'],
-                    floor_level=data['floor_level']
-                )
-        except FileNotFoundError:
-            print(f"No dungeon save file found for user '{username}'.")
-            return None
-
-    def save_to_json(self, username):
-        """Saves the dungeon layout to a json file."""
-        filename = self.get_dungeon_save_path(username)
-        directory = os.path.dirname(filename)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        cleaned_connections = {str(room_id): connections for room_id, connections in sorted(self.rooms.items()) if connections}
-
-        data = {
-            "grid_size": {"width": self.width, "height": self.height},
-            "num_rooms": self.num_rooms,
-            "room_positions": {str(room_id): list(position) for room_id, position in self.room_positions.items()},
-            "connections": cleaned_connections,
-            "start": self.start_location,
-            "exit": self.exit_location,
-            "merchant": self.merchant_location,
-            "floor_level": self.floor_level
-        }
-
-        json_str = json.dumps(data, indent=4, sort_keys=False)
-
-        # Extra formatting to remove unnecessary newlines and spaces
-        json_str = re.sub(r'\[\n\s+(\d+)\n\s+\]', r'[\1]', json_str)  # For 1-item lists
-        json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2]', json_str)  # For 2-item lists
-        json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2, \3]', json_str)  # For 3-item lists
-        json_str = re.sub(r'\[\n\s+(\d+),\n\s+(\d+),\n\s+(\d+),\n\s+(\d+)\n\s+\]', r'[\1, \2, \3, \4]', json_str)  # For 4-item lists
-        
-        with open(filename, 'w') as file:
-            file.write(json_str)
-        return None
-    
-    def delete_current_dungeon(self, username):
-        """Deletes the current dungeon file for the specified user."""
-        filename = self.get_dungeon_save_path(username)
-        try:
-            os.remove(filename)
-            print(f"File '{filename}' deleted successfully.")
-        except FileNotFoundError:
-            print(f"Error: File '{filename}' not found.")
-        except PermissionError:
-            print(f"Error: Permission denied to delete '{filename}'.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
 
     def plot_graph(self):
         """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms. For debugging purposes."""
