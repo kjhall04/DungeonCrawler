@@ -1,5 +1,4 @@
 from backend.app.db import supabase
-from backend.app.models import PlayerSave, User
 import json
 import os
 
