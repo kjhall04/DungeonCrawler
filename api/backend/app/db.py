@@ -1,21 +1,15 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from supabase import create_client
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
-# Database URL
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set or is invalid.")
+# Supabase URL and Key
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
-# Create the database engine
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise ValueError("Supabase URL or Key is not set or is invalid.")
 
-# Create a session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base class for models
-Base = declarative_base()
+# Create Supabase client
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)

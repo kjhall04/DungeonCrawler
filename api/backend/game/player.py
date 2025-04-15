@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from backend.app.db import supabase
 from backend.app.models import PlayerSave, User
 import json
 import os
@@ -23,65 +23,66 @@ class Player():
         self.player_location = player_location
 
     @classmethod
-    def load_or_create_player(cls, db: Session, username: str):
+    def load_or_create_player(cls, username: str):
         """Load player data from the database or create a new player."""
-        player_save = db.query(PlayerSave).filter(PlayerSave.user.has(username=username)).first()
-        if player_save:
+        response = supabase.table('player_saves').select('*').eq('username', username).execute()
+        if response.data:
+            player_save = response.data[0]
             return cls(
-                name=player_save.name,
-                player_class=player_save.player_class,
-                level=player_save.level,
-                experience=player_save.experience,
-                health=player_save.health,
-                max_health=player_save.max_health,
-                defense=player_save.defense,
-                inventory=json.loads(player_save.inventory),
-                skills=json.loads(player_save.skills),
-                dungeon_floor=player_save.dungeon_floor,
-                player_location=json.loads(player_save.player_location)
+                name=player_save['name'],
+                player_class=player_save['player_class'],
+                level=player_save['level'],
+                experience=player_save['experience'],
+                health=player_save['health'],
+                max_health=player_save['max_health'],
+                defense=player_save['defense'],
+                inventory=json.loads(player_save['inventory']),
+                skills=json.loads(player_save['skills']),
+                dungeon_floor=player_save['dungeon_floor'],
+                player_location=json.loads(player_save['player_location'])
             )
         else:
             # Create a new player
             name = input('Enter character name: ')
             player_class = input("Choose class (mage, warrior, rogue): ")
             new_player = cls(name, player_class.lower())
-            new_player.save_player_data(db, username)
+            new_player.save_player_data(username)
             return new_player
 
-    def save_player_data(self, db: Session, username: str):
+    def save_player_data(self, username: str):
         """Save player data to the database."""
-        player_save = db.query(PlayerSave).filter(PlayerSave.user.has(username=username)).first()
-        if not player_save:
+        response = supabase.table('player_saves').select('*').eq('username', username).execute()
+        if not response.data:
             # Create a new PlayerSave entry
-            player_save = PlayerSave(
-                user=db.query(User).filter(User.username == username).first(),
-                name=self.name,
-                player_class=self.player_class,
-                level=self.level,
-                experience=self.experience,
-                health=self.health,
-                max_health=self.max_health,
-                defense=self.defense,
-                inventory=json.dumps(self.inventory),
-                skills=json.dumps(self.skills),
-                dungeon_floor=self.dungeon_floor,
-                player_location=json.dumps(self.player_location)
-            )
-            db.add(player_save)
+            supabase.table('player_saves').insert({
+                'username': username,
+                'name': self.name,
+                'player_class': self.player_class,
+                'level': self.level,
+                'experience': self.experience,
+                'health': self.health,
+                'max_health': self.max_health,
+                'defense': self.defense,
+                'inventory': json.dumps(self.inventory),
+                'skills': json.dumps(self.skills),
+                'dungeon_floor': self.dungeon_floor,
+                'player_location': json.dumps(self.player_location)
+            }).execute()
         else:
             # Update existing PlayerSave entry
-            player_save.name = self.name
-            player_save.player_class = self.player_class
-            player_save.level = self.level
-            player_save.experience = self.experience
-            player_save.health = self.health
-            player_save.max_health = self.max_health
-            player_save.defense = self.defense
-            player_save.inventory = json.dumps(self.inventory)
-            player_save.skills = json.dumps(self.skills)
-            player_save.dungeon_floor = self.dungeon_floor
-            player_save.player_location = json.dumps(self.player_location)
-        db.commit()
+            supabase.table('player_saves').update({
+                'name': self.name,
+                'player_class': self.player_class,
+                'level': self.level,
+                'experience': self.experience,
+                'health': self.health,
+                'max_health': self.max_health,
+                'defense': self.defense,
+                'inventory': json.dumps(self.inventory),
+                'skills': json.dumps(self.skills),
+                'dungeon_floor': self.dungeon_floor,
+                'player_location': json.dumps(self.player_location)
+            }).eq('username', username).execute()
 
     def load_skills(self, player_class, filename=CLASS_SKILLS):
         """Returns skills based off of player class."""
