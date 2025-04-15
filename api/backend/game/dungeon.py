@@ -4,7 +4,7 @@ import json
 import random as rand
 import re
 import os
-import networkx as nx
+import networkx as nx 
 import matplotlib.pyplot as plt
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
