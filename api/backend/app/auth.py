@@ -6,14 +6,6 @@ def validate_password(password: str) -> bool:
     """Validate password strength."""
     if len(password) < 8:
         return False
-    if not re.search(r'[A-Z]', password):  # At least one uppercase letter
-        return False
-    if not re.search(r'[a-z]', password):  # At least one lowercase letter
-        return False
-    if not re.search(r'[0-9]', password):  # At least one digit
-        return False
-    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):  # At least one special character
-        return False
     return True
 
 def validate_email(email: str) -> bool:
@@ -50,7 +42,7 @@ def create_account(username: str, email: str, password: str, confirm_password: s
     
     # Validate password
     if not validate_password(password):
-        return {'error': 'Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.'}
+        return {'error': 'Password must be at least 8 characters long'}
    
     if password != confirm_password:
         return {'error': 'Passwords do not match'}

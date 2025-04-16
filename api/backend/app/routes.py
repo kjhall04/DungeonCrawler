@@ -21,11 +21,13 @@ def login_route():
 
         # Check for empty fields
         if not username or not password:
-            return render_template('login.html', error='Both username and password are required')
+            return render_template('login.html', error='Both username and password are required', 
+                                   username=username)
 
         result = login(username, password)
         if 'error' in result:
-            return render_template('login.html', error=result['error'])
+            return render_template('login.html', error=result['error'], 
+                                   username=username)
         
         # Store the username in the session
         session['username'] = username
@@ -44,11 +46,13 @@ def create_account_route():
 
         # Check for empty fields
         if not username or not email or not password or not confirm_password:
-            return render_template('create_account.html', error='All fields are required')
+            return render_template('create_account.html', error='All fields are required', 
+                                   username=username, email=email)
 
         result = create_account(username, email, password, confirm_password)
         if 'error' in result:
-            return render_template('create_account.html', error=result['error'])
+            return render_template('create_account.html', error=result['error'], 
+                                   username=username, email=email)
         
         return redirect(url_for('auth.login_route'))
     

@@ -12,10 +12,10 @@
         <form action="/create_account" method="POST" novalidate>
             <h2>-- Create an account --</h2>
             <div class="input-box">
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" placeholder="Username" value="{{ username if username else '' }}" required>
             </div>
             <div class="input-box">
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" placeholder="Email" value="{{ email if email else '' }}">
             </div>
             <div class="input-box">
                 <input type="password" name="password" placeholder="Password" required>
