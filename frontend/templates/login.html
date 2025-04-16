@@ -9,24 +9,21 @@
 </head>
 <body>
     <div class="wrapper" id="login-container">
-        <form action="/login" method="POST">
+        <form action="/login" method="POST" novalidate>
             <h1>One More Descent</h1>
             <h2>-- Login --</h2>
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
             <div class="input-box">
                 <input type="text" name="username" placeholder="Username" required>
             </div>
             <div class="input-box">
                 <input type="password" name="password" placeholder="Password" required>
             </div>
+            <p class="error">{{ error if error else '' }}</p>
             <button type="submit" class="btn">Login</button>
             <div class="register-link">
                 <p>Don't have an account? <a href="/create_account">Create Account</a></p>
             </div>
         </form>
     </div>
-    <script src="{{ url_for('static', filename='login.js') }}"></script>
 </body>
 </html>

@@ -16,8 +16,12 @@ def index():
 def login_route():
     """Handle user login."""
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '').strip()
+
+        # Check for empty fields
+        if not username or not password:
+            return render_template('login.html', error='Both username and password are required')
 
         result = login(username, password)
         if 'error' in result:
@@ -33,10 +37,14 @@ def login_route():
 def create_account_route():
     """Handle account creation."""
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+
+        # Check for empty fields
+        if not username or not email or not password or not confirm_password:
+            return render_template('create_account.html', error='All fields are required')
 
         result = create_account(username, email, password, confirm_password)
         if 'error' in result:

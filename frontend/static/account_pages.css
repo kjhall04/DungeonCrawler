@@ -79,3 +79,9 @@ body {
 .wrapper .btn:hover {
     background: darkgrey;
 }
+
+.error {
+    color: rgb(186, 0, 0);
+    text-align: center;
+    min-height: 22px;
+}
