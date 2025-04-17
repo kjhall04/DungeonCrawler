@@ -1,0 +1,92 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: "Bebas Neue", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.wrapper {
+    text-align: center;
+    width: 80%;
+}
+
+#title-animation {
+    font-size: 96px;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid white;
+    width: 0;
+    animation: typing 3s steps(20, end), blink 0.5s step-end infinite alternate;
+    transition: font-size 1s ease-in-out;
+}
+
+#title-animation.shrink {
+    font-size: 48px;
+    border-right: none;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink {
+    from {
+        border-color: white;
+    }
+    to {
+        border-color: transparent;
+    }
+}
+
+#save-slots-container {
+    margin-top: 20px;
+}
+
+.save-slots {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.save-slot {
+    border: 2px solid white;
+    padding: 20px;
+    width: 30%;
+    text-align: center;
+    border-radius: 10px;
+    background: none;
+    color: white;
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.save-slot:hover {
+    background-color: #333;
+    transform: scale(1.05);
+}
+
+.save-slot:focus {
+    outline: none;
+    background-color: #555;
+}
+
+.save-details h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.save-details p {
+    font-size: 18px;
+    margin: 5px 0;
+}

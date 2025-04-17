@@ -1,7 +1,9 @@
-from flask import Blueprint, request, jsonify, session, redirect, render_template, url_for
+from flask import Blueprint, request, session, redirect, render_template, url_for
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from backend.app.auth import create_account, login
+from backend.app.db import supabase
+import json
 
 auth_routes = Blueprint('auth', __name__)
 limiter = Limiter(get_remote_address)
@@ -31,7 +33,7 @@ def login_route():
         
         # Store the username in the session
         session['username'] = username
-        return redirect(url_for('game_api.get_player_stats'))
+        return redirect(url_for('auth.select_save'))
     
     return render_template('login.html')
 
@@ -63,3 +65,41 @@ def logout_route():
     """Log out the current user."""
     session.pop('username', None)
     return redirect(url_for('auth.login_route'))
+
+@auth_routes.route('/select_save', methods=['GET', 'POST'])
+def select_save():
+    """Handle save slot selection."""
+    username = session.get('username')
+
+    if request.method == 'POST':
+        # Get the selected save slot
+        save_slot = request.form.get('save_slot')
+
+        # Redirect to the game with the selected save slot
+        return redirect(url_for('game_api.load_save', save_slot=save_slot))
+
+    # Fetch save slots for the user
+    save_slots = get_save_slots(username)
+    return render_template('select_save.html', save_slots=save_slots)
+
+
+def get_save_slots(username):
+    """Fetch save slots for the user."""
+    response = supabase.table('player_saves').select('*').eq('username', username).execute()
+    used_slots = {int(save['save_slot']): save for save in response.data}
+    all_slots = [1, 2, 3]
+    save_slots = []
+
+    for slot in all_slots:
+        if slot in used_slots:
+            save_slots.append({
+                'slot': slot,
+                'used': True,
+                'name': used_slots[slot]['name'],
+                'class': used_slots[slot]['player_class'],
+                'floor': used_slots[slot]['dungeon_floor']
+            })
+        else:
+            save_slots.append({'slot': slot, 'used': False})
+
+    return save_slots

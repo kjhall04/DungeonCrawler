@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Save</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='select_saves.css') }}">
+</head>
+<body>
+    <div class="wrapper">
+        <h1 id="title-animation"></h1>
+
+        <div id="save-slots-container" style="display: none;">
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <form action="/select_save" method="POST">
+                <div class="save-slots">
+                    {% for save_slot in save_slots %}
+                        <button type="submit" name="save_slot" value="{{ save_slot['slot'] }}" class="save-slot">
+                            {% if save-slot['used'] %}
+                                <div class="save-details">
+                                    <h2>Continue</h2>
+                                    <p>Name: {{ save_slot['name'] }}</p>
+                                    <p>Class: {{ save_slot['class'] }}</p>
+                                    <p>Floor: {{ save_slot['floor'] }}</p>
+                                </div>
+                            {% else %}
+                                <div class="save-details">
+                                    <h2>New Save</h2>
+                                </div>
+                            {% endif %}
+                        </button>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
