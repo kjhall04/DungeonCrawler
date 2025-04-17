@@ -19,7 +19,7 @@
                 <div class="save-slots">
                     {% for save_slot in save_slots %}
                         <button type="submit" name="save_slot" value="{{ save_slot['slot'] }}" class="save-slot">
-                            {% if save-slot['used'] %}
+                            {% if save_slot['used'] %}
                                 <div class="save-details">
                                     <h2>Continue</h2>
                                     <p>Name: {{ save_slot['name'] }}</p>
