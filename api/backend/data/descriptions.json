@@ -1,0 +1,197 @@
+{
+    "player_creation": {
+        "1": "Welcome, adventurer, to One More Descent!",
+        "2": "Before you embark on your journey, you must tell us who you are...",
+        "3": "Choose wisely, your decisions here will shape your destiny...",
+        "4": "What shall we call you, brave adventurer?",
+        "5": "Welcome, placeholder the placeholder!",
+        "6": "Your journey begins now. Prepare yourself, for the dungeon depths await."
+    },
+    
+    "floor_1": {
+        "descriptions": {
+            "1": "The walls here are slick with moisture, the only sound a steady drip echoing through the darkness.",
+            "2": "Thick cobwebs hang from the low ceiling, brushing against your face as you move through the corridor.",
+            "3": "Rusted chains hang from the walls, clinking softly whenever a breeze stirs the stale air.",
+            "4": "A heavy iron gate slams shut behind you, sealing the way back with a thunderous echo.",
+            "5": "Cracked stone tiles groan underfoot, as if protesting your every step through the ancient passage.",
+            "6": "Moss-covered statues of forgotten heroes line the walls, their hollow eyes watching in silence.",
+            "7": "The scent of damp earth and rot thickens the air as the corridor narrows.",
+            "8": "You feel the pressure of the dungen's weight above, like the walls might collapse at any moment.",
+            "9": "Torches flicker with green flame, casting twisted shadows that seem to move on their own.",
+            "10": "A faint chanting hums through the halls, but the words are lost in the echo.",
+            "11": "You come to a small chamber with collapsed walls, the remains of a failed escape effort.",
+            "12": "The temperature drops suddenly, and your breath fogs as if the dungeon itself is exhaling.",
+            "13": "A mural of a forgotten battle is painted in faded blood along the wall.",
+            "14": "You squeeze through a narrow passage where the stones are blackened with soot.",
+            "15": "You hear distant footsteps—but they stop when you stop.",
+            "16": "Chains dangle from the ceiling like metal vines, swinging gently despite the still air.",
+            "17": "A carved warning in an unknown language glows faintly on the wall.",
+            "18": "Broken weapons and bones litter the floor like remnants of a long-forgotten skirmish.",
+            "19": "A hole in the wall reveals a skeletal hand reaching through, grasping forever at nothing.",
+            "20": "You reach a chamber where the walls are covered in scratch marks—something tried to get out."
+        },
+        "enemies": {
+            "goblin": {
+                "1": "A snickering goblin scampers from the shadows, blade in hand and eyes full of trouble.",
+                "2": "You hear scratching on the stone—then a goblin lunges out, teeth bared in a twisted grin.",
+                "3": "Something darts across your path, too fast to catch—until it stops and turns. It's a goblin, ready to pounce.",
+                "4": "A pair of red eyes peek from the dark, followed by the crouched form of a cackling goblin.",
+                "5": "You hear muffled giggling. Suddenly, a goblin bursts from behind a crumbled pillar, charging recklessly.",
+                "6": "A goblin scurries along the ceiling beams, then drops down in front of you with a wild shriek.",
+                "7": "Clad in stolen armor and mismatched boots, a goblin swings its sword erratically.",
+                "8": "You hear glass shatter, then see a goblin holding a stolen potion bottle, laughing maniacally.",
+                "9": "This goblin is unusually large, its eyes darting between you and your bag—likely weighing its options.",
+                "10": "A goblin slips out of a hole in the wall, hissing as it raises a jagged blade."
+                },
+            "zombie": {
+                "1": "A sluggish moan echoes down the corridor as a rotten figure shambles toward you.",
+                "2": "You catch the stink of decay moments before a zombie lumbers into view, dragging one foot behind.",
+                "3": "A hand reaches from a pile of bones—then another, pulling up a reanimated corpse with lifeless hunger.",
+                "4": "From the corner of your eye, something twitches. A zombie rises slowly, bound by some dark force.",
+                "5": "Dried flesh peels as a zombie rounds the corner, jaw unhinged in silent aggression.",
+                "6": "A corpse pinned to the wall twitches... then rips free and groans as it steps toward you.",
+                "7": "The zombie's head is twisted at an unnatural angle, but it doesn't stop its steady shuffle.",
+                "8": "A child-sized zombie crawls from a crack in the floor, its eyes locked on you.",
+                "9": "You think it's a statue until it moves—its skin stretched tight and gray with death.",
+                "10": "The zombie carries a rusted sword in one hand, and the hand of its last victim in the other."
+                },
+            "skeleton": {
+                "1": "A cluster of bones clatters together and rises into the form of a skeleton, sword already drawn.",
+                "2": "You hear the rhythmic clinking of bone on stone. A skeleton marches forward with eerie determination.",
+                "3": "A skull rolls toward you—then leaps into the air, joining a full skeleton rising from the dirt.",
+                "4": "From beneath shattered rubble, a skeleton drags itself upright, bones grinding together.",
+                "5": "With a hollow hiss, a skeleton emerges from a shadowed alcove, blade raised in silence.",
+                "6": "This skeleton wears the rusted armor of a long-dead knight and fights like it remembers its training.",
+                "7": "The skeleton's bones are bound with old sinew and thread, creaking with every move.",
+                "8": "You see the faint glow of blue flames in its eye sockets as it lifts a chipped axe.",
+                "9": "A collapsed pile of bones suddenly springs to life, assembling itself before your eyes.",
+                "10": "The skeleton rattles as it walks, but there's an unnatural grace in its movements."
+                }
+        }
+    },
+    "floor_2": {
+        "descriptions": {
+            "1": "You descend into a damp chamber, where the air is so thick it clings to your skin like a second layer.",
+            "2": "The stone walls here are etched with frantic claw marks—as if someone tried to escape.",
+            "3": "The silence is deafening, broken only by your own heartbeat and the shifting of dust.",
+            "4": "The passage narrows so tightly you must turn sideways to continue, your shoulders brushing stone.",
+            "5": "A heavy iron portcullis slams behind you, cutting off all light from above.",
+            "6": "Rusted pipes drip foul-smelling water, the steady sound echoing like footsteps.",
+            "7": "You enter a room filled with shattered mirrors. Your reflection lingers longer than you do.",
+            "8": "Mold creeps along the floor in strange, spidery patterns that seem too deliberate.",
+            "9": "The walls close in with every step—either the corridor is tightening, or you're imagining it.",
+            "10": "Bones are stacked neatly in the corner, each marked with symbols you don't understand.",
+            "11": "You pass through a long corridor of prison cells. Something inside one of them still breathes.",
+            "12": "Chains hang from the ceiling like vines, swaying gently despite no breeze.",
+            "13": "A large, sealed stone door behind you shifts shut without a sound, trapping you deeper below.",
+            "14": "A deep hum vibrates through the walls, as if the dungeon itself were alive.",
+            "15": "You feel eyes watching from the cracks in the walls—but when you turn, there's only darkness.",
+            "16": "A shrine of bones lies in the center of the room. Something was worshipped here. Maybe still is.",
+            "17": "You step into ankle-deep water. The source of the flood is unknown... and warm.",
+            "18": "A swarm of blind rats scurries past your feet, fleeing something deeper within.",
+            "19": "You reach a circular chamber with no doors—until one slowly reveals itself behind a shifting wall.",
+            "20": "Carved faces of anguish stare down from the walls, mouths open in silent screams frozen in stone."
+        },
+        "enemies": {
+            "orc": {
+                "1": "You hear a snarl and turn to see an orc sharpening a jagged blade on the stone wall.",
+                "2": "A roar echoes down the corridor. An orc storms toward you, eager for battle.",
+                "3": "The orc is hunched over a fallen creature—feasting. It raises its head slowly as you approach.",
+                "4": "Two glowing eyes pierce the darkness. An orc steps forward, club in hand, dragging it across the floor.",
+                "5": "A door bursts open as an orc barrels through, coated in fresh blood and fury.",
+                "6": "You spot the orc before it sees you, posted at a makeshift barricade, scanning the shadows for intruders.",
+                "7": "The air smells of iron and sweat. An orc stands guard by a fire, humming a war tune to itself.",
+                "8": "A low growl builds into a warcry as an orc charges out from a pile of debris.",
+                "9": "The orc slams its club into the wall, cracking the stone. It's looking for a fight.",
+                "10": "You step into a room filled with broken weapons. An orc stands among them like a gladiator in an arena."
+                },
+            "bandit": {
+                "1": "A knife whizzes past your head—followed by laughter. A bandit grins from the shadows, ready to strike again.",
+                "2": "You feel eyes watching you. From above, a bandit drops from the rafters with twin daggers drawn.",
+                "3": "The bandit leans casually against the wall, pretending not to notice you—until the ambush begins.",
+                "4": "You spot a flicker of movement. Too late—a bandit leaps from behind a column, slashing wildly.",
+                "5": "There's a faint whistle before a dagger lands near your feet. A bandit steps out with another ready to throw.",
+                "6": "Looted corpses line the hall. A bandit crouches behind them, sifting through valuables until you're spotted.",
+                "7": "The bandit draws a blade and smirks, gesturing for you to make the first move.",
+                "8": "You hear muffled steps—then a sudden tackle. A bandit tries to pin you to the ground, knife at your throat.",
+                "9": "From the shadows, a voice snarls: 'You picked the wrong corridor, traveler.' A bandit emerges, confident and cruel.",
+                "10": "The torchlight flickers and you see them—masked and armed. A bandit gang member lunges forward without hesitation."
+                },
+            "dark acolyte": {
+                "1": "Chanting echoes from a sealed room. A dark acolyte turns as the door creaks, eyes glowing faintly.",
+                "2": "You round a corner and find the acolyte tracing symbols in blood along the wall. He looks up and hisses.",
+                "3": "The acolyte stands silently, arms spread, levitating inches off the floor in a dim red glow.",
+                "4": "Dark energy pulses from the acolyte's hand. He speaks a forbidden word, and the air begins to twist.",
+                "5": "You watch a shadow detach itself from the wall—it reforms as a dark acolyte and strikes without warning.",
+                "6": "A circle of candles lights the room, all burning black. The acolyte is already mid-incantation when you enter.",
+                "7": "The acolyte's body jerks and spasms unnaturally, as if something else is speaking through him.",
+                "8": "The acolyte calmly walks toward you, muttering curses that chill your bones and sap your strength.",
+                "9": "Behind a veil of smoke, a cloaked figure whispers a command—and unseen forces lash out at you.",
+                "10": "The acolyte tosses aside a crumbling tome and glares at you, raising a dagger soaked in a foul-smelling substance."
+                }
+        }
+    },
+    "floor_3": {
+        "descriptions": {
+            "1": "You step into a void-like hall, where even your torchlight seems to shrink away from the darkness.",
+            "2": "Ash coats the ground in thick layers, disturbed only by massive, clawed footprints.",
+            "3": "The stone underfoot pulses faintly—like a heartbeat echoing from deep below.",
+            "4": "A foul mist coils around your feet, rising in tendrils that retreat when touched.",
+            "5": "The walls are lined with deep gouges, far too large to be made by any blade.",
+            "6": "A sulfuric stench chokes the air, thick enough to make your eyes water.",
+            "7": "The floor here is cracked and scorched, as though burned from within by something ancient.",
+            "8": "You find a ruined altar soaked in something dark and long dried. Candles flicker, though none are lit.",
+            "9": "A cold wind howls through the passage, but there's no visible source—only whispers on the edge of hearing.",
+            "10": "Statues of faceless robed figures stand vigil, too numerous to have been carved by hand.",
+            "11": "You pass under a black archway—etched with runes that shimmer like wet ink and twist when stared at.",
+            "12": "The path becomes uneven, as if the earth itself recoiled from whatever lies ahead.",
+            "13": "You stumble across shattered bones too large to be human, and far too old to be dustless.",
+            "14": "Shadow clings unnaturally to the corners of the chamber, resisting your light's reach.",
+            "15": "You enter a room where time feels wrong—moments stretch too long, and silence screams.",
+            "16": "Every breath you take echoes louder than it should, as if something is mimicking you in the dark.",
+            "17": "Chains hang from the ceiling like rusted vines, still swaying though no breeze follows.",
+            "18": "Black liquid seeps from the walls and ceiling. It doesn't drip. It waits.",
+            "19": "The deeper you go, the more the air weighs on you, pressing against your chest like invisible hands.",
+            "20": "The floor gives way to a bottomless chasm, bridged only by narrow, crumbling stone."
+        },
+        "enemies": {
+            "ogre": {
+                "1": "An ogre's thunderous footsteps echo through the corridor before you even see it. The air shakes with each stomp.",
+                "2": "You round the corner and are met with the stench of decay and a grotesque grin peeking from behind a shattered pillar.",
+                "3": "The walls tremble as an ogre slams its club into the stone, daring you to come closer.",
+                "4": "An ogre crouches low, gnawing on old bones. It turns slowly toward you with bloodstained tusks and a snarl.",
+                "5": "Heavy breathing fills the hallway. Then, from the shadows, an ogre barrels forward, weapon raised in rage.",
+                "6": "The ogre's flesh is mottled and cracked—like it's been stitched together from multiple creatures.",
+                "7": "A rumbling growl builds until the ogre smashes through a weakened wall, debris flying in all directions.",
+                "8": "The creature is sleeping… until your foot crunches on a bone. One eye opens. It's not happy.",
+                "9": "You enter a cavernous room where an ogre guards a crude throne made of bones and chains.",
+                "10": "The ogre hurls a boulder down the hallway, roaring as it charges behind it like a juggernaut."
+                },
+            "wraith": {
+                "1": "The air grows ice cold. A faint whisper builds into a scream as a wraith materializes before you.",
+                "2": "A shadow detaches itself from the wall, gliding silently forward. Its empty eyes lock onto yours.",
+                "3": "You feel a presence pass through you, and your breath clouds—then the wraith appears behind you.",
+                "4": "Chains rattle overhead. A hooded figure of mist descends slowly from the ceiling, blade drawn.",
+                "5": "Your torch dims as the wraith approaches, feeding on the very light in the room.",
+                "6": "An eerie, wordless moan rises as a wraith drifts across the ground, leaving frost in its wake.",
+                "7": "You blink—and it's there. Pale and hovering, face veiled, a long claw pointing toward your chest.",
+                "8": "The reflection in a nearby pool of water begins moving on its own. Then, it steps out and becomes real.",
+                "9": "You step into a chamber where time seems frozen. In the center floats a motionless wraith—watching.",
+                "10": "Faint footsteps echo from nowhere. A wraith is stalking you, using your fear to grow stronger."
+                },
+            "necromancer": {
+                "1": "A robed figure stands amid a circle of bones, chanting in a forgotten tongue. The dead begin to rise.",
+                "2": "You enter a hall drenched in candlelight and silence. Then a voice whispers behind you—arcane and venomous.",
+                "3": "The necromancer turns slowly, revealing a skeletal grin beneath his hood. His fingers twitch with magic.",
+                "4": "Black tendrils coil from the ground, summoned by a necromancer with eyes glowing green like cursed emeralds.",
+                "5": "A wave of cold washes over you as undead hands claw up from the floor at the necromancer's call.",
+                "6": "He holds a staff made from a spine, and with one tap to the ground, the bones nearby assemble into horrors.",
+                "7": "You walk into a library of rotted tomes. A necromancer peers over one, unbothered by your presence—until he raises a finger.",
+                "8": "Cackling softly, the necromancer conjures illusions of your past, twisting them into tormenting specters.",
+                "9": "A skeletal raven screeches as it flies overhead, signaling its master’s arrival from behind the dark archway.",
+                "10": "The necromancer levitates above the ground, surrounded by ghostly faces—each one a soul he has trapped."
+                }          
+        }
+    }
+}
