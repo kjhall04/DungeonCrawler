@@ -33,7 +33,7 @@ def login_route():
         
         # Store the username in the session
         session['username'] = username
-        return redirect(url_for('auth.select_save'))
+        return redirect(url_for('auth.title_animation'))
     
     return render_template('login.html')
 
@@ -66,10 +66,18 @@ def logout_route():
     session.pop('username', None)
     return redirect(url_for('auth.login_route'))
 
+@auth_routes.route('/title_animation', methods=['GET'])
+def title_animation():
+    """Display the title animation page."""
+    return render_template('title_animation.html')
+
 @auth_routes.route('/select_save', methods=['GET', 'POST'])
 def select_save():
     """Handle save slot selection."""
     username = session.get('username')
+
+    if not username:
+        return redirect(url_for('auth.login_route'))
 
     if request.method == 'POST':
         # Get the selected save slot
@@ -80,17 +88,28 @@ def select_save():
 
     # Fetch save slots for the user
     save_slots = get_save_slots(username)
+
+    if len(save_slots) < 3:
+        for slot in range(1, 4):
+            if not any(s['slot'] == slot for s in save_slots):
+                save_slots.append({'slot': slot, 'used': False})
+
+    save_slots = sorted(save_slots, key=lambda x: x['slot'])
+    
     return render_template('select_save.html', save_slots=save_slots)
 
 
 def get_save_slots(username):
     """Fetch save slots for the user."""
     response = supabase.table('player_saves').select('*').eq('username', username).execute()
+
+    if not response.data:
+        response.data = []
+
     used_slots = {int(save['save_slot']): save for save in response.data}
-    all_slots = [1, 2, 3]
     save_slots = []
 
-    for slot in all_slots:
+    for slot in used_slots:
         if slot in used_slots:
             save_slots.append({
                 'slot': slot,

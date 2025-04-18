@@ -9,9 +9,8 @@
 </head>
 <body>
     <div class="wrapper">
-        <h1 id="title-animation"></h1>
-
-        <div id="save-slots-container" style="display: none;">
+        <h1 id="title">One More Descent</h1>
+        <div id="save-slots-container">
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
@@ -20,16 +19,14 @@
                     {% for save_slot in save_slots %}
                         <button type="submit" name="save_slot" value="{{ save_slot['slot'] }}" class="save-slot">
                             {% if save_slot['used'] %}
+                                <span class="save-name">&ltContinue%gt</span>
                                 <div class="save-details">
-                                    <h2>Continue</h2>
                                     <p>Name: {{ save_slot['name'] }}</p>
                                     <p>Class: {{ save_slot['class'] }}</p>
                                     <p>Floor: {{ save_slot['floor'] }}</p>
                                 </div>
                             {% else %}
-                                <div class="save-details">
-                                    <h2>New Save</h2>
-                                </div>
+                                <span class="save-name">&ltNew Save&gt</span>
                             {% endif %}
                         </button>
                     {% endfor %}

@@ -1,0 +1,34 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: "Bebas Neue", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.wrapper {
+    text-align: center;
+}
+
+#title-animation {
+    font-size: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid white;
+    width: 0;
+    animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+    animation-fill-mode: forwards;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: white; }
+    to { border-color: transparent; }
+}
