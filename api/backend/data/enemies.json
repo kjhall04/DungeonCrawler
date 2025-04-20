@@ -5,7 +5,8 @@
             "defense": 1,
             "skills": [
                 { "name": "kick", "damage": 1 },
-                { "name": "stab", "damage": 2 }
+                { "name": "stab", "damage": 2 },
+                { "name": "throw rock", "damage": 1 }
             ]
         },
         "zombie": {
@@ -13,7 +14,8 @@
             "defense": 0,
             "skills": [
                 { "name": "bite", "damage": 2 },
-                { "name": "punch", "damage": 1 }
+                { "name": "punch", "damage": 1 },
+                { "name": "groan", "damage": 0 }
             ]
         },
         "skeleton": {
@@ -21,7 +23,8 @@
             "defense": 0,
             "skills": [
                 { "name": "slash", "damage": 2 },
-                { "name": "stare", "damage": 0 }
+                { "name": "stare", "damage": 0 },
+                { "name": "rattle bones", "damage": 1 }
             ]
         }
     },
@@ -31,7 +34,8 @@
             "defense": 3,
             "skills": [
                 { "name": "club strike", "damage": 3 },
-                { "name": "headbutt", "damage": 2 }
+                { "name": "headbutt", "damage": 2 },
+                { "name": "rage swing", "damage": 4 }
             ]
         },
         "bandit": {
@@ -39,7 +43,8 @@
             "defense": 2,
             "skills": [
                 { "name": "dagger throw", "damage": 2 },
-                { "name": "ambush", "damage": 3 }
+                { "name": "ambush", "damage": 3 },
+                { "name": "cheap shot", "damage": 2 }
             ]
         },
         "dark acolyte": {
@@ -47,7 +52,8 @@
             "defense": 1,
             "skills": [
                 { "name": "dark bolt", "damage": 3 },
-                { "name": "curse", "damage": 1 }
+                { "name": "curse", "damage": 1 },
+                { "name": "shadow touch", "damage": 2 }
             ]
         }
     },
@@ -57,7 +63,8 @@
             "defense": 4,
             "skills": [
                 { "name": "smash", "damage": 4 },
-                { "name": "roar", "damage": 2 }
+                { "name": "roar", "damage": 2 },
+                { "name": "earth stomp", "damage": 3 }
             ]
         },
         "wraith": {
@@ -65,7 +72,8 @@
             "defense": 2,
             "skills": [
                 { "name": "soul drain", "damage": 3 },
-                { "name": "phase swipe", "damage": 2 }
+                { "name": "phase swipe", "damage": 2 },
+                { "name": "haunt", "damage": 1 }
             ]
         },
         "necromancer": {
@@ -73,81 +81,8 @@
             "defense": 2,
             "skills": [
                 { "name": "bone spear", "damage": 4 },
-                { "name": "summon skeleton", "damage": 1 }
-            ]
-        }
-    },
-    "all_enemies": {
-        "goblin": {
-            "health": 5,
-            "defense": 1,
-            "skills": [
-                { "name": "kick", "damage": 1 },
-                { "name": "stab", "damage": 2 }
-            ]
-        },
-        "zombie": {
-            "health": 4,
-            "defense": 0,
-            "skills": [
-                { "name": "bite", "damage": 2 },
-                { "name": "punch", "damage": 1 }
-            ]
-        },
-        "skeleton": {
-            "health": 3,
-            "defense": 0,
-            "skills": [
-                { "name": "slash", "damage": 2 },
-                { "name": "stare", "damage": 0 }
-            ]
-        },
-        "orc": {
-            "health": 7,
-            "defense": 3,
-            "skills": [
-                { "name": "club strike", "damage": 3 },
-                { "name": "headbutt", "damage": 2 }
-            ]
-        },
-        "bandit": {
-            "health": 6,
-            "defense": 2,
-            "skills": [
-                { "name": "dagger throw", "damage": 2 },
-                { "name": "ambush", "damage": 3 }
-            ]
-        },
-        "dark acolyte": {
-            "health": 5,
-            "defense": 1,
-            "skills": [
-                { "name": "dark bolt", "damage": 3 },
-                { "name": "curse", "damage": 1 }
-            ]
-        },
-        "ogre": {
-            "health": 10,
-            "defense": 4,
-            "skills": [
-                { "name": "smash", "damage": 4 },
-                { "name": "roar", "damage": 2 }
-            ]
-        },
-        "wraith": {
-            "health": 6,
-            "defense": 2,
-            "skills": [
-                { "name": "soul drain", "damage": 3 },
-                { "name": "phase swipe", "damage": 2 }
-            ]
-        },
-        "necromancer": {
-            "health": 7,
-            "defense": 2,
-            "skills": [
-                { "name": "bone spear", "damage": 4 },
-                { "name": "summon skeleton", "damage": 1 }
+                { "name": "summon skeleton", "damage": 1 },
+                { "name": "drain life", "damage": 2 }
             ]
         }
     }

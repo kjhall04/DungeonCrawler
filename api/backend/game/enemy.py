@@ -5,6 +5,7 @@ import os
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 ENEMIES = os.path.join(BASE_DIRECTORY, '..', 'data', 'enemies.json')
 LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot.json')
+DESCRIPTIONS = os.path.join(BASE_DIRECTORY, '..', 'data', 'descriptions.json')
 
 class Enemy():
     def __init__(self, name, health, max_health, defense, skills, dungeon, loot=None):
@@ -15,6 +16,7 @@ class Enemy():
         self.defense = defense
         self.skills = skills
         self.loot = loot if loot is not None else self.load_loot(dungeon)
+        self.previous_description = None
 
     @classmethod
     def create_enemy(cls, enemy_name, dungeon, filename=ENEMIES):
@@ -88,6 +90,44 @@ class Enemy():
         except FileNotFoundError:
             print('Loot data file not found.')
             return None
+        
+    def attack_player(self, player):
+        """
+        Attacks the player using a random skill.
+        
+        Parameters:
+            player (Player): The player object to attack.
+
+        Returns:
+            dict: Info about the attack for narration.
+        """
+        if not self.skills:
+            return {
+                'success': False,
+                'message': f"{self.name} has no skills to attack with."
+            }
+        
+        selected_skill = rand.choice(self.skills)
+
+        if isinstance(selected_skill, dict):
+            skill_name = selected_skill.get('name', 'Unknown Attack')
+            base_damage = selected_skill.get('damage', 1)
+        else:
+            skill_name = selected_skill
+            base_damage = rand.randint(1, 3)
+
+        damage = base_damage + rand.randint(0, 2)
+
+        damage_dealt = player.take_damage(damage)
+
+        return {
+            'success': True,
+            'enemy': self.name,
+            'skill_used': skill_name,
+            'damage_attempted': damage,
+            'damage_dealt': damage_dealt,
+            'player_health': player.health
+        }
 
     def take_damage(self, damage: int):
         """Reduces health based on incoming damage and defense."""
@@ -98,40 +138,33 @@ class Enemy():
             return True
         return damage_taken
     
-    @staticmethod
-    def test_generation():
-        """
-        Tests the random generation of enemies on random dungeon levels (1-3).
-        Prints the enemy attributes and loot.
-        """
-        class Dungeon():
-            def __init__(self, floor_level):
-                self.floor_level = floor_level
+    def load_description(self, player, filename=DESCRIPTIONS):
+        """Loads and returns a non-repeating string based on the floor and enemy."""
+        try:
+            with open(filename, 'r') as file:
+                description_data = json.load(file)
 
-        # List of possible enemies for each floor
-        enemies_by_floor = {
-            1: ['goblin', 'zombie', 'skeleton'],
-            2: ['orc', 'bandit', 'dark acolyte'],
-            3: ['ogre', 'wraith', 'necromancer']
-        }
+            floor_key = f"floor_{player.dungeon_level}"
+            enemy_key = self.name
 
-        for _ in range(5):  # Generate 5 random enemies for testing
-            random_floor = rand.randint(1, 3)  # Random dungeon level between 1 and 3
-            dungeon = Dungeon(floor_level=random_floor)
+            if floor_key in description_data and enemy_key in description_data[floor_key]['enemies']:
+                descriptions = description_data[floor_key]['enemies'][enemy_key]
 
-            # Select a random enemy from the list for the current floor
-            random_enemy_name = rand.choice(enemies_by_floor[random_floor])
+                # Ensure description is not the same as previous one
+                new_description = self.previous_description
+                attempts = 0
+                while new_description == self.previous_description and attempts < 10:
+                    version = str(rand.randint(1, len(descriptions)))
+                    new_description = descriptions[version]
+                    attempts += 1
 
-            print(f"\nTesting Enemy Generation on Dungeon Floor {dungeon.floor_level}")
-            print(f"Randomly Selected Enemy: {random_enemy_name}")
-
-            # Create the enemy
-            enemy = Enemy.create_enemy(random_enemy_name, dungeon)
-            if enemy:
-                print("Enemy Attributes:", vars(enemy))
-                print("Enemy Loot:", enemy.loot)
+                self.previous_description = new_description
+                return new_description
             else:
-                print(f"Failed to create enemy '{random_enemy_name}' on floor {dungeon.floor_level}.")
+                return f"No description found for {enemy_key} on {floor_key}."
+
+        except FileNotFoundError:
+            return False
 
         
 

@@ -1,8 +1,12 @@
 from backend.app.db import supabase
+import os
 import json
 import random as rand
 import networkx as nx 
 import matplotlib.pyplot as plt
+
+BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+DESCRIPTIONS = os.path.join(BASE_DIRECTORY, '..', 'data', 'descriptions.json')
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
@@ -20,6 +24,7 @@ class Dungeon():
         self.exit_location = []
         self.merchant_location = []
         self.floor_level = floor_level
+        self.previous_description = None
 
     @classmethod
     def load_from_db(cls, player_save_id: int):
@@ -171,8 +176,34 @@ class Dungeon():
 
         return directions
     
-    def get_room_description():
-        pass
+    def get_room_description(self, player, type_key, filename=DESCRIPTIONS):
+        """Loads and returns a non-repeateing string based on the floor and type."""
+        try:
+            with open(filename, 'r') as file:
+                description_data = json.load(description_data)
+
+            floor_key = f"floor_{player.dungeon_level}"
+
+            if floor_key in description_data and type_key in description_data[floor_key]:
+                descriptions = description_data[floor_key][type_key]
+
+                # Ensure description is not the same as previous one
+                new_description = self.previous_description
+                attempts = 0
+                while new_description == self.previous_description and attempts < 20:
+                    version = str(rand.randint(1, len(descriptions)))
+                    new_description = descriptions[version]
+                    attempts += 1
+
+                if type_key == "descriptions":
+                    self.previous_description = new_description
+                
+                return new_description
+            else:
+                return f"No description found for {type_key} on {floor_key}"
+
+        except FileNotFoundError:
+            return False
 
     def plot_graph(self):
         """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms. For debugging purposes."""

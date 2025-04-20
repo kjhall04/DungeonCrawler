@@ -3,7 +3,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from backend.app.auth import create_account, login
 from backend.app.db import supabase
-import json
 
 auth_routes = Blueprint('auth', __name__)
 limiter = Limiter(get_remote_address)

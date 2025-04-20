@@ -105,14 +105,32 @@ class Player():
             return True
         else:
             return False
-        
-    def move(self):
-        """Takes player input to move around the dungeon."""
-        pass
 
-    def attack_enemy(self):
-        """Reduce enemy health based on outgoing damage."""
-        pass
+    def attack_enemy(self, enemy, skill_name):
+        """
+        Attacks the enemy using a specified skill.
+        
+        Parameters:
+            enemy (Enemy): The enemy instance to attack.
+            skill_name (str): The name of the skill to use.
+
+        Returns:
+            str: A summary of the attack and its result        
+        """
+        if skill_name:
+            chosen_skill = next((skill for skill in self.skills if skill['name'].lower() == skill_name.lower()), None)
+            if not chosen_skill:
+                return False
+        else:
+            return False
+        
+        damage = chosen_skill['damage']
+        damage_dealt = enemy.take_damage(damage)
+
+        if enemy.health == 0:
+            return f"{self.name} used {chosen_skill['name']} and defeated {enemy.name}!"
+        else:
+            return f"{self.name} used {chosen_skill['name']} and dealt {damage_dealt} damage to {enemy.name} (HP: {enemy.health}/{enemy.max_health})"
 
     def take_damage(self, damage: int):
         """Reduces health based on incoming damage and defense."""
