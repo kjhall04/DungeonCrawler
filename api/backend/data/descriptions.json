@@ -7,7 +7,18 @@
         "5": "Welcome, placeholder the placeholder!",
         "6": "Your journey begins now. Prepare yourself, for the dungeon depths await."
     },
-    
+    "merchant": {
+        "1": "A flicker of candlelight reveals a hunched figure surrounded by trinkets and wares. He smiles without warmth. \"Care to trade, traveler? Your coin, or your secrets?\"",
+        "2": "You round a corner and find a stall that shouldn't exist. The merchant stands behind it, motionless, until you step closer. Then he speaks—your name.",
+        "3": "A skeletal hand waves you over. The merchant's face is hidden beneath a cracked porcelain mask. \"Only the desperate find me... Are you desperate?\"",
+        "4": "The air thickens with incense and dust. A patchwork tent flickers into view. The merchant within looks up with eyes too old for any man. \"I have what you need, even if you don't know it yet.\"",
+        "5": "Whispers led you here—too quiet to understand, too clear to ignore. The merchant greets you with a grin full of too many teeth. \"Let's make a deal, yes?\"",
+        "6": "A crooked sign dangles from nothing, reading: ‘Trade.’ The merchant emerges from behind a shadow. \"Only fair prices today. Just... don’t ask what they cost me.\"",
+        "7": "Candles float in midair, illuminating ancient relics and twisted tools. The merchant watches you from the darkness. \"Ah... a curious one. Come closer, and choose your poison.\"",
+        "8": "You smell the merchant before you see him—sulfur, dust, and the faint copper of blood. His eyes gleam as he opens a case of wares. \"Everything has a price. Even time.\"",
+        "9": "A laugh echoes from an unseen corner. You blink—and the merchant is there, seated cross-legged atop a stack of bones. \"I’ve been waiting. I always am.\"",
+        "10": "The merchant's stall seems cobbled from dungeon debris—skulls, bones, old swords. He gestures to the spread with a flourish. \"Buy, sell, or simply admire... while you still can.\""
+    },
     "floor_1": {
         "descriptions": {
             "1": "The walls here are slick with moisture, the only sound a steady drip echoing through the darkness.",

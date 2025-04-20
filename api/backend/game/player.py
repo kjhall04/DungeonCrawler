@@ -105,6 +105,33 @@ class Player():
             return True
         else:
             return False
+        
+    def remove_item_from_inventory(self, item: str, amount: int = 1):
+        """Removes a given amount of an item from the inventory."""
+        if item in self.inventory and isinstance(self.inventory[item], int):
+            if self.inventory[item] >= amount:
+                self.inventory[item] -= amount
+                return True
+            else:
+                return False
+        elif item in self.inventory['equipment']:
+            self.inventory['equipment'].remove(item)
+            return True
+        return False
+    
+    def has_item(self, item: str, amount: int = 1):
+        """Check if the player has at least a certain amount of an item."""
+        if item in self.inventory:
+            return self.inventory[item] >= amount
+        elif item in self.inventory['equipment']:
+            return True
+        return False
+
+    def get_inventory_summary(self):
+        """Returns a dict summarizing all inventory items."""
+        summary = {k: v for k, v in self.inventory.items() if k != 'equipment'}
+        summary['equipment'] = [item for item in self.inventory['equipment']]
+        return summary
 
     def attack_enemy(self, enemy, skill_name):
         """

@@ -3,9 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>One More Descent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
 </head>
 <body>
-    
+    <div class="wrapper">
+        <!-- Game Title -->
+        <h1 id="title">One More Descent</h1>
+
+        <!-- Narrative Section -->
+        <div id="narrative-container">
+            <p id="narrative">You enter a shadowy room. Something stirs in the darkness...</p>
+        </div>
+
+        <!-- Game Actions -->
+        <div id="game-actions-container">
+            <form action="/game_action" method="POST">
+                <div class="game-actions">
+                    <!-- Movement Controls -->
+                    <button type="submit" name="action" value="move_north" class="game-action">Move North</button>
+                    <button type="submit" name="action" value="move_east" class="game-action">Move East</button>
+                    <button type="submit" name="action" value="move_south" class="game-action">Move South</button>
+                    <button type="submit" name="action" value="move_west" class="game-action">Move West</button>
+
+                    <!-- Combat / Skill Controls -->
+                    <button type="submit" name="action" value="attack" class="game-action">Attack</button>
+                    <button type="submit" name="action" value="defend" class="game-action">Defend</button>
+                    <button type="submit" name="action" value="heal" class="game-action">Heal</button>
+                    <button type="submit" name="action" value="inventory" class="game-action">Inventory</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

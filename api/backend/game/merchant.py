@@ -4,12 +4,14 @@ import os
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 LOOT = os.path.join(BASE_DIRECTORY, '..', 'data', 'loot.json')
+DESCRIPTIONS = os.path.join(BASE_DIRECTORY, '..', 'data', 'descriptions')
 
 class Merchant():
     def __init__(self, dungeon, inventory=None):
         
         self.inventory = inventory if inventory is not None else []
-        self.gold_amount = 50 * dungeon.floor_level
+        self.gold_amount = 30 * dungeon.floor_level
+        self.previous_description = None
         
     def generate_inventory(self, dungeon, filename=LOOT, max_items=3, max_gear=4):
         """
@@ -44,6 +46,26 @@ class Merchant():
 
         except FileNotFoundError:
             print('Loot data file not found.')
+
+    def load_description(self, filename=DESCRIPTIONS):
+        """Loads and returns a non-repeating string of the merchant appearing."""
+        try:
+            with open(filename, 'r') as file:
+                description_data = json.load(file)
+
+            descriptions = description_data['merchant']
+
+            new_description = self.previous_description
+            attempts = 0
+            while new_description == self.previous_description and attempts < 10:
+                version = str(rand.randint(1, len(descriptions)))
+                new_description = descriptions[version]
+                attempts += 1
+
+            self.previous_description = new_description
+            return new_description
+        except FileNotFoundError:
+            return False
 
     def sell_item_to_player(self, item_name, player):
         """
