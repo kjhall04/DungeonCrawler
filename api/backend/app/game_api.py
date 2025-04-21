@@ -8,12 +8,13 @@ game_api = Blueprint('game_api', __name__)
 
 @game_api.route('/api/dungeon', methods=['POST'])
 def generate_dungeon():
-    username = session.get('username')
-    if not username:
-        return jsonify({'error': 'User not logged in'}), 401
+    user_id = session.get('user_id')
+    save_slot = session.get('save_slot')
+    if not user_id or save_slot is None:
+        return jsonify({'error': 'User not logged in or save slot not selected'}), 401
 
     # Fetch the player's save data
-    response = supabase.table('player_saves').select('id').eq('username', username).execute()
+    response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
     if not response.data:
         return jsonify({'error': 'Player save not found'}), 404
     player_save_id = response.data[0]['id']
@@ -43,12 +44,13 @@ def generate_dungeon():
 
 @game_api.route('/api/player', methods=['GET'])
 def get_player_stats():
-    username = session.get('username')
-    if not username:
-        return jsonify({'error': 'User not logged in'}), 401
+    user_id = session.get('user_id')
+    save_slot = session.get('save_slot')
+    if not user_id or save_slot is None:
+        return jsonify({'error': 'User not logged in or save slot not selected'}), 401
 
     # Fetch the player's save data
-    response = supabase.table('player_saves').select('*').eq('username', username).execute()
+    response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
     if not response.data:
         return jsonify({'error': 'Player save not found'}), 404
     player_save = response.data[0]
@@ -71,15 +73,16 @@ def get_player_stats():
 @game_api.route('/load_save/<int:save_slot>', methods=['GET'])
 def load_save(save_slot):
     """Load the game for the selected save slot."""
-    username = session.get('username')
-    if not username:
+    user_id = session.get('user_id')
+    if not user_id:
         return jsonify({'error': 'User not logged in'}), 401
     
     # Fetch the player's save data for the selected slot
-    response = supabase.table('player_saves').select('*').eq('username', username).eq('save_slot', save_slot).execute()
+    response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
     if not response.data:
         return jsonify({'error': 'Save slot not found'}), 404
     
     # Load the game data
     save_data = response.data[0]
+    session['save_slot'] = save_slot
     return render_template('game.html', save_data=save_data)

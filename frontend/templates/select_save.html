@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Save</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='select_save.css') }}">
 </head>
 <body>
     <div class="wrapper">
@@ -32,12 +32,13 @@
                     {% endfor %}
                 </div>
             </form>
-            <div class="logout">
-                <form action="/logout" method="POST">
-                    <button type="submit" class="logout-button">&ltLogout&gt</button>
-                </form>
-            </div>
         </div>
     </div>
+</div>
+<div class="logout-container">
+    <form action="/logout" method="GET">
+        <button type="submit" class="logout-button">&ltLogout&gt</button>
+    </form>
+</div>
 </body>
 </html>

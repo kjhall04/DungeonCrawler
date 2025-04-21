@@ -1,0 +1,71 @@
+/* General Styles */
+body {
+    background-color: black;
+    color: white;
+    font-family: "Bebas Neue", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.wrapper {
+    text-align: center;
+    width: 100%;
+    position: relative;
+}
+
+/* Story Text */
+#story-container {
+    margin: 20px 0;
+    font-size: 36px; /* Large text for the story */
+    color: white;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Buttons */
+.btn {
+    background: none;
+    border: 2px solid white;
+    color: white;
+    font-size: 24px;
+    font-family: "Bebas Neue", sans-serif;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: white;
+    color: black;
+    transform: scale(1.1);
+}
+
+/* Input Box */
+.input-box {
+    margin: 20px 0;
+}
+
+.input-box input {
+    font-size: 24px;
+    padding: 10px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    border: 2px solid white;
+    background: none;
+    color: white;
+    font-family: "Bebas Neue", sans-serif;
+}
+
+.input-box input::placeholder {
+    color: gray;
+}
+
+.input-box input:focus {
+    outline: none;
+    border-color: lightgray;
+}

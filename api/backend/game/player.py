@@ -7,7 +7,8 @@ CLASS_SKILLS = os.path.join(BASE_DIRECTORY, '..', 'data', 'class_skills.json')
 
 class Player():
     def __init__(self, name: str, player_class: str, level=0, experience=0, health=20, max_health=20,
-                 defense=3, inventory=None, skills=None, dungeon_floor=1, player_location=None):
+                 defense=3, inventory=None, skills=None, dungeon_floor=1, player_location=None,
+                 save_slot = None):
 
         self.name = name
         self.player_class = player_class
@@ -20,11 +21,12 @@ class Player():
         self.skills = skills if skills is not None else self.load_skills(player_class)
         self.dungeon_floor = dungeon_floor
         self.player_location = player_location
+        self.save_slot = save_slot
 
     @classmethod
-    def load_or_create_player(cls, username: str):
+    def load_or_create_player(cls, user_id: int, save_slot):
         """Load player data from the database or create a new player."""
-        response = supabase.table('player_saves').select('*').eq('username', username).execute()
+        response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
         if response.data:
             player_save = response.data[0]
             return cls(
@@ -38,23 +40,18 @@ class Player():
                 inventory=json.loads(player_save['inventory']),
                 skills=json.loads(player_save['skills']),
                 dungeon_floor=player_save['dungeon_floor'],
-                player_location=json.loads(player_save['player_location'])
+                player_location=json.loads(player_save['player_location']),
+                save_slot=player_save['save_slot']
             )
-        else:
-            # Create a new player
-            name = input('Enter character name: ')
-            player_class = input("Choose class (mage, warrior, rogue): ")
-            new_player = cls(name, player_class.lower())
-            new_player.save_player_data(username)
-            return new_player
+        return None
 
-    def save_player_data(self, username: str):
+    def save_player_data(self, user_id: int):
         """Save player data to the database."""
-        response = supabase.table('player_saves').select('*').eq('username', username).execute()
+        response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
         if not response.data:
             # Create a new PlayerSave entry
             supabase.table('player_saves').insert({
-                'username': username,
+                'user_id': user_id,
                 'name': self.name,
                 'player_class': self.player_class,
                 'level': self.level,
@@ -65,7 +62,8 @@ class Player():
                 'inventory': json.dumps(self.inventory),
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
-                'player_location': json.dumps(self.player_location)
+                'player_location': json.dumps(self.player_location),
+                'save_slot': self.save_slot
             }).execute()
         else:
             # Update existing PlayerSave entry
@@ -80,17 +78,19 @@ class Player():
                 'inventory': json.dumps(self.inventory),
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
-                'player_location': json.dumps(self.player_location)
-            }).eq('username', username).execute()
+                'player_location': json.dumps(self.player_location),
+                'save_slot': self.save_slot
+            }).eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
 
-    def load_skills(self, player_class, filename=CLASS_SKILLS):
+    def load_skills(self, player_class: str):
         """Returns skills based off of player class."""
         try:
-            with open(filename, 'r') as file:
+            with open(CLASS_SKILLS, 'r') as file:
                 skill_data = json.load(file)
                 return skill_data.get(player_class, [])
         except FileNotFoundError:
             print('Class skills file not found.')
+            return []
     
     def add_item_to_inventory(self, item: str, amount: int):
         """Adds new items to the player inventory"""
@@ -194,10 +194,3 @@ class Player():
             return True
         else:
             return False
-        
-
-
-if __name__ == '__main__':
-    
-    player = Player.load_or_create_player()
-    player.save_player_data()

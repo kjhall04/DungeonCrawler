@@ -1,3 +1,4 @@
+/* General Styles */
 body {
     background-color: black;
     color: white;
@@ -7,6 +8,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    position: relative;
 }
 
 .wrapper {
@@ -15,71 +17,101 @@ body {
     position: relative;
 }
 
+/* Title */
 #title {
-    font-size: 25px;
+    font-size: 36px;
     position: absolute;
-    top: 15%;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
 }
 
-#save-slots-container {
+/* Pause Menu */
+#pause-menu {
+    position: absolute;
+    top: 5%;
+    left: 5%;
+}
+
+.pause-option {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.pause-option:hover {
+    color: gray;
+}
+
+/* Narrative Section */
+#narrative-container {
+    margin-top: 15%;
+    text-align: center;
+    font-size: 18px;
+    color: lightgray;
+    line-height: 1.5;
+}
+
+/* Interaction Section */
+#interaction-container {
+    margin-top: 5%;
+    text-align: center;
+    font-size: 18px;
+    color: white;
+}
+
+/* Game Actions */
+#game-actions-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 100%;
-    margin-top: 12%;
+    margin-top: 5%;
 }
 
-.save-slots {
+.game-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 80px;
+    gap: 20px;
 }
 
-.save-slot {
+.game-action {
     background: none;
     border: none;
     color: white;
-    font-size: 36px;
+    font-size: 24px;
     font-family: "Bebas Neue", sans-serif;
     cursor: pointer;
     text-align: center;
-    transition: color 0.3s ease, transform 0.2 ease;
+    transition: color 0.3s ease, transform 0.2s ease;
 }
 
-.save-slot:hover {
+.game-action:hover {
     color: gray;
     transform: scale(1.1);
 }
 
-.logout-button {
+/* Inventory Button */
+#inventory-container {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+}
+
+#inventory-button {
     background: none;
     border: none;
     color: white;
-    font-size: 36px;
-    font-family: "Bebas Neue", sans-serif;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 20px;
-    transition: color 0.3s ease, transform 0.2 ease;
-}
-
-.logout-button:hover {
-    color: gray;
-    transform: scale(1.1);
-}
-
-.save-name {
-    display: block;
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-
-.save-details {
     font-size: 18px;
-    color: white;
-    line-height: 1.5;
+    cursor: pointer;
+}
+
+#inventory-button:hover {
+    color: gray;
 }

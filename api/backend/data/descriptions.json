@@ -1,11 +1,15 @@
 {
     "player_creation": {
-        "1": "Welcome, adventurer, to One More Descent!",
-        "2": "Before you embark on your journey, you must tell us who you are...",
-        "3": "Choose wisely, your decisions here will shape your destiny...",
-        "4": "What shall we call you, brave adventurer?",
-        "5": "Welcome, placeholder the placeholder!",
-        "6": "Your journey begins now. Prepare yourself, for the dungeon depths await."
+        "1": "Welcome, wanderer, to *One More Descent*—a place where legends die and monsters remember.",
+        "2": "Few dare the path below, and fewer still return. But you… you might be different.",
+        "3": "Before fate may claim you, the dungeon must know your name, your shape, your fire.",
+        "4": "Speak your name, adventurer. Carve it into the stone of memory.",
+        "5": "So be it. Welcome, {name}, to the darkness below.",
+        "6": "Now choose your path—will you fight, sneak, or conjure?",
+        "mage": "A mage. Destruction dances at your fingertips, swift and unpredictable.",
+        "warrior": "A warrior. You break through enemies like a storm—unyielding and direct.",
+        "rogue": "A rogue. You strike where it hurts most, swift, silent, and unseen.",
+        "7": "Steel your soul. The descent begins not with footsteps, but with purpose."
     },
     "merchant": {
         "1": "A flicker of candlelight reveals a hunched figure surrounded by trinkets and wares. He smiles without warmth. \"Care to trade, traveler? Your coin, or your secrets?\"",
