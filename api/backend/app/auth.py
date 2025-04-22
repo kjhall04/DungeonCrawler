@@ -29,23 +29,23 @@ def create_account(username: str, email: str, password: str, confirm_password: s
     # Check if username already 
     response = supabase.table('users').select('*').eq('username', username).execute()
     if response.data:
-        return {'error': 'Username already exists'}
+        return {'error': 'Username already exists', 'username': username, 'email': email}
     
     # Validate email
     if not validate_email(email):
-        return {'error': 'Invalid email format'}
+        return {'error': 'Invalid email format', 'username': username, 'email': email}
     
     # Check if email already exists
     response = supabase.table('users').select('*').eq('email', email).execute()
     if response.data:
-        return {'error': 'Email already in use'}
+        return {'error': 'Email already in use', 'username': username, 'email': email}
     
     # Validate password
     if not validate_password(password):
-        return {'error': 'Password must be at least 8 characters long'}
+        return {'error': 'Password must be at least 8 characters long', 'username': username, 'email': email}
    
     if password != confirm_password:
-        return {'error': 'Passwords do not match'}
+        return {'error': 'Passwords do not match', }
     
     # Hash the password and insert the new user
     hashed_password = generate_password_hash(password)
@@ -55,7 +55,7 @@ def create_account(username: str, email: str, password: str, confirm_password: s
         'password' : hashed_password
     }).execute()
 
-    if response.error:
+    if not response.data:
         return {'error': 'Failed to create account'}
     
     return {'success': 'Account created successfully'}

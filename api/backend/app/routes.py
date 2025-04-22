@@ -40,34 +40,34 @@ def login_route():
     
     return render_template('login.html')
 
-@auth_routes.route('/create_account', methods=['GET', 'POST'])
-def create_account_route():
-    """Handle account creation."""
-    if request.method == 'POST':
-        user_id = request.form.get('user_id', '').strip()
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '').strip()
-        confirm_password = request.form.get('confirm_password', '').strip()
-
-        # Check for empty fields
-        if not user_id or not email or not password or not confirm_password:
-            return render_template('create_account.html', error='All fields are required', 
-                                   user_id=user_id, email=email)
-
-        result = create_account(user_id, email, password, confirm_password)
-        if 'error' in result:
-            return render_template('create_account.html', error=result['error'], 
-                                   user_id=user_id, email=email)
-        
-        return redirect(url_for('auth.login_route'))
-    
-    return render_template('create_account.html')
-
 @auth_routes.route('/logout', methods=['GET'])
 def logout_route():
     """Log out the current user."""
     session.pop('user_id', None)
     return redirect(url_for('auth.login_route'))
+
+@auth_routes.route('/create_account', methods=['GET', 'POST'])
+def create_account_route():
+    """Handle account creation."""
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+
+        # Check for empty fields
+        if not username or not email or not password or not confirm_password:
+            return render_template('create_account.html', error='All fields are required', 
+                                   username=username, email=email)
+
+        result = create_account(username, email, password, confirm_password)
+        if 'error' in result:
+            return render_template('create_account.html', error=result['error'], 
+                                   username=username, email=email)
+        
+        return redirect(url_for('auth.login_route'))
+    
+    return render_template('create_account.html')
 
 @auth_routes.route('/title_animation', methods=['GET'])
 def title_animation():
@@ -82,12 +82,28 @@ def select_save():
         return redirect(url_for('auth.login_route'))
 
     if request.method == 'POST':
-        # Get the selected save slot
         save_slot = int(request.form.get('save_slot'))
-        session['save_slot'] = save_slot
+        action = request.form.get('action')
 
-        # Redirect to the game with the selected save slot
-        return redirect(url_for('game_api.load_save', save_slot=save_slot))
+        if action == 'delete':
+            # Delete the selected save slot
+            supabase.table('player_saves').delete().eq('user_id', user_id).eq('save_slot', save_slot).execute()
+            return redirect(url_for('auth.select_save'))
+
+        if action == 'select':
+            # Handle save slot selection
+            session['save_slot'] = save_slot
+            print(f"Checking save slot {save_slot} for user {user_id}")
+
+            # Redirect to the character creation route for new saves
+            response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+            print(f"Response from database: {response.data}")
+
+            if not response or not response.data or len(response.data) == 0:
+                return redirect(url_for('auth.create_character', step=1))
+
+            # Redirect to the game with the selected save slot
+            return redirect(url_for('game_api.load_save', save_slot=save_slot))
 
     # Fetch save slots for the user
     save_slots = get_save_slots(user_id)
@@ -141,59 +157,66 @@ def create_character():
     save_slot = session.get('save_slot')
     if not user_id or save_slot is None:
         return redirect(url_for('auth.select_save'))
-    
+
     # Load the story sequence from descriptions.json
     with open('api/backend/data/descriptions.json', 'r') as file:
         descriptions = json.load(file)
 
     story = descriptions.get('player_creation', {})
-    
+
     name_step = 4
     class_step = 6
-    final_step = 7
+    final_step = 9
     step = int(request.args.get('step', 1))
+
+    if step == 1:
+        session.pop('player_name', None)
+        session.pop('player_class', None)
+        session.pop('step', 1)
+
+    player_name = session.get('player_name', '')
+    player_class = session.get('player_class','')
 
     if request.method == 'POST':
         # Name step
         if step == name_step:
             name = request.form.get('name', '').strip()
             if not name:
-                error = 'Please enter a name'
-                return render_template('create_character.html', story=story, step=step, error=error, show_name_input=True)
-            
+                return render_template('create_character.html', story=story, step=step, show_name_input=True, 
+                                       player_name=player_name, player_class=player_class, show_class_choice=False)
+
             session['player_name'] = name
-            return redirect(url_for('auth.create_character', step=step+1))
-        
+            return redirect(url_for('auth.create_character', step=step + 1))
+
         # Class step
         elif step == class_step:
             player_class = request.form.get('class', '').strip()
             if not player_class:
-                error = 'Please select a class.'
-                return render_template('create_character.html', story=story, step=step, error=error, show_class_choice=True)
+                return render_template('create_character.html', story=story, step=step, show_name_input=False, 
+                                       show_class_choice=True, player_name=player_name, player_class=player_class)
 
             session['player_class'] = player_class
-            return redirect(url_for('auth.create_character', step=step+1))
-        
+            return redirect(url_for('auth.create_character', step=class_step + 1))
+
         # Final step: create the player
         elif step == final_step:
             name = session.get('player_name')
             player_class = session.get('player_class')
 
             if not name or not player_class:
-                return redirect(url_for('auth.create_character', step=1)) # Reset if wrong or no info
-            
-            player = Player(name=name, player_class=player_class, save_slot=save_slot,)
+                return redirect(url_for('auth.create_character', step=1))  # Reset if missing
+
+            player = Player(name=name, player_class=player_class, save_slot=save_slot)
             player.save_player_data(user_id)
 
             return redirect(url_for('game_api.load_save', save_slot=save_slot))
 
-        # All other steps, just proceed
-        return redirect(url_for('auth.create_character', step=step+1))
-    
-    # Determince dynamic behavior for the next step
+        elif request.form.get('continue') == 'true':
+            return redirect(url_for('auth.create_character', step=step + 1))
+
+    # Determine dynamic behavior
     show_name_input = (step == name_step)
     show_class_choice = (step == class_step)
-    player_name = session.get('player_name', '')
 
     return render_template(
         'create_character.html',
@@ -201,7 +224,8 @@ def create_character():
         step=step,
         show_name_input=show_name_input,
         show_class_choice=show_class_choice,
-        player_name=player_name
+        player_name=player_name,
+        player_class=player_class
     )
 
 @auth_routes.route('/game_action', methods=['POST'])

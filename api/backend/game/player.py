@@ -6,7 +6,7 @@ BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 CLASS_SKILLS = os.path.join(BASE_DIRECTORY, '..', 'data', 'class_skills.json')
 
 class Player():
-    def __init__(self, name: str, player_class: str, level=0, experience=0, health=20, max_health=20,
+    def __init__(self, name: str, player_class: str, level=1, experience=0, health=20, max_health=20,
                  defense=3, inventory=None, skills=None, dungeon_floor=1, player_location=None,
                  save_slot = None):
 

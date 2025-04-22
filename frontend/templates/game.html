@@ -5,20 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One More Descent</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    
+    <!-- Boxicons CDN -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
+    
+    <script>
+        function togglePauseMenu() {
+            const menu = document.getElementById('pause-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </head>
 <body>
     <div class="wrapper">
-        <!-- Pause Menu -->
+        <!-- Pause Icon Button -->
+        <button id="pause-button" onclick="togglePauseMenu()">
+            <i class='bx bx-pause'></i>
+        </button>
+
+        <!-- Pause Menu (hidden by default) -->
         <div id="pause-menu">
-            <form action="/logout" method="GET">
-                <button class="pause-option">Logout</button>
-            </form>
+            <label id="paused">Paused</label>
             <form action="/save_game" method="POST">
-                <button class="pause-option">Save Game</button>
+                <button class="pause-option">&ltSave Game&gt</button>
             </form>
             <form action="/select_save" method="GET">
-                <button class="pause-option">Menu</button>
+                <button class="pause-option">&ltQuit Game&gt</button>
+            </form>
+            <form action="/logout" method="GET">
+                <button class="pause-option">&ltLogout&gt</button>
             </form>
         </div>
 
@@ -51,11 +68,11 @@
         </div>
 
         <!-- Inventory Button -->
-        <div id="inventory-container">
-            <form action="/inventory" method="GET">
-                <button id="inventory-button">Inventory</button>
-            </form>
-        </div>
+        <form action="/inventory" method="GET" id="inventory-form">
+            <button id="inventory-button">
+                <img src="{{ url_for('static', filename='images/treasure_chest.svg') }}" alt="Inventory" class="inventory-icon">
+            </button>
+        </form>
     </div>
 </body>
 </html>

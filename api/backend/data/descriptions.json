@@ -1,27 +1,27 @@
 {
     "player_creation": {
-        "1": "Welcome, wanderer, to *One More Descent*—a place where legends die and monsters remember.",
-        "2": "Few dare the path below, and fewer still return. But you… you might be different.",
+        "1": "Welcome, wanderer, to *One More Descent*... a place where legends die and monsters remember.",
+        "2": "Few dare the path below, and fewer still return. But you... you might be different.",
         "3": "Before fate may claim you, the dungeon must know your name, your shape, your fire.",
         "4": "Speak your name, adventurer. Carve it into the stone of memory.",
         "5": "So be it. Welcome, {name}, to the darkness below.",
-        "6": "Now choose your path—will you fight, sneak, or conjure?",
+        "6": "Now choose your path... will you conjure, fight, or sneak?",
         "mage": "A mage. Destruction dances at your fingertips, swift and unpredictable.",
-        "warrior": "A warrior. You break through enemies like a storm—unyielding and direct.",
+        "warrior": "A warrior. You break through enemies like a storm... unyielding and direct.",
         "rogue": "A rogue. You strike where it hurts most, swift, silent, and unseen.",
-        "7": "Steel your soul. The descent begins not with footsteps, but with purpose."
+        "8": "Steel your soul. The descent begins not with footsteps, but with purpose."
     },
     "merchant": {
         "1": "A flicker of candlelight reveals a hunched figure surrounded by trinkets and wares. He smiles without warmth. \"Care to trade, traveler? Your coin, or your secrets?\"",
-        "2": "You round a corner and find a stall that shouldn't exist. The merchant stands behind it, motionless, until you step closer. Then he speaks—your name.",
+        "2": "You round a corner and find a stall that shouldn't exist. The merchant stands behind it, motionless, until you step closer. Then he speaks... your name.",
         "3": "A skeletal hand waves you over. The merchant's face is hidden beneath a cracked porcelain mask. \"Only the desperate find me... Are you desperate?\"",
         "4": "The air thickens with incense and dust. A patchwork tent flickers into view. The merchant within looks up with eyes too old for any man. \"I have what you need, even if you don't know it yet.\"",
-        "5": "Whispers led you here—too quiet to understand, too clear to ignore. The merchant greets you with a grin full of too many teeth. \"Let's make a deal, yes?\"",
-        "6": "A crooked sign dangles from nothing, reading: ‘Trade.’ The merchant emerges from behind a shadow. \"Only fair prices today. Just... don’t ask what they cost me.\"",
+        "5": "Whispers led you here... too quiet to understand, too clear to ignore. The merchant greets you with a grin full of too many teeth. \"Let's make a deal, yes?\"",
+        "6": "A crooked sign dangles from nothing, reading: 'Trade.' The merchant emerges from behind a shadow. \"Only fair prices today. Just... don't ask what they cost me.\"",
         "7": "Candles float in midair, illuminating ancient relics and twisted tools. The merchant watches you from the darkness. \"Ah... a curious one. Come closer, and choose your poison.\"",
-        "8": "You smell the merchant before you see him—sulfur, dust, and the faint copper of blood. His eyes gleam as he opens a case of wares. \"Everything has a price. Even time.\"",
-        "9": "A laugh echoes from an unseen corner. You blink—and the merchant is there, seated cross-legged atop a stack of bones. \"I’ve been waiting. I always am.\"",
-        "10": "The merchant's stall seems cobbled from dungeon debris—skulls, bones, old swords. He gestures to the spread with a flourish. \"Buy, sell, or simply admire... while you still can.\""
+        "8": "You smell the merchant before you see him... sulfur, dust, and the faint copper of blood. His eyes gleam as he opens a case of wares. \"Everything has a price. Even time.\"",
+        "9": "A laugh echoes from an unseen corner. You blink... and the merchant is there, seated cross-legged atop a stack of bones. \"I've been waiting. I always am.\"",
+        "10": "The merchant's stall seems cobbled from dungeon debris... skulls, bones, old swords. He gestures to the spread with a flourish. \"Buy, sell, or simply admire... while you still can.\""
     },
     "floor_1": {
         "descriptions": {

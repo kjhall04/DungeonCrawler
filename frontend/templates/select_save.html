@@ -14,25 +14,38 @@
             {% if error %}
                 <p class="error">{{ error }}</p>
             {% endif %}
-            <form action="/select_save" method="POST">
-                <div class="save-slots">
-                    {% for save_slot in save_slots %}
-                        <button type="submit" name="save_slot" value="{{ save_slot['slot'] }}" class="save-slot">
+            <div class="save-slots">
+                {% for save_slot in save_slots %}
+                <div class="save-slot-wrapper">
+                    <form action="/select_save" method="POST">
+                        <input type="hidden" name="save_slot" value="{{ save_slot['slot'] }}">
+                        <button type="submit" name="action" value="select" class="save-slot">
                             {% if save_slot['used'] %}
-                                <span class="save-name">&ltContinue%gt</span>
-                                <div class="save-details">
-                                    <p>Name: {{ save_slot['name'] }}</p>
-                                    <p>Class: {{ save_slot['class'] }}</p>
-                                    <p>Floor: {{ save_slot['floor'] }}</p>
-                                </div>
+                                <span class="save-name">&ltContinue&gt</span>
                             {% else %}
                                 <span class="save-name">&ltNew Save&gt</span>
                             {% endif %}
                         </button>
-                    {% endfor %}
+                    </form>
+        
+                    {% if save_slot['used'] %}
+                        <div class="save-details">
+                            <p>Name: {{ save_slot['name'] }}</p>
+                            <p>Class: {{ save_slot['class'] }}</p>
+                            <p>Floor: {{ save_slot['floor'] }}</p>
+                        </div>
+                        <form action="/select_save" method="POST">
+                            <input type="hidden" name="save_slot" value="{{ save_slot['slot'] }}">
+                            <button type="submit" name="action" value="delete" class="delete-button">
+                                &ltDelete Save&gt
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
-            </form>
+                {% endfor %}
+            </div>
         </div>
+        
     </div>
 </div>
 <div class="logout-container">
