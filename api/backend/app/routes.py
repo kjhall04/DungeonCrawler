@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, redirect, render_template, url_for
+from flask import Blueprint, request, session, redirect, render_template, url_for, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from backend.app.auth import create_account, login
@@ -7,9 +7,12 @@ from backend.game.player import Player
 from backend.game.dungeon import Dungeon
 from backend.game.enemy import Enemy
 import json
+import random as rand
 
 auth_routes = Blueprint('auth', __name__)
 limiter = Limiter(get_remote_address)
+
+ENEMY_SPAWN_CHANCE = 0.9
 
 @auth_routes.route('/')
 def index():
@@ -93,11 +96,9 @@ def select_save():
         if action == 'select':
             # Handle save slot selection
             session['save_slot'] = save_slot
-            print(f"Checking save slot {save_slot} for user {user_id}")
 
             # Redirect to the character creation route for new saves
             response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-            print(f"Response from database: {response.data}")
 
             if not response or not response.data or len(response.data) == 0:
                 return redirect(url_for('auth.create_character', step=1))
@@ -116,7 +117,6 @@ def select_save():
     save_slots = sorted(save_slots, key=lambda x: x['slot'])
     
     return render_template('select_save.html', save_slots=save_slots)
-
 
 def get_save_slots(user_id):
     """Fetch save slots for the user."""
@@ -149,6 +149,24 @@ def save_game():
     save_slot = session.get('save_slot')
     if not user_id or save_slot is None:
         return redirect(url_for('auth.login_route'))
+    
+    # Load the player and dungeon
+    player = Player.load_or_create_player(user_id, save_slot)
+    dungeon = Dungeon.load_from_db(user_id=user_id, save_slot=save_slot)
+
+    if not player or  not dungeon:
+        return redirect(url_for('auth.select_save'))
+    
+    # Save the player and dungeon state
+    player.save_player_data(user_id, save_slot)
+    response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+    if not response.data:
+        return redirect(url_for('auth.select_save'))  # Handle error if player save is not found
+    player_save_id = response.data[0]['id']
+
+    dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+
+    return redirect(url_for('auth.game_action', saved=True))
     
 @auth_routes.route('/create_character', methods=['GET', 'POST'])
 def create_character():
@@ -207,7 +225,18 @@ def create_character():
                 return redirect(url_for('auth.create_character', step=1))  # Reset if missing
 
             player = Player(name=name, player_class=player_class, save_slot=save_slot)
-            player.save_player_data(user_id)
+            player.save_player_data(user_id, save_slot)
+            response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+            if not response.data:
+                return redirect(url_for('auth.select_save'))  # Handle error if player save is not found
+            player_save_id = response.data[0]['id']
+
+            dungeon = Dungeon(width=10, height=10, num_rooms=5, floor_level=1)
+            dungeon.generate()
+            player.player_location = dungeon.start_location[0]
+
+            player.save_player_data(user_id, save_slot)
+            dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
 
             return redirect(url_for('game_api.load_save', save_slot=save_slot))
 
@@ -228,62 +257,231 @@ def create_character():
         player_class=player_class
     )
 
-@auth_routes.route('/game_action', methods=['POST'])
-def game_action():
-    """Handle player actions in the game."""
+@auth_routes.route('/inventory', methods=['GET'])
+def inventory():
+    """Display the player's inventory."""
     user_id = session.get('user_id')
     save_slot = session.get('save_slot')
     if not user_id or save_slot is None:
         return redirect(url_for('auth.login_route'))
-    
+
     player = Player.load_or_create_player(user_id, save_slot)
-    dungeon = Dungeon.load_from_db(player_save_id=save_slot)
+    inventory_data = player.get_inventory()
 
-    # Get the player's action
+    return render_template('game.html', inventory=inventory_data, narrative=None, interaction=None, actions=[])
+
+@auth_routes.route('/game_action', methods=['GET', 'POST'])
+def game_action():
+    user_id = session.get('user_id')
+    save_slot = session.get('save_slot')
+    if not user_id or save_slot is None:
+        return redirect(url_for('auth.login_route'))
+
+    player = Player.load_or_create_player(user_id, save_slot)
+    dungeon = Dungeon.load_from_db(user_id=user_id, save_slot=save_slot)
+    if dungeon is None:
+        return redirect(url_for('auth.select_save'))
+
     action = request.form.get('action')
+    saved = request.args.get('saved', False)
 
-    # Initialize game state
-    game_state = {
-        'narrative': dungeon.get_room_description(player, "descriptions"),
-        'interaction': None,
-        'actions': [
-            {'label': 'Move North', 'value': 'move_north'},
-            {'label': 'Move East', 'value': 'move_east'},
-            {'label': 'Move South', 'value': 'move_south'},
-            {'label': 'Move West', 'value': 'move_west'},
+    # --- Enemy state management ---
+    enemy_data = session.get('enemy')
+    enemy = None
+    if enemy_data:
+        enemy = Enemy.create_enemy(enemy_data['name'], dungeon)
+        enemy.health = enemy_data['health']
+        enemy.defense = enemy_data['defense']
+        enemy.max_health = enemy_data['max_health']
+        enemy.skills = enemy_data['skills']
+
+    # --- Helper: get movement actions ---
+    def get_movement_actions():
+        all_directions = ['north', 'south', 'east', 'west']
+        valid_directions = dungeon.get_valid_directions(player.player_location)
+        return [
+            {
+                'label': f"Move {direction.capitalize()}",
+                'value': f"move_{direction}" if direction in valid_directions else None,
+                'enabled': direction in valid_directions
+            }
+            for direction in valid_directions.keys()
         ]
-    }
 
-    # Handle player actions
-    if action.startswith('move_'):
-        direction = action.split('_')[1]
-        if player.move(direction, dungeon):
-            game_state['narrative'] = dungeon.get_room_description(player, "descriptions")
+    # --- Helper: get skill actions ---
+    def get_skill_actions():
+        return [
+            {'label': f"{skill['name'].capitalize()} (Damage: {skill['damage']})", 'value': f"skill_{skill['name']}"}
+            for skill in player.skills
+        ] + [{'label': "Heal", 'value': "heal"}]
+
+    # --- Room entry or after save ---
+    if not action or saved:
+        # Spawn enemy if not already present
+        if not enemy and rand.random() < ENEMY_SPAWN_CHANCE:
+            floor_key = f"floor_{dungeon.floor_level}"
+            with open('api/backend/data/enemies.json', 'r') as file:
+                enemies_data = json.load(file)[floor_key]
+            enemy_name = rand.choice(list(enemies_data.keys()))
+            enemy = Enemy.create_enemy(enemy_name, dungeon)
+            session['enemy'] = {
+                'name': enemy.name,
+                'health': enemy.health,
+                'max_health': enemy.max_health,
+                'defense': enemy.defense,
+                'skills': enemy.skills
+            }
+        elif not enemy:
+            session.pop('enemy', None)
+
+        if enemy:
+            narrative = get_enemy_narration(enemy, dungeon, player)
+            actions = get_skill_actions()
         else:
-            game_state['narrative'] = "You can't move in that direction."
+            narrative = dungeon.get_room_description(player)
+            actions = get_movement_actions()
 
-    elif action == 'attack':
-        enemy = Enemy.create_enemy("goblin", dungeon)
-        attack_result = player.attack_enemy(enemy, skill_name="slash")
-        game_state['narrative'] = attack_result
+        return render_template(
+            'game.html',
+            narrative=narrative,
+            interaction=None,
+            actions=actions,
+            health=player.health,
+            max_health=player.max_health,
+            inventory=player.get_inventory(),
+            saved=saved,
+            enemy=enemy,
+            player_defense=player.defense
+        )
+
+    # --- Combat actions ---
+    interaction = None
+    if action and action.startswith('skill_') and enemy:
+        skill_name = action[len('skill_'):]
+        interaction = player.attack_enemy(enemy, skill_name)
+        if enemy.health <= 0:
+            interaction += f" {enemy.name} is defeated!"
+            session.pop('enemy', None)
+            enemy = None
+        else:
+            # Enemy attacks back
+            enemy_attack = enemy.attack_player(player)
+            interaction += f" {enemy.name} uses {enemy_attack['skill_used']} and deals {enemy_attack['damage_dealt']} damage! (Your HP: {player.health})"
+            session['enemy'] = {
+                'name': enemy.name,
+                'health': enemy.health,
+                'max_health': enemy.max_health,
+                'defense': enemy.defense,
+                'skills': enemy.skills
+            }
 
     elif action == 'heal':
         if player.heal():
-            game_state['narrative'] = "You used a health potion and restored some health."
+            interaction = "You used a health potion and restored some health."
         else:
-            game_state['narrative'] = "You don't have any health potions left."
+            interaction = "You don't have any health potions left."
+        # Enemy attacks after heal
+        if enemy:
+            enemy_attack = enemy.attack_player(player)
+            interaction += f" {enemy.name} uses {enemy_attack['skill_used']} and deals {enemy_attack['damage_dealt']} damage! (Your HP: {player.health})"
+            session['enemy'] = {
+                'name': enemy.name,
+                'health': enemy.health,
+                'max_health': enemy.max_health,
+                'defense': enemy.defense,
+                'skills': enemy.skills
+            }
+
+    # --- Movement ---
+    elif action and action.startswith('move_'):
+        direction = action.split('_')[1]
+        valid_directions = dungeon.get_valid_directions(player.player_location)
+        if direction in valid_directions:
+            if player.move(direction, dungeon):
+                session.pop('enemy', None)
+                # Enemy spawn handled on next GET/POST
+                narrative = dungeon.get_room_description(player)
+                actions = get_movement_actions()
+                return render_template(
+                    'game.html',
+                    narrative=narrative,
+                    interaction=None,
+                    actions=actions,
+                    health=player.health,
+                    max_health=player.max_health,
+                    inventory=player.get_inventory(),
+                    saved=saved,
+                    enemy=None,
+                    player_defense=player.defense
+                )
+        interaction = "Invalid direction."
+
+    # --- Descend to next floor ---
+    elif action == 'descend_next_floor':
+        player.dungeon_floor += 1
+        dungeon = Dungeon(width=10, height=10, num_rooms=5, floor_level=player.dungeon_floor)
+        dungeon.generate()
+        player.player_location = dungeon.start_location[0]
+        player.save_player_data(user_id, save_slot)
+        response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+        if not response.data:
+            return redirect(url_for('auth.select_save'))
+        player_save_id = response.data[0]['id']
+        dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+        actions = get_movement_actions()
+        return render_template(
+            'game.html',
+            narrative=dungeon.room_descriptions.get(str(dungeon.start_location[0]), "You descend to the next floor."),
+            interaction=None,
+            actions=actions,
+            health=player.health,
+            max_health=player.max_health,
+            inventory=player.get_inventory(),
+            saved=saved,
+            enemy=None,
+            player_defense=player.defense
+        )
 
     elif action == 'inventory':
         return redirect(url_for('auth.inventory'))
 
-    # Save the updated player and dungeon state
-    player.save_player_data(user_id)
-    dungeon.save_to_db(player_save_id=player.dungeon_floor)
+    # --- Final action rendering ---
+    if enemy:
+        narrative = interaction if interaction else get_enemy_narration(enemy, dungeon, player)
+        actions = get_skill_actions()
+    else:
+        narrative = interaction if interaction else dungeon.get_room_description(player)
+        actions = get_movement_actions()
 
-    # Render the game page with the updated state
+    # Save state
+    player.save_player_data(user_id, save_slot)
+    response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+    if not response.data:
+        return redirect(url_for('auth.select_save'))
+    player_save_id = response.data[0]['id']
+    dungeon.save_to_db(player_save_id=player_save_id, user_id=user_id, save_slot=save_slot)
+
     return render_template(
         'game.html',
-        narrative=game_state['narrative'],
-        interaction=game_state['interaction'],
-        actions=game_state['actions']
+        narrative=narrative,
+        interaction=None,
+        actions=actions,
+        health=player.health,
+        max_health=player.max_health,
+        inventory=player.get_inventory(),
+        saved=saved,
+        enemy=enemy,
+        player_defense=player.defense
     )
+
+def get_enemy_narration(enemy, dungeon, player):
+    """Load the enemy encounter narration from descriptions.json."""
+    try:
+        with open('api/backend/data/descriptions.json', 'r') as file:
+            descriptions_data = json.load(file)
+        floor_key = f"floor_{dungeon.floor_level}"
+        enemy_key = enemy.name
+        enemy_description = descriptions_data[floor_key]["enemies"][enemy_key]
+        return rand.choice(list(enemy_description.values()))
+    except Exception:
+        return f"A {enemy.name} appears!"  # Fallback narration if loading fails

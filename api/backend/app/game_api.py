@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session, render_template
+from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
 from backend.app.db import supabase
 from backend.game.player import Player
 from backend.game.dungeon import Dungeon
@@ -11,7 +11,7 @@ def generate_dungeon():
     user_id = session.get('user_id')
     save_slot = session.get('save_slot')
     if not user_id or save_slot is None:
-        return jsonify({'error': 'User not logged in or save slot not selected'}), 401
+        return redirect(url_for('auth.login_route'))
 
     # Fetch the player's save data
     response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
@@ -47,7 +47,7 @@ def get_player_stats():
     user_id = session.get('user_id')
     save_slot = session.get('save_slot')
     if not user_id or save_slot is None:
-        return jsonify({'error': 'User not logged in or save slot not selected'}), 401
+        return redirect(url_for('auth.login_route'))
 
     # Fetch the player's save data
     response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
@@ -74,15 +74,44 @@ def get_player_stats():
 def load_save(save_slot):
     """Load the game for the selected save slot."""
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'User not logged in'}), 401
+    if not user_id or save_slot is None:
+        return redirect(url_for('auth.login_route'))
     
-    # Fetch the player's save data for the selected slot
-    response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-    if not response.data:
-        return jsonify({'error': 'Save slot not found'}), 404
-    
-    # Load the game data
-    save_data = response.data[0]
-    session['save_slot'] = save_slot
-    return render_template('game.html', save_data=save_data)
+    # Load the player and dungeon
+    player = Player.load_or_create_player(user_id, save_slot)
+    if not player:
+        return redirect(url_for('auth.select_save'))
+
+    dungeon = Dungeon.load_from_db(user_id=user_id, save_slot=save_slot)
+    if not dungeon:
+        return redirect(url_for('auth.select_save'))
+
+    # Determine valid directions
+    valid_directions = dungeon.get_valid_directions(player.player_location)
+
+    new_room_id = player.player_location
+    new_room_coords = dungeon.room_positions[str(new_room_id)]
+    print(f"Player moved to Room ID: {new_room_id}")
+    print(f"Room Coordinates: {new_room_coords}")
+    print(f"Room Details: {dungeon.room_descriptions.get(str(new_room_id), 'No description available')}")
+
+    # Initialize game state
+    game_state = {
+        'narrative': dungeon.get_room_description(player),
+        'interaction': None,
+        'actions': [
+            {'label': f"Move {direction.capitalize()}", 'value': f"move_{direction}"}
+            for direction in valid_directions.keys()
+        ]
+    }
+
+    # Render the game page with the loaded state
+    return render_template(
+        'game.html',
+        narrative=game_state['narrative'],
+        interaction=game_state['interaction'],
+        actions=game_state['actions'],
+        health=player.health,
+        max_health=player.max_health,
+        inventory=player.get_inventory()
+    )

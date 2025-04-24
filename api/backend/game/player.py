@@ -40,12 +40,12 @@ class Player():
                 inventory=json.loads(player_save['inventory']),
                 skills=json.loads(player_save['skills']),
                 dungeon_floor=player_save['dungeon_floor'],
-                player_location=json.loads(player_save['player_location']),
+                player_location=str(player_save['player_location']).strip('"'),
                 save_slot=player_save['save_slot']
             )
         return None
 
-    def save_player_data(self, user_id: int):
+    def save_player_data(self, user_id: int, save_slot: int):
         """Save player data to the database."""
         response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
         if not response.data:
@@ -62,7 +62,7 @@ class Player():
                 'inventory': json.dumps(self.inventory),
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
-                'player_location': json.dumps(self.player_location),
+                'player_location': self.player_location,
                 'save_slot': self.save_slot
             }).execute()
         else:
@@ -127,7 +127,7 @@ class Player():
             return True
         return False
 
-    def get_inventory_summary(self):
+    def get_inventory(self):
         """Returns a dict summarizing all inventory items."""
         summary = {k: v for k, v in self.inventory.items() if k != 'equipment'}
         summary['equipment'] = [item for item in self.inventory['equipment']]

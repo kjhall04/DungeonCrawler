@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One More Descent</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-    
-    <!-- Boxicons CDN -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
-    
     <script>
         function togglePauseMenu() {
             const menu = document.getElementById('pause-menu');
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
-    </script>
+    
+        function toggleInventoryMenu() {
+            const menu = document.getElementById('inventory-menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>    
 </head>
 <body>
     <div class="wrapper">
@@ -25,54 +26,105 @@
             <i class='bx bx-pause'></i>
         </button>
 
-        <!-- Pause Menu (hidden by default) -->
-        <div id="pause-menu">
+        <!-- Pause Menu -->
+        <div id="pause-menu" style="display: none;">
             <label id="paused">Paused</label>
             <form action="/save_game" method="POST">
                 <button class="pause-option">&ltSave Game&gt</button>
             </form>
             <form action="/select_save" method="GET">
-                <button class="pause-option">&ltQuit Game&gt</button>
+                <button class="pause-option">&ltBack to Menu&gt</button>
             </form>
             <form action="/logout" method="GET">
                 <button class="pause-option">&ltLogout&gt</button>
             </form>
         </div>
 
-        <!-- Game Title -->
+        <!-- Inventory Menu -->
+        <div id="inventory-menu" style="display: none;">
+            <label id="inventory-title">Inventory</label>
+            <div class="inventory-section">
+                <h3>Items</h3>
+                <ul>
+                    {% for item, quantity in inventory.items() %}
+                        {% if item != 'equipment' %}
+                            <li>{{ item }} x{{ quantity }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="inventory-section">
+                <h3>Equipment</h3>
+                <ul>
+                    {% for equipment in inventory['equipment'] %}
+                        <li>{{ equipment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Inventory Button -->
+        <button id="inventory-button" onclick="toggleInventoryMenu()">
+            <img src="{{ url_for('static', filename='images/treasure_chest.svg') }}" alt="Inventory" class="inventory-icon">
+        </button>
+
+        <!-- Health Display -->
+        <div id="health-defense-display">
+            <p>Health: {{ health }}/{{ max_health }}</p>
+            <p>Defense: {{ defense }}</p>
+        </div>
+
+        <!-- Game Content -->
         <h1 id="title">One More Descent</h1>
 
-        <!-- Narrative Section -->
+        {% if saved %}
+        <div id="game-saved-message">
+            Game Saved!
+        </div>
+        <script>
+            // Automatically hide the message after 4 seconds
+            setTimeout(() => {
+                const message = document.getElementById('game-saved-message');
+                if (message) {
+                    message.style.display = 'none';
+                }
+            }, 4000);
+        </script>
+        {% endif %}
+
         <div id="narrative-container">
             <p id="narrative">{{ narrative }}</p>
         </div>
 
-        <!-- Interaction Section -->
+        {% if enemy %}
+        <div id="enemy-container">
+            <h3>{{ enemy.name }}</h3>
+            <p>{{ enemy.description }}</p>
+            <p>Health: {{ enemy.health }}</p>
+            <p>Defense: {{ enemy.defense }}</p>
+        </div>
+        {% endif %}
+        
         <div id="interaction-container">
             {% if interaction %}
                 <p>{{ interaction }}</p>
             {% endif %}
         </div>
-
-        <!-- Player Actions -->
         <div id="game-actions-container">
             <form action="/game_action" method="POST">
                 <div class="game-actions">
                     {% for action in actions %}
-                        <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
-                            {{ action['label'] }}
-                        </button>
+                        {% if action.enabled %}
+                            <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
+                                &lt{{ action['label'] }}&gt
+                            </button>
+                        {% else %}
+                            <span class="game-action disabled-action">&lt{{ action['label'] }}&gt</span>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </form>
         </div>
-
-        <!-- Inventory Button -->
-        <form action="/inventory" method="GET" id="inventory-form">
-            <button id="inventory-button">
-                <img src="{{ url_for('static', filename='images/treasure_chest.svg') }}" alt="Inventory" class="inventory-icon">
-            </button>
-        </form>
     </div>
 </body>
 </html>

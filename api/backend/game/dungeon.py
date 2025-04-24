@@ -10,7 +10,7 @@ DESCRIPTIONS = os.path.join(BASE_DIRECTORY, '..', 'data', 'descriptions.json')
 
 BRANCH_CHANCE = 0.4  # Chance to branch out from the current path
 ADD_CONNECTION_CHANCE = 0.3  # Chance to add extra connections between rooms
-MERCHANT_CHANCE = 0.7  # Chance to add a merchant in the dungeon
+MERCHANT_CHANCE = 0.85  # Chance to add a merchant in the dungeon
 
 class Dungeon():
     def __init__(self, width, height, num_rooms, floor_level):
@@ -20,6 +20,7 @@ class Dungeon():
         self.grid = [[None for _ in range(width)] for _ in range(height)]
         self.rooms = {}
         self.room_positions = {}
+        self.room_descriptions = {}
         self.start_location = []
         self.exit_location = []
         self.merchant_location = []
@@ -27,9 +28,9 @@ class Dungeon():
         self.previous_description = None
 
     @classmethod
-    def load_from_db(cls, player_save_id: int):
+    def load_from_db(cls, user_id: int, save_slot: int):
         """Load dungeon data from the database."""
-        response = supabase.table('dungeons').select('*').eq('player_save_id', player_save_id).execute()
+        response = supabase.table('dungeons').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
         if not response.data:
             return None
         dungeon_data = response.data[0]
@@ -39,29 +40,36 @@ class Dungeon():
             num_rooms=dungeon_data['num_rooms'],
             floor_level=dungeon_data['floor_level']
         )
-        dungeon.room_positions = json.loads(dungeon_data['room_positions'])
-        dungeon.rooms = json.loads(dungeon_data['connections'])
+        dungeon.room_positions = {str(k): tuple(v) for k, v in json.loads(dungeon_data['room_positions']).items()}
+        dungeon.rooms = {str(k): [str(i) for i in v] for k, v in json.loads(dungeon_data['connections']).items()}
         dungeon.start_location = json.loads(dungeon_data['start_location'])
         dungeon.exit_location = json.loads(dungeon_data['exit_location'])
         dungeon.merchant_location = json.loads(dungeon_data['merchant_location']) if dungeon_data['merchant_location'] else None
+        dungeon.room_descriptions = json.loads(dungeon_data['room_descriptions'])
+
+        dungeon.position_to_id = {tuple(pos): room_id for room_id, pos in dungeon.room_positions.items()}
+        
         return dungeon
 
-    def save_to_db(self, player_save_id: int):
+    def save_to_db(self, player_save_id: int, user_id: int, save_slot: int):
         """Save dungeon data to the database."""
-        response = supabase.table('dungeons').select('*').eq('player_save_id', player_save_id).execute()
+        response = supabase.table('dungeons').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
         if not response.data:
             # Create a new Dungeon entry
             supabase.table('dungeons').insert({
                 'player_save_id': player_save_id,
+                'user_id': user_id,
                 'width': self.width,
                 'height': self.height,
                 'num_rooms': self.num_rooms,
-                'room_positions': json.dumps(self.room_positions),
-                'connections': json.dumps(self.rooms),
+                'room_positions': json.dumps({str(k): v for k, v in self.room_positions.items()}),
+                'connections': json.dumps({str(k): [str(i) for i in v] for k, v in self.rooms.items()}),
                 'start_location': json.dumps(self.start_location),
                 'exit_location': json.dumps(self.exit_location),
                 'merchant_location': json.dumps(self.merchant_location) if self.merchant_location else None,
-                'floor_level': self.floor_level
+                'floor_level': self.floor_level,
+                'save_slot': save_slot,
+                'room_descriptions': json.dumps(self.room_descriptions)
             }).execute()
         else:
             # Update existing Dungeon entry
@@ -69,20 +77,23 @@ class Dungeon():
                 'width': self.width,
                 'height': self.height,
                 'num_rooms': self.num_rooms,
-                'room_positions': json.dumps(self.room_positions),
-                'connections': json.dumps(self.rooms),
+                'room_positions': json.dumps({str(k): v for k, v in self.room_positions.items()}),
+                'connections': json.dumps({str(k): [str(i) for i in v] for k, v in self.rooms.items()}),
                 'start_location': json.dumps(self.start_location),
                 'exit_location': json.dumps(self.exit_location),
                 'merchant_location': json.dumps(self.merchant_location) if self.merchant_location else None,
-                'floor_level': self.floor_level
-            }).eq('player_save_id', player_save_id).execute()
+                'floor_level': self.floor_level,
+                'room_descriptions': json.dumps(self.room_descriptions)
+            }).eq('user_id', user_id).eq('save_slot', save_slot).execute()
 
     def generate(self):
-        # Designed with help of Chatgpt
         """Generate a dungeon with a mix of linear paths and branching connections."""
+        self.position_to_id = {}  # Initialize the position-to-ID mapping
+
         start_x, start_y = rand.randint(0, self.width - 1), rand.randint(0, self.height - 1)
         self.grid[start_y][start_x] = 0
         self.room_positions[0] = (start_x, start_y)
+        self.position_to_id[(start_x, start_y)] = 0  # Map position to room ID
         self.rooms[0] = []
 
         stack = [(start_x, start_y, 0)]  # (x, y, room_id)
@@ -104,6 +115,7 @@ class Dungeon():
                     # Create a new room
                     self.grid[ny][nx] = room_id
                     self.room_positions[room_id] = (nx, ny)
+                    self.position_to_id[(nx, ny)] = room_id  # Map position to room ID
                     self.rooms[room_id] = []
                     self.rooms[current_id].append(room_id)
                     self.rooms[room_id].append(current_id)
@@ -111,20 +123,17 @@ class Dungeon():
                     room_id += 1
                     created_new_room = True
 
-                    # **New Feature: Chance to branch or loop**
-                    # 40% chance to branch: higher value = more branching 
-                    if rand.random() < BRANCH_CHANCE and len(stack) > 3:  
-                        stack.pop(rand.randint(0, len(stack) - 3))
-
                     break  # Move to the next room
 
             if not created_new_room:
                 stack.pop()  # Backtrack if no new room was created
 
-        self._connect_extra_paths()
+        self.get_room_description(player=None, type_key="descriptions")
 
+        self._connect_extra_paths()
         self.add_start()
         self.add_exit()
+        self.add_entrance_exit_descriptions()
         self.add_merchant()
 
     def _connect_extra_paths(self):
@@ -164,30 +173,55 @@ class Dungeon():
 
     def get_valid_directions(self, room_id):
         """Returns the valid directions (north, south, east, west) the player can move in a given room."""
+        room_id = str(room_id).strip('"')
+
+        if room_id not in self.room_positions:
+            print(f"Invalid room_id: {room_id}")
+            return {}
+
         directions = {}
         x, y = self.room_positions[room_id]
 
         # Check each direction
         for dx, dy, direction in [(0, -1, 'north'), (0, 1, 'south'), (1, 0, 'east'), (-1, 0, 'west')]:
-            nx, ny = x + dx, y + dy
-            neighbor_id = next((id for id, pos in self.room_positions.items() if pos == (nx, ny)), None)
-            if neighbor_id:
+            neighbor_pos = (x + dx, y + dy)
+            neighbor_id = self.position_to_id.get(neighbor_pos)
+            if neighbor_id is not None:
                 directions[direction] = neighbor_id
 
         return directions
     
-    def get_room_description(self, player, type_key, filename=DESCRIPTIONS):
-        """Loads and returns a non-repeateing string based on the floor and type."""
+    def get_room_description(self, player=None, type_key="descriptions", filename=DESCRIPTIONS):
+        """Retrieve or generate a room description."""
+        # Use room_id from player or fallback to None
+        room_id = str(player.player_location) if player else None
+
+        # If room_id is None, skip player logic and handle generation
+        if room_id is None:
+            for room_id in self.room_positions.keys():
+                if room_id not in self.room_descriptions:
+                    self.room_descriptions[room_id] = self._generate_room_description(room_id, type_key, filename)
+            return None  # No specific description to return during generation
+
+        # If room_id already has a description, return it
+        if room_id in self.room_descriptions:
+            return self.room_descriptions[room_id]
+
+        # Generate a new description if one doesn't exist
+        self.room_descriptions[room_id] = self._generate_room_description(room_id, type_key, filename)
+        return self.room_descriptions[room_id]
+
+    def _generate_room_description(self, room_id, type_key, filename):
+        """Helper method to generate a room description."""
         try:
             with open(filename, 'r') as file:
-                description_data = json.load(description_data)
+                description_data = json.load(file)
 
-            floor_key = f"floor_{player.dungeon_level}"
-
+            floor_key = f"floor_{self.floor_level}"
             if floor_key in description_data and type_key in description_data[floor_key]:
                 descriptions = description_data[floor_key][type_key]
 
-                # Ensure description is not the same as previous one
+                # Ensure description is not the same as the previous one
                 new_description = self.previous_description
                 attempts = 0
                 while new_description == self.previous_description and attempts < 20:
@@ -195,15 +229,31 @@ class Dungeon():
                     new_description = descriptions[version]
                     attempts += 1
 
-                if type_key == "descriptions":
-                    self.previous_description = new_description
-                
+                self.previous_description = new_description
                 return new_description
             else:
                 return f"No description found for {type_key} on {floor_key}"
-
         except FileNotFoundError:
-            return False
+            return "Description file not found."
+        
+    def add_entrance_exit_descriptions(self, filename=DESCRIPTIONS):
+        """Add entrance and exit descriptions to the dungeon."""
+        try:
+            with open(filename, 'r') as file:
+                description_data = json.load(file)
+
+            floor_key = f"floor_{self.floor_level}"
+            if floor_key in description_data:
+                if "entrances" in description_data[floor_key]:
+                    entrance_descriptions = description_data[floor_key]["entrances"]
+                    self.room_descriptions[str(self.start_location[0])] = rand.choice(list(entrance_descriptions.values()))
+            
+                if "exits" in description_data[floor_key]:
+                    exit_descriptions = description_data[floor_key]["exits"]
+                    self.room_descriptions[str(self.exit_location[0])] = rand.choice(list(exit_descriptions.values()))
+        
+        except FileNotFoundError:
+            print("Description file not found.")
 
     def plot_graph(self):
         """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms. For debugging purposes."""
@@ -258,4 +308,4 @@ if __name__ == '__main__':
     
     dungeon = Dungeon(width, height, rooms, 1)
     dungeon.generate()
-    dungeon.plot_graph()
+    dungeon.get_valid_directions()
