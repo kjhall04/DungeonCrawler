@@ -67,7 +67,8 @@ def get_player_stats():
         'inventory': json.loads(player_save['inventory']),
         'skills': json.loads(player_save['skills']),
         'dungeon_floor': player_save['dungeon_floor'],
-        'player_location': json.loads(player_save['player_location'])
+        'player_location': str(player_save['player_location']).strip('"'),
+        'save_slot': player_save['save_slot']
     })
 
 @game_api.route('/load_save/<int:save_slot>', methods=['GET'])
@@ -86,32 +87,30 @@ def load_save(save_slot):
     if not dungeon:
         return redirect(url_for('auth.select_save'))
 
-    # Determine valid directions
-    valid_directions = dungeon.get_valid_directions(player.player_location)
-
-    new_room_id = player.player_location
-    new_room_coords = dungeon.room_positions[str(new_room_id)]
-    print(f"Player moved to Room ID: {new_room_id}")
-    print(f"Room Coordinates: {new_room_coords}")
-    print(f"Room Details: {dungeon.room_descriptions.get(str(new_room_id), 'No description available')}")
-
-    # Initialize game state
-    game_state = {
-        'narrative': dungeon.get_room_description(player),
-        'interaction': None,
-        'actions': [
-            {'label': f"Move {direction.capitalize()}", 'value': f"move_{direction}"}
-            for direction in valid_directions.keys()
+    # --- Helper: get movement actions ---
+    def get_movement_actions():
+        all_directions = ['north', 'south', 'east', 'west']
+        valid_directions = dungeon.get_valid_directions(player.player_location)
+        return [
+            {
+                'label': f"Move {direction.capitalize()}",
+                'value': f"move_{direction}" if direction in valid_directions else None,
+                'enabled': direction in valid_directions
+            }
+            for direction in all_directions
         ]
-    }
 
-    # Render the game page with the loaded state
+    actions = get_movement_actions()
+
     return render_template(
         'game.html',
-        narrative=game_state['narrative'],
-        interaction=game_state['interaction'],
-        actions=game_state['actions'],
+        narrative=dungeon.get_room_description(player),
+        interaction=None,
+        actions=actions,
         health=player.health,
         max_health=player.max_health,
-        inventory=player.get_inventory()
+        inventory=player.get_inventory(),
+        saved=False,
+        enemy=None,
+        player_defense=player.defense
     )

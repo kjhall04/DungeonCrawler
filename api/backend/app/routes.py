@@ -231,12 +231,19 @@ def create_character():
                 return redirect(url_for('auth.select_save'))  # Handle error if player save is not found
             player_save_id = response.data[0]['id']
 
-            dungeon = Dungeon(width=10, height=10, num_rooms=5, floor_level=1)
-            dungeon.generate()
-            player.player_location = dungeon.start_location[0]
-
-            player.save_player_data(user_id, save_slot)
-            dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+            # Only generate and save a new dungeon if one does not exist for this save
+            dungeon_response = supabase.table('dungeons').select('*').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+            if not dungeon_response.data:
+                dungeon = Dungeon(width=10, height=10, num_rooms=5, floor_level=1)
+                dungeon.generate()
+                player.player_location = dungeon.start_location[0]
+                player.save_player_data(user_id, save_slot)
+                dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+            else:
+                # Load the existing dungeon and set player location to start if needed
+                dungeon = Dungeon.load_from_db(user_id=user_id, save_slot=save_slot)
+                player.player_location = dungeon.start_location[0]
+                player.save_player_data(user_id, save_slot)
 
             return redirect(url_for('game_api.load_save', save_slot=save_slot))
 
@@ -299,14 +306,23 @@ def game_action():
     def get_movement_actions():
         all_directions = ['north', 'south', 'east', 'west']
         valid_directions = dungeon.get_valid_directions(player.player_location)
-        return [
+        actions = [
             {
                 'label': f"Move {direction.capitalize()}",
                 'value': f"move_{direction}" if direction in valid_directions else None,
                 'enabled': direction in valid_directions
             }
-            for direction in valid_directions.keys()
+            for direction in all_directions
         ]
+        # Add descend button if at exit
+        if str(player.player_location) == str(dungeon.exit_location[0]):
+            actions.append({
+                'label': "Descend to Next Floor",
+                'value': "descend_next_floor",
+                'enabled': True,
+                'is_descend': True  # Custom flag for template
+            })
+        return actions
 
     # --- Helper: get skill actions ---
     def get_skill_actions():
@@ -399,6 +415,13 @@ def game_action():
         if direction in valid_directions:
             if player.move(direction, dungeon):
                 session.pop('enemy', None)
+                # Save state immediately after movement
+                player.save_player_data(user_id, save_slot)
+                response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+                if not response.data:
+                    return redirect(url_for('auth.select_save'))
+                player_save_id = response.data[0]['id']
+                dungeon.save_to_db(player_save_id=player_save_id, user_id=user_id, save_slot=save_slot)
                 # Enemy spawn handled on next GET/POST
                 narrative = dungeon.get_room_description(player)
                 actions = get_movement_actions()

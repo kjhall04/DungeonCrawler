@@ -92,11 +92,11 @@ class Dungeon():
 
         start_x, start_y = rand.randint(0, self.width - 1), rand.randint(0, self.height - 1)
         self.grid[start_y][start_x] = 0
-        self.room_positions[0] = (start_x, start_y)
-        self.position_to_id[(start_x, start_y)] = 0  # Map position to room ID
-        self.rooms[0] = []
+        self.room_positions["0"] = (start_x, start_y)
+        self.position_to_id[(start_x, start_y)] = "0"  # Map position to string room ID
+        self.rooms["0"] = []
 
-        stack = [(start_x, start_y, 0)]  # (x, y, room_id)
+        stack = [(start_x, start_y, "0")]  # (x, y, room_id as str)
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Up, Right, Down, Left
         room_id = 1
 
@@ -114,12 +114,13 @@ class Dungeon():
                 ):
                     # Create a new room
                     self.grid[ny][nx] = room_id
-                    self.room_positions[room_id] = (nx, ny)
-                    self.position_to_id[(nx, ny)] = room_id  # Map position to room ID
-                    self.rooms[room_id] = []
-                    self.rooms[current_id].append(room_id)
-                    self.rooms[room_id].append(current_id)
-                    stack.append((nx, ny, room_id))
+                    str_room_id = str(room_id)
+                    self.room_positions[str_room_id] = (nx, ny)
+                    self.position_to_id[(nx, ny)] = str_room_id  # Map position to string room ID
+                    self.rooms[str_room_id] = []
+                    self.rooms[current_id].append(str_room_id)
+                    self.rooms[str_room_id].append(current_id)
+                    stack.append((nx, ny, str_room_id))
                     room_id += 1
                     created_new_room = True
 
@@ -153,28 +154,27 @@ class Dungeon():
 
     def add_start(self):
         """Randomly select a room to be the start location."""
-        start_id = rand.choice([0, max(self.room_positions.keys())])
+        start_id = rand.choice(["0", str(max(int(k) for k in self.room_positions.keys()))])
         self.start_location = (start_id, self.room_positions[start_id])
 
     def add_exit(self):
         """Randomly select a room to be the exit location."""
-        if self.start_location[0] == max(self.rooms):
-            exit_id = min(self.rooms)  # Choose the smallest room ID if the start is the largest
+        if self.start_location[0] == str(max(int(k) for k in self.rooms.keys())):
+            exit_id = str(min(int(k) for k in self.rooms.keys()))
         else:
-            exit_id = max(self.rooms)  # Choose the largest room ID otherwise
+            exit_id = str(max(int(k) for k in self.rooms.keys()))
         self.exit_location = (exit_id, self.room_positions[exit_id])
 
     def add_merchant(self):
         """Randomly select a room to be the merchant location."""
         if rand.random() < MERCHANT_CHANCE:
-            merchant_candidates = [room for room in self.room_positions.keys() if room not in (self.start_location[0], self.exit_location[0])]
+            merchant_candidates = [k for k in self.room_positions.keys() if k not in (self.start_location[0], self.exit_location[0])]
             merchant_id = rand.choice(merchant_candidates)
             self.merchant_location = (merchant_id, self.room_positions[merchant_id])
 
     def get_valid_directions(self, room_id):
         """Returns the valid directions (north, south, east, west) the player can move in a given room."""
         room_id = str(room_id).strip('"')
-
         if room_id not in self.room_positions:
             print(f"Invalid room_id: {room_id}")
             return {}
@@ -187,7 +187,7 @@ class Dungeon():
             neighbor_pos = (x + dx, y + dy)
             neighbor_id = self.position_to_id.get(neighbor_pos)
             if neighbor_id is not None:
-                directions[direction] = neighbor_id
+                directions[direction] = str(neighbor_id)
 
         return directions
     

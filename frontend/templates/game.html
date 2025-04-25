@@ -10,16 +10,33 @@
     <script>
         function togglePauseMenu() {
             const menu = document.getElementById('pause-menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            const body = document.body;
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                body.classList.remove('pause-open');
+            } else {
+                menu.style.display = 'block';
+                body.classList.add('pause-open');
+                body.classList.remove('inventory-open');
+            }
         }
     
         function toggleInventoryMenu() {
             const menu = document.getElementById('inventory-menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            const body = document.body;
+            if (menu.style.display === 'block') {
+                menu.style.display = 'none';
+                body.classList.remove('inventory-open');
+            } else {
+                menu.style.display = 'block';
+                body.classList.add('inventory-open');
+                body.classList.remove('pause-open');
+            }
         }
-    </script>    
+    </script>   
 </head>
 <body>
+    <div id="ui-overlay"></div>
     <div class="wrapper">
         <!-- Pause Icon Button -->
         <button id="pause-button" onclick="togglePauseMenu()">
@@ -29,9 +46,6 @@
         <!-- Pause Menu -->
         <div id="pause-menu" style="display: none;">
             <label id="paused">Paused</label>
-            <form action="/save_game" method="POST">
-                <button class="pause-option">&ltSave Game&gt</button>
-            </form>
             <form action="/select_save" method="GET">
                 <button class="pause-option">&ltBack to Menu&gt</button>
             </form>
@@ -71,7 +85,7 @@
         <!-- Health Display -->
         <div id="health-defense-display">
             <p>Health: {{ health }}/{{ max_health }}</p>
-            <p>Defense: {{ defense }}</p>
+            <p>Defense: {{ player_defense }}</p>
         </div>
 
         <!-- Game Content -->
@@ -114,12 +128,29 @@
             <form action="/game_action" method="POST">
                 <div class="game-actions">
                     {% for action in actions %}
-                        {% if action.enabled %}
-                            <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
-                                &lt{{ action['label'] }}&gt
+                        {% if action.is_descend is not defined %}
+                            {% if action.enabled is defined %}
+                                {% if action.enabled %}
+                                    <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
+                                        &lt;{{ action['label'] }}&gt;
+                                    </button>
+                                {% else %}
+                                    <span class="disabled-action">&lt;{{ action['label'] }}&gt;</span>
+                                {% endif %}
+                            {% else %}
+                                <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
+                                    &lt;{{ action['label'] }}&gt;
+                                </button>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="descend-action-wrapper">
+                    {% for action in actions %}
+                        {% if action.is_descend is defined and action.is_descend %}
+                            <button type="submit" name="action" value="{{ action['value'] }}" class="game-action descend-action">
+                                &lt;{{ action['label'] }}&gt;
                             </button>
-                        {% else %}
-                            <span class="game-action disabled-action">&lt{{ action['label'] }}&gt</span>
                         {% endif %}
                     {% endfor %}
                 </div>

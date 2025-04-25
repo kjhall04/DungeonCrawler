@@ -62,7 +62,7 @@ class Player():
                 'inventory': json.dumps(self.inventory),
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
-                'player_location': self.player_location,
+                'player_location': str(self.player_location),
                 'save_slot': self.save_slot
             }).execute()
         else:
@@ -78,7 +78,7 @@ class Player():
                 'inventory': json.dumps(self.inventory),
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
-                'player_location': json.dumps(self.player_location),
+                'player_location': str(self.player_location),
                 'save_slot': self.save_slot
             }).eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
 
@@ -190,7 +190,7 @@ class Player():
         valid_directions = dungeon.get_valid_directions(current_room)
 
         if direction in valid_directions:
-            self.player_location = valid_directions[direction]
+            self.player_location = str(valid_directions[direction])
             return True
         else:
             return False

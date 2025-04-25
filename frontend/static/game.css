@@ -54,12 +54,17 @@ body {
 /* ------------------- */
 #health-defense-display {
     position: absolute;
-    bottom: 6%;
+    bottom: 7.5%;
     left: 14%;
     font-size: 24px;
     color: white;
-    text-align: right;
+    text-align: left;
     align-items: center;
+}
+
+#health-defense-display p {
+    margin: 2px 0;
+    line-height: 1.2;
 }
 
 /* ------------------- */
@@ -156,6 +161,8 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     gap: 30px;
+    align-items: center;
+    margin-bottom: 0;
 }
 
 .game-action {
@@ -175,13 +182,41 @@ body {
 }
 
 .disabled-action {
-    color: #444;
+    color: darkgray;
     opacity: 0.6;
-    cursor: not-allowed;
     font-size: 24px;
     font-family: "Bebas Neue", sans-serif;
     margin: 0 10px;
     user-select: none;
+    cursor: default;
+    transition: none;
+}
+
+.descend-action-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 44px;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.descend-action {
+    margin-top: 8px;
+    font-size: 28px;
+    color: #ffd700;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.descend-action-wrapper:empty {
+    min-height: 44px; /* Still reserve space if empty */
+}
+
+.descend-action:hover {
+    color: #9d8500;
+    transform: scale(1.1);
 }
 
 /* ------------------- */
@@ -251,4 +286,44 @@ body {
 
 #inventory-button:hover .inventory-icon {
     filter: invert(50%);
+}
+
+/* Overlay for disabling UI */
+#ui-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9000;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    pointer-events: all;
+}
+
+/* PAUSE: Only pause button is usable */
+body.pause-open #ui-overlay {
+    display: block;
+}
+body.pause-open .wrapper > *:not(#pause-menu):not(#pause-button) {
+    pointer-events: none !important;
+    filter: blur(2px) grayscale(0.5);
+    transition: none !important;
+}
+body.pause-open #pause-button {
+    pointer-events: auto !important;
+    filter: none !important;
+    z-index: 10000;
+}
+
+/* INVENTORY: Only inventory button is usable */
+body.inventory-open #ui-overlay {
+    display: block;
+}
+body.inventory-open .wrapper > *:not(#inventory-menu):not(#inventory-button) {
+    pointer-events: none !important;
+    filter: blur(2px) grayscale(0.5);
+    transition: none !important;
+}
+body.inventory-open #inventory-button {
+    pointer-events: auto !important;
+    filter: none !important;
+    z-index: 10000;
 }
