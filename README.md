@@ -1,7 +1,8 @@
 # One More Descent
 
 A web-based dungeon crawler RPG built with Flask, Supabase, and modern HTML/CSS. Players create a character, explore procedurally generated dungeons, battle enemies, collect loot, and descend deeper into the darkness.  
-Play at [onemoredescent.vercel.app](onemoredescent.vercel.app). Note: This is still a work-in-progress application.
+Play at onemoredescent.vercel.app   
+Note: This is still a work-in-progress application and is still missing a few features.
 
 ---
 
