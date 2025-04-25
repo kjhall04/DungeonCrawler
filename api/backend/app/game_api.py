@@ -91,7 +91,7 @@ def load_save(save_slot):
     def get_movement_actions():
         all_directions = ['north', 'south', 'east', 'west']
         valid_directions = dungeon.get_valid_directions(player.player_location)
-        return [
+        actions = [
             {
                 'label': f"Move {direction.capitalize()}",
                 'value': f"move_{direction}" if direction in valid_directions else None,
@@ -99,14 +99,21 @@ def load_save(save_slot):
             }
             for direction in all_directions
         ]
-
-    actions = get_movement_actions()
+        # Add descend button if at exit
+        if str(player.player_location) == str(dungeon.exit_location[0]):
+            actions.append({
+                'label': "Descend to the Next Floor",
+                'value': "descend_next_floor",
+                'enabled': True,
+                'is_descend': True
+            })
+        return actions
 
     return render_template(
         'game.html',
         narrative=dungeon.get_room_description(player),
         interaction=None,
-        actions=actions,
+        actions=get_movement_actions(),
         health=player.health,
         max_health=player.max_health,
         inventory=player.get_inventory(),

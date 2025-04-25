@@ -317,7 +317,7 @@ def game_action():
         # Add descend button if at exit
         if str(player.player_location) == str(dungeon.exit_location[0]):
             actions.append({
-                'label': "Descend to Next Floor",
+                'label': "Descend to the Next Floor",
                 'value': "descend_next_floor",
                 'enabled': True,
                 'is_descend': True  # Custom flag for template
