@@ -91,39 +91,18 @@
         <!-- Game Content -->
         <h1 id="title">One More Descent</h1>
 
-        {% if saved %}
-        <div id="game-saved-message">
-            Game Saved!
-        </div>
-        <script>
-            // Automatically hide the message after 4 seconds
-            setTimeout(() => {
-                const message = document.getElementById('game-saved-message');
-                if (message) {
-                    message.style.display = 'none';
-                }
-            }, 4000);
-        </script>
-        {% endif %}
-
         <div id="narrative-container">
-            <p id="narrative">{{ narrative }}</p>
+            <p id="narrative">{{ narrative|replace('\n', '<br>')|safe }}</p>
         </div>
 
         {% if enemy %}
         <div id="enemy-container">
             <h3>{{ enemy.name }}</h3>
-            <p>{{ enemy.description }}</p>
             <p>Health: {{ enemy.health }}</p>
             <p>Defense: {{ enemy.defense }}</p>
         </div>
         {% endif %}
         
-        <div id="interaction-container">
-            {% if interaction %}
-                <p>{{ interaction }}</p>
-            {% endif %}
-        </div>
         <div id="game-actions-container">
             <form action="/game_action" method="POST">
                 <div class="game-actions">
@@ -157,5 +136,13 @@
             </form>
         </div>
     </div>
+    {% if enemy_defeated_transition %}
+    <script>
+        setTimeout(function() {
+            // Reload the page or submit a form to trigger the room narration
+            window.location.href = window.location.pathname;
+        }, 3000); // 3 seconds
+    </script>
+    {% endif %}
 </body>
 </html>

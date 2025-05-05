@@ -19,7 +19,7 @@ body {
 .wrapper {
     text-align: center;
     width: 100%;
-    max-width: 100%; 
+    max-width: 100%;
     position: relative;
     flex-grow: 1;
     display: flex;
@@ -139,11 +139,8 @@ body {
     margin: 0 auto;
 }
 
-#interaction-container {
+#enemy-container {
     margin-bottom: 20px;
-    text-align: center;
-    font-size: 18px;
-    color: white;
 }
 
 /* ------------------- */
