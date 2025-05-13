@@ -42,6 +42,7 @@ DungeonCrawler/
 │   │   │   ├── game_api.py       # API endpoints (load/save, player stats)
 │   │   │   ├── db.py             # Supabase DB connection
 │   │   │   └── auth.py           # Account creation & login logic
+│   │   │   └── game_action.py    # Reused logic used in the game action route
 │   │   ├── game/
 │   │   │   ├── player.py         # Player class & logic
 │   │   │   ├── dungeon.py        # Dungeon generation & logic
