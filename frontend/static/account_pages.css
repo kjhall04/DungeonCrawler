@@ -85,3 +85,36 @@ body {
     text-align: center;
     min-height: 22px;
 }
+
+/* ...existing code... */
+
+.login-flex-container {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    gap: 60px;
+}
+
+.svg-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.svg-side img {
+    width: 450px;
+    height: auto;
+    filter: brightness(0); /* makes SVG black */
+}
+
+.form-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
