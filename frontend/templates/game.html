@@ -123,6 +123,11 @@
                             {% endif %}
                         {% endif %}
                     {% endfor %}
+                    {% if enemy_defeated_transition %}
+                        <button type="submit" name="action" value="continue_after_event" class="game-action">
+                            &lt;Continue&gt;
+                        </button>
+                    {% endif %}
                 </div>
                 <div class="descend-action-wrapper">
                     {% for action in actions %}
@@ -136,13 +141,5 @@
             </form>
         </div>
     </div>
-    {% if enemy_defeated_transition %}
-    <script>
-        setTimeout(function() {
-            // Reload the page or submit a form to trigger the room narration
-            window.location.href = window.location.pathname;
-        }, 3000); // 3 seconds
-    </script>
-    {% endif %}
 </body>
 </html>

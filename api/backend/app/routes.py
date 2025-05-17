@@ -35,7 +35,7 @@ def login_route():
 
         # Check for empty fields
         if not username or not password:
-            return render_template('login.html', error='Both user_id and password are required', 
+            return render_template('login.html', error='Both username and password are required', 
                                    username=username)
 
         result = login(username, password)
@@ -417,6 +417,20 @@ def game_action():
     # --- Inventory action ---
     elif action == 'inventory':
         return redirect(url_for('auth.inventory'))
+    
+    # --- After Combat action ---
+    elif action == 'continue_after_event':
+        # Advance to the next state, e.g., show room description after enemy defeated
+        narrative = dungeon.get_room_description(player)
+        actions = get_movement_actions(player, dungeon)
+        return render_game(
+            player, dungeon,
+            narrative=narrative,
+            actions=actions,
+            saved=saved,
+            enemy=None,
+            enemy_description=None,
+        )
 
     # --- Final action rendering ---
     if enemy:

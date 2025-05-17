@@ -162,7 +162,7 @@ body {
     margin-bottom: 0;
 }
 
-.game-action {
+.game-action, .btn {
     background: none;
     border: none;
     color: white;

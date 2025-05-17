@@ -86,9 +86,16 @@ def load_save(save_slot):
     # --- Enemy state management on load ---
     enemy = None
     enemy_description = None
-    room_enemy_name = dungeon.room_enemies.get(str(player.player_location))
-    if room_enemy_name:
-        enemy = Enemy.create_enemy(room_enemy_name, dungeon)
+    room_enemy_data = dungeon.room_enemies.get(str(player.player_location))
+    if room_enemy_data:
+        enemy = Enemy(
+            name=room_enemy_data['name'],
+            health=room_enemy_data['health'],
+            max_health=room_enemy_data['max_health'],
+            defense=room_enemy_data['defense'],
+            skills=room_enemy_data['skills'],
+            dungeon=dungeon
+        )
         enemy_description = dungeon.room_enemy_descriptions.get(str(player.player_location))
         session['enemy'] = {
             'name': enemy.name,
