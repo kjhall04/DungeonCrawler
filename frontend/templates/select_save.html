@@ -19,13 +19,15 @@
                 <div class="save-slot-wrapper">
                     <form action="/select_save" method="POST">
                         <input type="hidden" name="save_slot" value="{{ save_slot['slot'] }}">
-                        <button type="submit" name="action" value="select" class="save-slot">
-                            {% if save_slot['used'] %}
-                                <span class="save-name">&ltContinue&gt</span>
-                            {% else %}
-                                <span class="save-name">&ltNew Save&gt</span>
-                            {% endif %}
-                        </button>
+                        <div class="save-btn-container">
+                            <button type="submit" name="action" value="select" class="save-slot">
+                                {% if save_slot['used'] %}
+                                    <span class="save-name">&ltContinue&gt</span>
+                                {% else %}
+                                    <span class="save-name">&ltNew Save&gt</span>
+                                {% endif %}
+                            </button>
+                        </div>
                     </form>
         
                     {% if save_slot['used'] %}
@@ -45,7 +47,6 @@
                 {% endfor %}
             </div>
         </div>
-        
     </div>
 </div>
 <div class="logout-container">
