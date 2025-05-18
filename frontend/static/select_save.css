@@ -142,3 +142,20 @@ body {
     color: darkred;
     transform: scale(1.1);
 }
+
+.wall-svg {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: auto;
+    z-index: 0; /* Behind main content */
+    pointer-events: none; /* So they don't block clicks */
+}
+
+.wall-left {
+    left: 0;
+}
+
+.wall-right {
+    right: 0;
+}

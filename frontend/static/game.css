@@ -55,7 +55,7 @@ body {
 #health-defense-display {
     position: absolute;
     bottom: 7.5%;
-    left: 14%;
+    left: 34%;
     font-size: 24px;
     color: white;
     text-align: left;
@@ -73,7 +73,7 @@ body {
 #pause-button {
     position: absolute;
     top: 5%;
-    left: 5%;
+    left: 25%;
     font-size: 110px;
     background: none;
     border: none;
@@ -135,7 +135,7 @@ body {
     font-size: 30px;
     color: white;
     line-height: 1.5;
-    max-width: 80%;
+    max-width: 70%;
     margin: 0 auto;
 }
 
@@ -259,7 +259,7 @@ body {
 #inventory-button {
     position: absolute;
     bottom: 5%;
-    left: 7%;
+    left: 27%;
     background: none;
     border: none;
     color: white;
@@ -323,4 +323,21 @@ body.inventory-open #inventory-button {
     pointer-events: auto !important;
     filter: none !important;
     z-index: 10000;
+}
+
+.wall-svg {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: auto;
+    z-index: 0; /* Behind main content */
+    pointer-events: none; /* So they don't block clicks */
+}
+
+.wall-left {
+    left: 0;
+}
+
+.wall-right {
+    right: 0;
 }

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One More Descent</title>
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Left.svg') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Right.svg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
@@ -36,6 +38,9 @@
     </script>   
 </head>
 <body>
+    <div class="svg-left">
+        <img src="{{ url_for('static', filename='images/Wall_Left.svg') }}" alt="Wall Left" class="wall-svg wall-left">
+    </div>
     <div id="ui-overlay"></div>
     <div class="wrapper">
         <!-- Pause Icon Button -->
@@ -140,6 +145,9 @@
                 </div>
             </form>
         </div>
+    </div>
+    <div class="svg-right">
+        <img src="{{ url_for('static', filename='images/Wall_Right.svg') }}" alt="Wall Right" class="wall-svg wall-right">
     </div>
 </body>
 </html>

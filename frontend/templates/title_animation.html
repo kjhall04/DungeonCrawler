@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Left.svg') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Right.svg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='title_animation.css') }}">
 </head>
 <body>
+    <div class="svg-left">
+        <img src="{{ url_for('static', filename='images/Wall_Left.svg') }}" alt="Wall Left" class="wall-svg wall-left">
+    </div>
     <div class="wrapper">
         <h1 id="title-animation">One More Descent</h1>
     </div>
@@ -16,5 +21,8 @@
             window.location.href = "{{ url_for('auth.select_save') }}";
         }, 4500);
     </script>
+    <div class="svg-right">
+        <img src="{{ url_for('static', filename='images/Wall_Right.svg') }}" alt="Wall Right" class="wall-svg wall-right">
+    </div>
 </body>
 </html>

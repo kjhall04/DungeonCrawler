@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Save</title>
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Left.svg') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='images/Wall_Right.svg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='select_save.css') }}">
 </head>
 <body>
+    <div class="svg-left">
+        <img src="{{ url_for('static', filename='images/Wall_Left.svg') }}" alt="Wall Left" class="wall-svg wall-left">
+    </div>
     <div class="wrapper">
         <h1 id="title">One More Descent</h1>
         <div id="save-slots-container">
@@ -54,5 +59,8 @@
         <button type="submit" class="logout-button">&ltLogout&gt</button>
     </form>
 </div>
+<div class="svg-right">
+        <img src="{{ url_for('static', filename='images/Wall_Right.svg') }}" alt="Wall Right" class="wall-svg wall-right">
+    </div>
 </body>
 </html>
