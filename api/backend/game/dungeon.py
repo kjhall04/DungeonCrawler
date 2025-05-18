@@ -2,8 +2,6 @@ from backend.app.db import supabase
 import os
 import json
 import random as rand
-import networkx as nx 
-import matplotlib.pyplot as plt
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 DESCRIPTIONS = os.path.join(BASE_DIRECTORY, '..', 'data', 'descriptions.json')
@@ -311,46 +309,3 @@ class Dungeon():
         
         except FileNotFoundError:
             print("Description file not found.")
-
-    def plot_graph(self):
-        """Plots the dungeon layout as a graph using NetworkX, highlighting start, exit, and merchant rooms. For debugging purposes."""
-        graph = nx.Graph()
-
-        for room, connections in self.rooms.items():
-            for connection in connections:
-                graph.add_edge(room, connection)
-
-        pos = {room: (self.room_positions[room][0], -self.room_positions[room][1]) for room in self.rooms}
-
-        # Define colors and sizes
-        node_colors = []
-        node_sizes = []
-
-        for room in self.rooms:
-            if self.room_positions[room] == self.start_location[1]:
-                node_colors.append('green')   # Start room
-                node_sizes.append(700)
-            elif self.room_positions[room] == self.exit_location[1]:
-                node_colors.append('red')     # Exit room
-                node_sizes.append(700)
-            elif self.room_positions[room] == self.merchant_location[1] if self.merchant_location else None:
-                node_colors.append('orange')  # Merchant room
-                node_sizes.append(700)
-            else:
-                node_colors.append('skyblue') # Regular rooms
-                node_sizes.append(500)
-
-        # Draw the graph
-        plt.figure(figsize=(8, 6))
-        nx.draw(graph, pos, with_labels=True, node_size=node_sizes, node_color=node_colors, 
-                font_size=10, font_weight='bold', edge_color='gray')
-
-        # Add legend
-        plt.scatter([], [], c='green', s=100, label="Start Room")
-        plt.scatter([], [], c='red', s=100, label="Exit Room")
-        plt.scatter([], [], c='orange', s=100, label="Merchant Room")
-        plt.scatter([], [], c='skyblue', s=100, label="Regular Rooms")
-        plt.legend(loc="upper right")
-
-        plt.title("Dungeon Layout")
-        plt.show()
