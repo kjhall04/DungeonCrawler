@@ -10,8 +10,9 @@ def create_app():
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
     app = Flask(
         __name__,
-        template_folder=os.path.join(base_dir, 'frontend/templates'),
-        static_folder=os.path.join(base_dir, 'frontend/static')
+        template_folder=os.path.join(base_dir, 'templates'),
+        static_folder=os.path.join(base_dir, 'public'),
+        static_url_path="/"
     )
     app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 

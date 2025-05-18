@@ -52,25 +52,28 @@ DungeonCrawler/
 │   ├── index.py                  # Flask app entrypoint
 │   └── requirements.txt          # Python dependencies
 │
-├── frontend/
-│   ├── templates/                # Jinja2 HTML templates
-│   │   ├── game.html
-│   │   ├── login.html
-│   │   ├── create_account.html
-│   │   ├── create_character.html
-│   │   ├── select_save.html
-│   │   └── title_animation.html
-│   └── static/                   # CSS and images
-│       ├── game.css
-│       ├── select_save.css
-│       ├── account_pages.css
-│       ├── create_character.css
-│       ├── title_animation.css
-│       └── images/
-│           └── treasure_chest.svg
+├── public/                       # CSS and images
+│   ├── images/                
+│   │   ├── SkeletonThrone.svg
+│   │   ├── treasure_chest.svg
+│   │   ├── Wall_Left.svg
+│   │   └── Wall_Right.svg
+│   ├── game.css
+│   ├── select_save.css
+│   ├── account_pages.css
+│   ├── create_character.css
+│   └── title_animation.css
+│   
+├── templates/                # Jinja2 HTML templates
+│   ├── game.html
+│   ├── login.html
+│   ├── create_account.html
+│   ├── create_character.html
+│   ├── select_save.html
+│   └── title_animation.html
 │
 ├── vercel.json                   # Vercel deployment config
-└── README.md                     # (This file)
+└── README.md
 ```
 
 ---
