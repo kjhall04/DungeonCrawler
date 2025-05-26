@@ -55,19 +55,19 @@ body {
 /* Push walls outward on medium screens (e.g., tablets) */
 @media (max-width: 1100px) {
     .wall-left {
-        left: -100px;
+        left: -110px;
     }
     .wall-right {
-        right: -100px;
+        right: -110px;
     }
 }
 
 /* Push walls further out on small screens (e.g., phones) */
 @media (max-width: 700px) {
     .wall-left {
-        left: -150px;
+        left: -160px;
     }
     .wall-right {
-        right: -150px;
+        right: -160px;
     }
 }

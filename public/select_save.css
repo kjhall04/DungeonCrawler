@@ -150,7 +150,6 @@ body {
     width: auto;
     z-index: 0; /* Behind main content */
     pointer-events: none; /* So they don't block clicks */
-    transition: left 0.3s, right 0.3s, transform 0.3s;
 }
 
 .wall-left {
@@ -166,19 +165,19 @@ body {
 /* Push walls outward on medium screens (e.g., tablets) */
 @media (max-width: 1100px) {
     .wall-left {
-        left: -60px;
+        left: -110px;
     }
     .wall-right {
-        right: -60px;
+        right: -110px;
     }
 }
 
 /* Push walls further out on small screens (e.g., phones) */
 @media (max-width: 700px) {
     .wall-left {
-        left: -120px;
+        left: -170px;
     }
     .wall-right {
-        right: -120px;
+        right: -170px;
     }
 }
