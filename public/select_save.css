@@ -61,19 +61,6 @@ body {
     box-sizing: border-box;
 }
 
-@media (max-width: 1100px) {
-    .save-slots {
-        gap: 40px;
-    }
-}
-@media (max-width: 700px) {
-    .save-slots {
-        gap: 10px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-    }
-}
-
 .save-btn-container {
     display: flex;
     justify-content: center;
