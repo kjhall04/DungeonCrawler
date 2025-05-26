@@ -83,6 +83,18 @@ body {
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
+@media (max-width: 1100px) {
+    #pause-button {
+        left: 18%;
+    }
+}
+
+@media (max-width: 700px) {
+    #pause-button {
+        left: 11%;
+    }
+}
+
 #pause-button:hover {
     color: gray;
     transform: scale(1.1);
@@ -267,6 +279,18 @@ body {
     font-size: 80px;
     z-index: 10;
     transition: color 0.3s ease, transform 0.2s ease;
+}
+
+@media (max-width: 1100px) {
+    #inventory-button {
+        left: 20%;
+    }
+}
+
+@media (max-width: 700px) {
+    #inventory-button {
+        left: 13%;
+    }
 }
 
 .inventory-icon {
