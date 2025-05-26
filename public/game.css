@@ -336,8 +336,30 @@ body.inventory-open #inventory-button {
 
 .wall-left {
     left: 0;
+    transform: none;
 }
 
 .wall-right {
     right: 0;
+    transform: none;
+}
+
+/* Push walls outward on medium screens (e.g., tablets) */
+@media (max-width: 1100px) {
+    .wall-left {
+        left: -110px;
+    }
+    .wall-right {
+        right: -110px;
+    }
+}
+
+/* Push walls further out on small screens (e.g., phones) */
+@media (max-width: 700px) {
+    .wall-left {
+        left: -170px;
+    }
+    .wall-right {
+        right: -170px;
+    }
 }

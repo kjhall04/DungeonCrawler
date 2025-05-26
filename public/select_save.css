@@ -47,6 +47,17 @@ body {
     flex-wrap: wrap;
 }
 
+@media (max-width: 1100px) {
+    .save-slots {
+        gap: 60px;
+    }
+}
+@media (max-width: 700px) {
+    .save-slots {
+        gap: 20px;
+    }
+}
+
 .save-slot-wrapper {
     display: flex;
     flex-direction: column;
