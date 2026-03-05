@@ -73,7 +73,7 @@ class Enemy():
             selected_items = rand.sample(loot_data['items'][level_key], min(num_items, len(loot_data['items'][level_key])))
 
             for item in selected_items:
-                if item == 'gold':
+                if item['name'] == 'gold':
                     loot_drops[item['name']] = rand.randint(*gold_range)  # Random gold amount.
                 else:
                     loot_drops[item['name']] = rand.randint(1, 3)  # Random amount for other items
@@ -135,7 +135,6 @@ class Enemy():
         self.health -= damage_taken
         if self.health < 0:
             self.health = 0
-            return True
         return damage_taken
     
     def load_description(self, player, filename=DESCRIPTIONS):

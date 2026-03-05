@@ -1,259 +1,236 @@
-/* General Styles */
-html, body {
-    height: 100%;
+html,
+body {
+    min-height: 100%;
     margin: 0;
     padding: 0;
 }
 
 body {
-    background-color: black;
-    color: white;
+    background: #000;
+    color: #fff;
     font-family: "Bebas Neue", sans-serif;
     display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .wrapper {
-    text-align: center;
-    width: 100%;
-    max-width: 100%;
     position: relative;
-    flex-grow: 1;
+    z-index: 1;
+    width: min(960px, calc(100% - 3rem));
+    min-height: 100vh;
+    padding: calc(env(safe-area-inset-top) + 5.75rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
 }
 
-/* ------------------- */
-/* Title & Messages    */
-/* ------------------- */
 #title {
-    font-size: 25px;
-    position: absolute;
-    top: 8%;
-    left: 50%;
-    transform: translateX(-50%);
     margin: 0;
+    font-size: clamp(1.9rem, 2vw + 1rem, 2.75rem);
+    letter-spacing: 0.05em;
 }
 
 #game-saved-message {
-    font-size: 24px;
-    color: white;
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
+    margin: 0;
+    color: #ffd700;
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
 }
 
-/* ------------------- */
-/* Health & Defense    */
-/* ------------------- */
 #health-defense-display {
-    position: absolute;
-    bottom: 7.5%;
-    left: 34%;
-    font-size: 24px;
-    color: white;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(8rem, auto));
+    gap: 0.35rem 1.5rem;
+    justify-content: center;
+    font-size: clamp(1.15rem, 0.9rem + 0.9vw, 1.5rem);
     text-align: left;
-    align-items: center;
 }
 
 #health-defense-display p {
-    margin: 2px 0;
-    line-height: 1.2;
+    margin: 0;
+    line-height: 1.15;
 }
 
-/* ------------------- */
-/* Pause Menu          */
-/* ------------------- */
-#pause-button {
-    position: absolute;
-    top: 5%;
-    left: 25%;
-    font-size: 110px;
+#pause-button,
+#inventory-button {
+    position: fixed;
+    top: calc(env(safe-area-inset-top) + 1rem);
     background: none;
     border: none;
-    color: white;
     cursor: pointer;
     z-index: 10;
+    color: #fff;
     transition: color 0.3s ease, transform 0.2s ease;
 }
 
-@media (max-width: 1100px) {
-    #pause-button {
-        left: 18%;
-    }
+#pause-button {
+    left: clamp(1rem, 3vw, 2.5rem);
+    font-size: clamp(3rem, 5vw, 4.25rem);
 }
 
-@media (max-width: 700px) {
-    #pause-button {
-        left: 11%;
-    }
+#inventory-button {
+    right: clamp(1rem, 3vw, 2.5rem);
+    padding: 0;
 }
 
-#pause-button:hover {
-    color: gray;
-    transform: scale(1.1);
-}
-
-#pause-menu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: black;
-    padding: 35px 45px;
-    width: 300px;
-    border: 1px solid white;
-    border-radius: 12px;
-    z-index: 9999;
-    text-align: center;
-}
-
-#paused {
-    font-size: 44px;
-    margin: 30px 0 20px 0;
-    color: white;
-}
-
-.pause-option {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 40px;
-    cursor: pointer;
-    display: block;
-    width: 100%;
-    transition: color 0.3s ease, transform 0.2s ease;
-    font-family: "Bebas Neue", sans-serif;
-}
-
-.pause-option:hover {
-    color: gray;
-    transform: scale(1.1);
-}
-
-/* ------------------- */
-/* Narrative & Events  */
-/* ------------------- */
-#narrative-container {
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 30px;
-    color: white;
-    line-height: 1.5;
-    max-width: 70%;
-    margin: 0 auto;
-}
-
-#enemy-container {
-    margin-bottom: 20px;
-}
-
-/* ------------------- */
-/* Game Actions        */
-/* ------------------- */
-#game-actions-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.game-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    align-items: center;
-    margin-bottom: 0;
-}
-
-.game-action, .btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    font-family: "Bebas Neue", sans-serif;
-    cursor: pointer;
-    text-align: center;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.game-action:hover {
-    color: gray;
-    transform: scale(1.1);
-}
-
-.disabled-action {
-    color: darkgray;
-    opacity: 0.6;
-    font-size: 24px;
-    font-family: "Bebas Neue", sans-serif;
-    margin: 0 10px;
-    user-select: none;
-    cursor: default;
-    transition: none;
-}
-
-.descend-action-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 44px;
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 100%;
-}
-
-.descend-action {
-    margin-top: 8px;
-    font-size: 28px;
-    color: #ffd700;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.descend-action-wrapper:empty {
-    min-height: 44px; /* Still reserve space if empty */
-}
-
+#pause-button:hover,
+#inventory-button:hover,
+.pause-option:hover,
+.game-action:hover,
 .descend-action:hover {
-    color: #9d8500;
-    transform: scale(1.1);
+    color: gray;
+    transform: scale(1.05);
 }
 
-/* ------------------- */
-/* Inventory           */
-/* ------------------- */
+.inventory-icon {
+    width: clamp(2.8rem, 4vw, 3.5rem);
+    height: clamp(2.8rem, 4vw, 3.5rem);
+    filter: invert(100%);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+#inventory-button:hover .inventory-icon {
+    filter: invert(65%);
+}
+
+#pause-menu,
 #inventory-menu {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: black;
-    padding: 35px 45px;
-    width: 300px;
-    border: 1px solid white;
-    border-radius: 12px;
+    width: min(24rem, calc(100vw - 2rem));
+    max-height: min(80vh, 40rem);
+    overflow-y: auto;
+    padding: 1.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.96);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.55);
     z-index: 9999;
     text-align: center;
 }
 
+#paused,
+#inventory-title {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 1.6rem + 1vw, 2.7rem);
+}
+
+.pause-option {
+    width: 100%;
+    margin-top: 0.35rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: clamp(1.5rem, 1.1rem + 1vw, 2.1rem);
+    font-family: "Bebas Neue", sans-serif;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+#narrative-container,
+#interaction-container,
+#enemy-container {
+    width: min(52rem, 100%);
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    box-sizing: border-box;
+}
+
+#interaction-container {
+    border-color: rgba(255, 215, 0, 0.3);
+    background: rgba(255, 215, 0, 0.06);
+}
+
+#narrative,
+#interaction {
+    margin: 0;
+    font-size: clamp(1.5rem, 1rem + 1.2vw, 2.15rem);
+    line-height: 1.4;
+}
+
+#enemy-container h3 {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.45rem, 1.1rem + 0.9vw, 2rem);
+}
+
+#enemy-container p {
+    margin: 0.2rem 0;
+    font-size: clamp(1.15rem, 0.95rem + 0.6vw, 1.4rem);
+}
+
+#game-actions-container,
+.game-actions-form {
+    width: min(42rem, 100%);
+}
+
+.game-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.85rem 1.35rem;
+    align-items: center;
+}
+
+.game-action,
+.disabled-action {
+    display: inline-block;
+    font-size: clamp(1.2rem, 0.95rem + 0.9vw, 1.7rem);
+    font-family: "Bebas Neue", sans-serif;
+    text-align: center;
+}
+
+.game-action {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.disabled-action {
+    color: #737373;
+    opacity: 0.8;
+    user-select: none;
+    cursor: default;
+}
+
+.descend-action-wrapper {
+    display: flex;
+    justify-content: center;
+    min-height: 2.5rem;
+    width: 100%;
+    margin-top: 0.45rem;
+}
+
+.descend-action {
+    color: #ffd700;
+}
+
+.descend-action:hover {
+    color: #a88b00;
+}
+
 .inventory-section {
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
+}
+
+.inventory-section:last-child {
+    margin-bottom: 0;
 }
 
 .inventory-section h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: white;
+    margin: 0 0 0.6rem;
+    font-size: clamp(1.35rem, 1rem + 0.8vw, 1.8rem);
 }
 
 .inventory-section ul {
@@ -263,86 +240,32 @@ body {
 }
 
 .inventory-section li {
-    font-size: 18px;
-    color: white;
-    margin-bottom: 5px;
+    font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.3rem);
+    margin-bottom: 0.35rem;
 }
 
-#inventory-button {
-    position: absolute;
-    bottom: 5%;
-    left: 27%;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 80px;
-    z-index: 10;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-@media (max-width: 1100px) {
-    #inventory-button {
-        left: 20%;
-    }
-}
-
-@media (max-width: 700px) {
-    #inventory-button {
-        left: 13%;
-    }
-}
-
-.inventory-icon {
-    width: 60px;
-    height: 60px;
-    filter: invert(100%);
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-#inventory-button:hover {
-    color: gray;
-    transform: scale(1.1);
-}
-
-#inventory-button:hover .inventory-icon {
-    filter: invert(50%);
-}
-
-/* Overlay for disabling UI */
 #ui-overlay {
     display: none;
     position: fixed;
     z-index: 9000;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.48);
     pointer-events: all;
 }
 
-/* PAUSE: Only pause button is usable */
-body.pause-open #ui-overlay {
-    display: block;
-}
-body.pause-open .wrapper > *:not(#pause-menu):not(#pause-button) {
-    pointer-events: none !important;
-    filter: blur(2px) grayscale(0.5);
-    transition: none !important;
-}
-body.pause-open #pause-button {
-    pointer-events: auto !important;
-    filter: none !important;
-    z-index: 10000;
-}
-
-/* INVENTORY: Only inventory button is usable */
+body.pause-open #ui-overlay,
 body.inventory-open #ui-overlay {
     display: block;
 }
+
+body.pause-open .wrapper > *:not(#pause-menu):not(#pause-button),
 body.inventory-open .wrapper > *:not(#inventory-menu):not(#inventory-button) {
     pointer-events: none !important;
     filter: blur(2px) grayscale(0.5);
     transition: none !important;
 }
+
+body.pause-open #pause-button,
 body.inventory-open #inventory-button {
     pointer-events: auto !important;
     filter: none !important;
@@ -354,36 +277,96 @@ body.inventory-open #inventory-button {
     top: 0;
     height: 100vh;
     width: auto;
-    z-index: 0; /* Behind main content */
-    pointer-events: none; /* So they don't block clicks */
+    z-index: 0;
+    pointer-events: none;
 }
 
 .wall-left {
     left: 0;
-    transform: none;
 }
 
 .wall-right {
     right: 0;
-    transform: none;
 }
 
-/* Push walls outward on medium screens (e.g., tablets) */
-@media (max-width: 1100px) {
-    .wall-left {
-        left: -110px;
+@media (max-width: 1024px) {
+    .wrapper {
+        width: min(48rem, calc(100% - 2.5rem));
+        padding-top: calc(env(safe-area-inset-top) + 5rem);
     }
+
+    .wall-left {
+        left: -120px;
+    }
+
     .wall-right {
-        right: -110px;
+        right: -120px;
     }
 }
 
-/* Push walls further out on small screens (e.g., phones) */
-@media (max-width: 700px) {
-    .wall-left {
-        left: -170px;
+@media (max-width: 768px) {
+    .wrapper {
+        width: calc(100% - 1.5rem);
+        padding-top: calc(env(safe-area-inset-top) + 4.8rem);
+        gap: 0.85rem;
     }
+
+    #health-defense-display {
+        width: min(24rem, 100%);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.35rem 1rem;
+    }
+
+    #pause-menu,
+    #inventory-menu {
+        padding: 1.4rem 1.1rem;
+    }
+
+    .wall-left {
+        left: -165px;
+    }
+
     .wall-right {
-        right: -170px;
+        right: -165px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wrapper {
+        width: calc(100% - 1rem);
+        padding-top: calc(env(safe-area-inset-top) + 4.25rem);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+    }
+
+    #pause-button {
+        font-size: 3rem;
+    }
+
+    #narrative-container,
+    #interaction-container,
+    #enemy-container {
+        padding: 0.85rem 1rem;
+    }
+
+    .game-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .game-action,
+    .disabled-action {
+        width: 100%;
+    }
+
+    .descend-action-wrapper {
+        min-height: 0;
+    }
+
+    .wall-left {
+        left: -205px;
+    }
+
+    .wall-right {
+        right: -205px;
     }
 }

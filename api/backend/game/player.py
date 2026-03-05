@@ -17,7 +17,7 @@ class Player():
         self.health = health
         self.max_health = max_health
         self.defense = defense
-        self.inventory = inventory if inventory is not None else {'gold': 5, 'health_potions': 3, 'equipment': []}
+        self.inventory = self.normalize_inventory(inventory)
         self.skills = skills if skills is not None else self.load_skills(player_class)
         self.dungeon_floor = dungeon_floor
         self.player_location = player_location
@@ -45,9 +45,30 @@ class Player():
             )
         return None
 
+    @staticmethod
+    def normalize_inventory(inventory):
+        """Normalize inventory keys so saves and loot drops share one shape."""
+        if inventory is None:
+            return {'gold': 5, 'health potion': 3, 'equipment': []}
+
+        normalized = dict(inventory)
+        legacy_potions = normalized.pop('health_potions', 0)
+        normalized['gold'] = int(normalized.get('gold', 0))
+        normalized['health potion'] = int(normalized.get('health potion', 0)) + int(legacy_potions)
+
+        equipment = normalized.get('equipment', [])
+        normalized['equipment'] = [
+            item['name'] if isinstance(item, dict) and 'name' in item else item
+            for item in equipment
+        ]
+        return normalized
+
     def save_player_data(self, user_id: int, save_slot: int):
         """Save player data to the database."""
-        response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
+        target_save_slot = self.save_slot if self.save_slot is not None else save_slot
+        self.save_slot = target_save_slot
+
+        response = supabase.table('player_saves').select('*').eq('user_id', user_id).eq('save_slot', target_save_slot).execute()
         if not response.data:
             # Create a new PlayerSave entry
             supabase.table('player_saves').insert({
@@ -63,7 +84,7 @@ class Player():
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
                 'player_location': str(self.player_location),
-                'save_slot': self.save_slot
+                'save_slot': target_save_slot
             }).execute()
         else:
             # Update existing PlayerSave entry
@@ -79,8 +100,8 @@ class Player():
                 'skills': json.dumps(self.skills),
                 'dungeon_floor': self.dungeon_floor,
                 'player_location': str(self.player_location),
-                'save_slot': self.save_slot
-            }).eq('user_id', user_id).eq('save_slot', self.save_slot).execute()
+                'save_slot': target_save_slot
+            }).eq('user_id', user_id).eq('save_slot', target_save_slot).execute()
 
     def load_skills(self, player_class: str):
         """Returns skills based off of player class."""
@@ -92,19 +113,27 @@ class Player():
             print('Class skills file not found.')
             return []
     
-    def add_item_to_inventory(self, item: str, amount: int):
+    def add_item_to_inventory(self, item, amount: int = 1):
         """Adds new items to the player inventory"""
         if amount is None:
             amount = 1
 
-        if item in self.inventory:
+        if isinstance(item, dict):
+            item_name = item.get('name')
+            if not item_name or len(self.inventory['equipment']) >= 5:
+                return False
+            self.inventory['equipment'].append(item_name)
+            return True
+
+        if item in self.inventory and isinstance(self.inventory[item], int):
             self.inventory[item] += amount
             return True
-        elif len(self.inventory['equipment']) < 5:
-            self.inventory['equipment'].append(item)
-            return True
-        else:
+
+        if item == 'equipment':
             return False
+
+        self.inventory[item] = max(amount, 0)
+        return True
         
     def remove_item_from_inventory(self, item: str, amount: int = 1):
         """Removes a given amount of an item from the inventory."""
@@ -132,6 +161,42 @@ class Player():
         summary = {k: v for k, v in self.inventory.items() if k != 'equipment'}
         summary['equipment'] = [item for item in self.inventory['equipment']]
         return summary
+
+    def collect_loot(self, loot):
+        """Add enemy loot to the inventory and return a readable summary."""
+        if not loot:
+            return ""
+
+        collected = []
+        for item_name, value in loot.items():
+            if isinstance(value, dict):
+                if self.add_item_to_inventory(value):
+                    collected.append(value['name'])
+                continue
+
+            if self.add_item_to_inventory(item_name, value):
+                suffix = f" x{value}" if value > 1 else ""
+                collected.append(f"{item_name}{suffix}")
+
+        return ", ".join(collected)
+
+    def gain_experience(self, amount: int):
+        """Award experience and apply simple level-up progression."""
+        leveled_up = False
+        self.experience += amount
+
+        while self.experience >= self.level * 10:
+            self.experience -= self.level * 10
+            self.level += 1
+            self.max_health += 5
+            self.health = self.max_health
+            self.defense += 1
+            leveled_up = True
+
+        return {
+            'awarded': amount,
+            'leveled_up': leveled_up,
+        }
 
     def attack_enemy(self, enemy, skill_name):
         """
@@ -169,9 +234,9 @@ class Player():
     
     def heal(self):
         """Heal the player if they have health potions."""
-        if self.inventory['health_potions'] > 0:
+        if self.inventory.get('health potion', 0) > 0:
             self.health = min(self.health + 5, self.max_health)
-            self.inventory['health_potions'] -= 1
+            self.inventory['health potion'] -= 1
             return True
         return False
     

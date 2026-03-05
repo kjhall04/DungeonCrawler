@@ -1,8 +1,42 @@
-from flask import render_template, redirect, url_for, session, request
+from flask import render_template, redirect, session, url_for
+
 from backend.app.db import supabase
-from backend.game.player import Player
 from backend.game.dungeon import Dungeon
 from backend.game.enemy import Enemy
+
+
+def get_player_save_id(user_id, save_slot):
+    response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
+    if not response.data:
+        return None
+    return response.data[0]['id']
+
+
+def persist_game_state(player, dungeon, user_id, save_slot):
+    player.save_player_data(user_id, save_slot)
+    player_save_id = get_player_save_id(user_id, save_slot)
+    if player_save_id is None:
+        return False
+    dungeon.save_to_db(player_save_id=player_save_id, user_id=user_id, save_slot=save_slot)
+    return True
+
+
+def build_enemy_for_room(dungeon, room_id):
+    room_enemy_data = dungeon.room_enemies.get(str(room_id))
+    if not room_enemy_data:
+        return None, None
+
+    enemy = Enemy(
+        name=room_enemy_data['name'],
+        health=room_enemy_data['health'],
+        max_health=room_enemy_data['max_health'],
+        defense=room_enemy_data['defense'],
+        skills=room_enemy_data['skills'],
+        dungeon=dungeon,
+        loot=room_enemy_data.get('loot')
+    )
+    enemy_description = dungeon.room_enemy_descriptions.get(str(room_id))
+    return enemy, enemy_description
 
 def get_movement_actions(player, dungeon):
     all_directions = ['north', 'south', 'east', 'west']
@@ -44,20 +78,28 @@ def render_game(player, dungeon, narrative, actions, saved, enemy=None, enemy_de
         enemy=enemy,
         enemy_description=enemy_description,
         player_defense=player.defense,
+        player_level=player.level,
+        dungeon_floor=player.dungeon_floor,
         enemy_defeated_transition=enemy_defeated_transition
     )
 
 def handle_combat_action(player, dungeon, enemy, enemy_description, action, user_id, save_slot, saved):
     interaction = player.attack_enemy(enemy, action[len('skill_'):])
     if enemy.health <= 0:
-        narrative = f" {enemy.name} is defeated!"
-        enemy = None
+        loot_summary = player.collect_loot(enemy.loot)
+        experience = player.gain_experience(dungeon.floor_level * 4 + enemy.defense + len(enemy.skills))
+        narrative = f"{enemy.name} is defeated!"
         dungeon.room_enemies[str(player.player_location)] = None
-        player.save_player_data(user_id, save_slot)
-        response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-        if response.data:
-            player_save_id = response.data[0]['id']
-            dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+        if not persist_game_state(player, dungeon, user_id, save_slot):
+            return redirect(url_for('auth.select_save'))
+
+        reward_lines = [f"Gained {experience['awarded']} experience."]
+        if loot_summary:
+            reward_lines.insert(0, f"Loot found: {loot_summary}.")
+        if experience['leveled_up']:
+            reward_lines.append(f"Level up! You are now level {player.level}.")
+
+        interaction = "\n".join([line for line in [interaction, *reward_lines] if line])
         session['just_defeated_enemy'] = True
         return render_game(
             player, dungeon,
@@ -78,13 +120,11 @@ def handle_combat_action(player, dungeon, enemy, enemy_description, action, user
             "health": enemy.health,
             "max_health": enemy.max_health,
             "defense": enemy.defense,
-            "skills": enemy.skills
+            "skills": enemy.skills,
+            "loot": enemy.loot,
         }
-        player.save_player_data(user_id, save_slot)
-        response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-        if response.data:
-            player_save_id = response.data[0]['id']
-            dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
+        if not persist_game_state(player, dungeon, user_id, save_slot):
+            return redirect(url_for('auth.select_save'))
         return None, interaction
 
 def handle_heal_action(player, enemy):
@@ -101,25 +141,10 @@ def handle_move_action(player, dungeon, direction, user_id, save_slot, saved):
     valid_directions = dungeon.get_valid_directions(player.player_location)
     if direction in valid_directions:
         if player.move(direction, dungeon):
-            player.save_player_data(user_id, save_slot)
-            response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-            if not response.data:
+            if not persist_game_state(player, dungeon, user_id, save_slot):
                 return redirect(url_for('auth.select_save'))
-            player_save_id = response.data[0]['id']
-            dungeon.save_to_db(player_save_id=player_save_id, user_id=user_id, save_slot=save_slot)
-            room_enemy_data = dungeon.room_enemies.get(str(player.player_location))
-            enemy = None
-            enemy_description = None
-            if room_enemy_data:
-                enemy = Enemy(
-                    name=room_enemy_data['name'],
-                    health=room_enemy_data['health'],
-                    max_health=room_enemy_data['max_health'],
-                    defense=room_enemy_data['defense'],
-                    skills=room_enemy_data['skills'],
-                    dungeon=dungeon
-                )
-                enemy_description = dungeon.room_enemy_descriptions.get(str(player.player_location))
+            enemy, enemy_description = build_enemy_for_room(dungeon, player.player_location)
+            if enemy:
                 narrative = enemy_description or f"A {enemy.name} appears!"
                 actions = get_skill_actions(player)
             else:
@@ -140,12 +165,8 @@ def handle_descend_action(player, user_id, save_slot, saved):
     dungeon = Dungeon(width=10, height=10, num_rooms=5, floor_level=player.dungeon_floor)
     dungeon.generate()
     player.player_location = dungeon.start_location[0]
-    player.save_player_data(user_id, save_slot)
-    response = supabase.table('player_saves').select('id').eq('user_id', user_id).eq('save_slot', save_slot).execute()
-    if not response.data:
+    if not persist_game_state(player, dungeon, user_id, save_slot):
         return redirect(url_for('auth.select_save'))
-    player_save_id = response.data[0]['id']
-    dungeon.save_to_db(player_save_id, user_id=user_id, save_slot=save_slot)
     actions = get_movement_actions(player, dungeon)
     return render_game(
         player, dungeon,

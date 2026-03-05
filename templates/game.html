@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>One More Descent</title>
     <link rel="preload" as="image" href="/images/Wall_Left.svg">
     <link rel="preload" as="image" href="/images/Wall_Right.svg">
@@ -10,32 +10,40 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
     <script>
+        function closeMenus() {
+            document.getElementById('pause-menu').style.display = 'none';
+            document.getElementById('inventory-menu').style.display = 'none';
+            document.body.classList.remove('pause-open', 'inventory-open');
+        }
+
+        function setMenuState(menuId, bodyClass) {
+            const menu = document.getElementById(menuId);
+            const shouldOpen = menu.style.display !== 'block';
+
+            closeMenus();
+            if (shouldOpen) {
+                menu.style.display = 'block';
+                document.body.classList.add(bodyClass);
+            }
+        }
+
         function togglePauseMenu() {
-            const menu = document.getElementById('pause-menu');
-            const body = document.body;
-            if (menu.style.display === 'block') {
-                menu.style.display = 'none';
-                body.classList.remove('pause-open');
-            } else {
-                menu.style.display = 'block';
-                body.classList.add('pause-open');
-                body.classList.remove('inventory-open');
-            }
+            setMenuState('pause-menu', 'pause-open');
         }
-    
+
         function toggleInventoryMenu() {
-            const menu = document.getElementById('inventory-menu');
-            const body = document.body;
-            if (menu.style.display === 'block') {
-                menu.style.display = 'none';
-                body.classList.remove('inventory-open');
-            } else {
-                menu.style.display = 'block';
-                body.classList.add('inventory-open');
-                body.classList.remove('pause-open');
-            }
+            setMenuState('inventory-menu', 'inventory-open');
         }
-    </script>   
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('ui-overlay').addEventListener('click', closeMenus);
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeMenus();
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="svg-left">
@@ -43,31 +51,31 @@
     </div>
     <div id="ui-overlay"></div>
     <div class="wrapper">
-        <!-- Pause Icon Button -->
-        <button id="pause-button" onclick="togglePauseMenu()">
+        <button id="pause-button" type="button" aria-label="Open pause menu" onclick="togglePauseMenu()">
             <i class='bx bx-pause'></i>
         </button>
 
-        <!-- Pause Menu -->
         <div id="pause-menu" style="display: none;">
-            <label id="paused">Paused</label>
+            <h2 id="paused">Paused</h2>
+            <form action="/save_game" method="POST">
+                <button type="submit" class="pause-option">&lt; Save Game &gt;</button>
+            </form>
             <form action="/select_save" method="GET">
-                <button class="pause-option">&ltBack to Menu&gt</button>
+                <button type="submit" class="pause-option">&lt; Back to Menu &gt;</button>
             </form>
             <form action="/logout" method="GET">
-                <button class="pause-option">&ltLogout&gt</button>
+                <button type="submit" class="pause-option">&lt; Logout &gt;</button>
             </form>
         </div>
 
-        <!-- Inventory Menu -->
         <div id="inventory-menu" style="display: none;">
-            <label id="inventory-title">Inventory</label>
+            <h2 id="inventory-title">Inventory</h2>
             <div class="inventory-section">
                 <h3>Items</h3>
                 <ul>
                     {% for item, quantity in inventory.items() %}
-                        {% if item != 'equipment' %}
-                            <li>{{ item }} x{{ quantity }}</li>
+                        {% if item != 'equipment' and quantity %}
+                            <li>{{ item|replace('_', ' ')|title }} x{{ quantity }}</li>
                         {% endif %}
                     {% endfor %}
                 </ul>
@@ -75,30 +83,42 @@
             <div class="inventory-section">
                 <h3>Equipment</h3>
                 <ul>
-                    {% for equipment in inventory['equipment'] %}
-                        <li>{{ equipment }}</li>
-                    {% endfor %}
+                    {% if inventory['equipment'] %}
+                        {% for equipment in inventory['equipment'] %}
+                            <li>{{ equipment|replace('_', ' ')|title }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li>No equipment collected</li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
 
-        <!-- Inventory Button -->
-        <button id="inventory-button" onclick="toggleInventoryMenu()">
+        <button id="inventory-button" type="button" aria-label="Open inventory" onclick="toggleInventoryMenu()">
             <img src="/images/treasure_chest.svg" alt="Inventory" class="inventory-icon">
         </button>
 
-        <!-- Health Display -->
         <div id="health-defense-display">
             <p>Health: {{ health }}/{{ max_health }}</p>
             <p>Defense: {{ player_defense }}</p>
+            <p>Level: {{ player_level }}</p>
+            <p>Floor: {{ dungeon_floor }}</p>
         </div>
 
-        <!-- Game Content -->
         <h1 id="title">One More Descent</h1>
+        {% if saved %}
+            <p id="game-saved-message">Game Saved</p>
+        {% endif %}
 
         <div id="narrative-container">
             <p id="narrative">{{ narrative|replace('\n', '<br>')|safe }}</p>
         </div>
+
+        {% if interaction %}
+        <div id="interaction-container">
+            <p id="interaction">{{ interaction|replace('\n', '<br>')|safe }}</p>
+        </div>
+        {% endif %}
 
         {% if enemy %}
         <div id="enemy-container">
@@ -109,28 +129,28 @@
         {% endif %}
         
         <div id="game-actions-container">
-            <form action="/game_action" method="POST">
+            <form action="/game_action" method="POST" class="game-actions-form">
                 <div class="game-actions">
                     {% for action in actions %}
                         {% if action.is_descend is not defined %}
                             {% if action.enabled is defined %}
                                 {% if action.enabled %}
                                     <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
-                                        &lt;{{ action['label'] }}&gt;
+                                        &lt; {{ action['label'] }} &gt;
                                     </button>
                                 {% else %}
-                                    <span class="disabled-action">&lt;{{ action['label'] }}&gt;</span>
+                                    <span class="disabled-action">&lt; {{ action['label'] }} &gt;</span>
                                 {% endif %}
                             {% else %}
                                 <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
-                                    &lt;{{ action['label'] }}&gt;
+                                    &lt; {{ action['label'] }} &gt;
                                 </button>
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                     {% if enemy_defeated_transition %}
                         <button type="submit" name="action" value="continue_after_event" class="game-action">
-                            &lt;Continue&gt;
+                            &lt; Continue &gt;
                         </button>
                     {% endif %}
                 </div>
@@ -138,7 +158,7 @@
                     {% for action in actions %}
                         {% if action.is_descend is defined and action.is_descend %}
                             <button type="submit" name="action" value="{{ action['value'] }}" class="game-action descend-action">
-                                &lt;{{ action['label'] }}&gt;
+                                &lt; {{ action['label'] }} &gt;
                             </button>
                         {% endif %}
                     {% endfor %}

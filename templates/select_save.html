@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Select Save</title>
     <link rel="preload" as="image" href="/images/Wall_Left.svg">
     <link rel="preload" as="image" href="/images/Wall_Right.svg">
@@ -27,9 +27,9 @@
                         <div class="save-btn-container">
                             <button type="submit" name="action" value="select" class="save-slot">
                                 {% if save_slot['used'] %}
-                                    <span class="save-name">&ltContinue&gt</span>
+                                    <span class="save-name">&lt; Continue &gt;</span>
                                 {% else %}
-                                    <span class="save-name">&ltNew&nbspSave&gt</span>
+                                    <span class="save-name">&lt; New Save &gt;</span>
                                 {% endif %}
                             </button>
                         </div>
@@ -44,7 +44,7 @@
                         <form action="/select_save" method="POST">
                             <input type="hidden" name="save_slot" value="{{ save_slot['slot'] }}">
                             <button type="submit" name="action" value="delete" class="delete-button">
-                                &ltDelete Save&gt
+                                &lt; Delete Save &gt;
                             </button>
                         </form>
                     {% endif %}
@@ -53,13 +53,12 @@
             </div>
         </div>
     </div>
-</div>
-<div class="logout-container">
-    <form action="/logout" method="GET">
-        <button type="submit" class="logout-button">&ltLogout&gt</button>
-    </form>
-</div>
-<div class="svg-right">
+    <div class="logout-container">
+        <form action="/logout" method="GET">
+            <button type="submit" class="logout-button">&lt; Logout &gt;</button>
+        </form>
+    </div>
+    <div class="svg-right">
         <img src="/images/Wall_Right.svg" alt="Wall Right" class="wall-svg wall-right">
     </div>
 </body>

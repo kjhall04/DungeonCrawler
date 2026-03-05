@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Login</title>
     <link rel="preload" as="image" href="/images/SkeletonThrone.svg">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -19,10 +19,10 @@
                     <h1>One More Descent</h1>
                     <h2>---- Login ----</h2>
                     <div class="input-box">
-                        <input type="text" name="username" placeholder="Username" value="{{ username if username else '' }}" required>
+                        <input type="text" name="username" placeholder="Username" value="{{ username if username else '' }}" autocomplete="username" required>
                     </div>
                     <div class="input-box">
-                        <input type="password" name="password" placeholder="Password" required>
+                        <input type="password" name="password" placeholder="Password" autocomplete="current-password" required>
                     </div>
                     <p class="error">{{ error if error else '' }}</p>
                     <button type="submit" class="btn">Login</button>

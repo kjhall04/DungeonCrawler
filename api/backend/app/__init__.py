@@ -1,28 +1,47 @@
-from flask import Flask
-from backend.app.routes import auth_routes
-from backend.app.game_api import game_api
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+from flask import Flask
+
+from backend.app.game_api import game_api
+from backend.app.routes import auth_routes, limiter
+
+BASE_DIR = Path(__file__).resolve().parents[3]
+ENV_FILE = BASE_DIR / ".env"
+
+
+def _env_flag(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
 
 def create_app():
     """Create and configure the flask app."""
-    load_dotenv()
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
+    load_dotenv(ENV_FILE)
+
+    debug_enabled = _env_flag("FLASK_DEBUG")
+    is_production = os.getenv("VERCEL_ENV") == "production" or os.getenv("FLASK_ENV") == "production"
+
     app = Flask(
         __name__,
-        template_folder=os.path.join(base_dir, 'templates'),
-        static_folder=os.path.join(base_dir, 'public'),
+        template_folder=str(BASE_DIR / "templates"),
+        static_folder=str(BASE_DIR / "public"),
         static_url_path="/"
     )
-    app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
+    app.config.update(
+        SECRET_KEY=os.getenv("FLASK_SECRET_KEY", "dev-secret-key"),
+        SESSION_COOKIE_SECURE=is_production,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+        TEMPLATES_AUTO_RELOAD=debug_enabled,
+    )
+    app.debug = debug_enabled
 
-    # Secure session settings
-    app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
-    app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to cookies
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Prevent CSRF in cross-site contexts
-
-    # Register blueprints
     app.register_blueprint(auth_routes)
     app.register_blueprint(game_api)
+    limiter.init_app(app)
 
     return app

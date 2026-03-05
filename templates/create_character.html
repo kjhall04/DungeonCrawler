@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Create Character</title>
     <link rel="preload" as="image" href="/images/Wall_Left.svg">
     <link rel="preload" as="image" href="/images/Wall_Right.svg">
@@ -28,25 +28,25 @@
                 <div class="input-box">
                     <input type="text" name="name" placeholder="Enter your name" value="{{ player_name }}" required>
                 </div>
-                <button type="submit" class="btn">&ltContinue&gt</button>
+                <button type="submit" class="btn">&lt; Continue &gt;</button>
             </form>
         {% elif show_class_choice %}
             <!-- Class Selection Form -->
             <form action="{{ url_for('auth.create_character', step=step) }}" method="POST">
                 <div class="class-selection">
-                    <button type="submit" name="class" value="mage" class="btn">&ltMage&gt</button>
-                    <button type="submit" name="class" value="warrior" class="btn">&ltWarrior&gt</button>
-                    <button type="submit" name="class" value="rogue" class="btn">&ltRogue&gt</button>
+                    <button type="submit" name="class" value="mage" class="btn">&lt; Mage &gt;</button>
+                    <button type="submit" name="class" value="warrior" class="btn">&lt; Warrior &gt;</button>
+                    <button type="submit" name="class" value="rogue" class="btn">&lt; Rogue &gt;</button>
                 </div>
             </form>
         {% elif step == 8 %}
             <form action="{{ url_for('auth.create_character', step=step + 1) }}" method="POST">
-                <button type="submit" class="btn">&ltEnter the Dungeon&gt</button>
+                <button type="submit" class="btn">&lt; Enter the Dungeon &gt;</button>
             </form>
         {% else %}
             <!-- Next Step Button -->
             <form action="{{ url_for('auth.create_character', step=step + 1) }}" method="POST">
-                <button type="submit" class="btn">&ltContinue&gt</button>
+                <button type="submit" class="btn">&lt; Continue &gt;</button>
             </form>
         {% endif %}
     </div>

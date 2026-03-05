@@ -1,86 +1,98 @@
 body {
-    background-color: black;
-    color: white;
+    background: #000;
+    color: #fff;
     font-family: "Bebas Neue", sans-serif;
     display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     margin: 0;
+    overflow-x: hidden;
 }
 
 .wrapper {
-    text-align: center;
-    width: 100%;
-    max-width: 100%;
     position: relative;
-    flex-grow: 1;
+    z-index: 1;
+    width: min(900px, calc(100% - 3rem));
+    min-height: 100vh;
+    padding: calc(env(safe-area-inset-top) + 5rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 1.4rem;
+    text-align: center;
 }
 
 #title {
-    font-size: 25px;
-    position: absolute;
-    top: 8%;
-    left: 50%;
-    transform: translateX(-50%);
     margin: 0;
+    font-size: clamp(1.8rem, 2vw + 1rem, 2.7rem);
+    letter-spacing: 0.05em;
 }
 
 #story-container {
-    margin: 10px 0;
-    width: 70%;
-    font-size: 36px;
-    color: white;
-    text-align: center;
-    line-height: 1.5;
+    width: min(44rem, 100%);
+    font-size: clamp(1.7rem, 1.1rem + 1.5vw, 2.35rem);
+    line-height: 1.45;
+}
+
+#story-container p {
+    margin: 0;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.class-selection {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .btn {
     background: none;
     border: none;
-    color: white;
-    font-size: 24px;
+    color: #fff;
+    font-size: clamp(1.35rem, 1rem + 1vw, 1.9rem);
     font-family: "Bebas Neue", sans-serif;
-    padding: 5px 20px;
+    padding: 0.35rem 1rem;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-top: 20px;
+    transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .btn:hover {
     color: gray;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .input-box {
-    width: 1000px;
-    margin: 20px 0;
+    width: min(32rem, 100%);
+    margin: 0 auto;
 }
 
 .input-box input {
-    font-size: 24px;
-    padding: 5px;
-    width: 80%;
-    max-width: 400px;
-    text-align: center;
-    border: 2px solid white;
+    width: 100%;
+    border: 2px solid #fff;
+    border-radius: 999px;
     background: none;
-    color: white;
+    color: #fff;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 0.85rem 1rem;
     font-family: "Bebas Neue", sans-serif;
 }
 
 .input-box input::placeholder {
-    color: gray;
+    color: #8b8b8b;
 }
 
 .input-box input:focus {
     outline: none;
-    border-color: lightgray;
+    border-color: #d4d4d4;
 }
 
 .wall-svg {
@@ -88,36 +100,80 @@ body {
     top: 0;
     height: 100vh;
     width: auto;
-    z-index: 0; /* Behind main content */
-    pointer-events: none; /* So they don't block clicks */
+    z-index: 0;
+    pointer-events: none;
 }
 
 .wall-left {
     left: 0;
-    transform: none;
 }
 
 .wall-right {
     right: 0;
-    transform: none;
 }
 
-/* Push walls outward on medium screens (e.g., tablets) */
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
+    .wrapper {
+        width: calc(100% - 2.5rem);
+    }
+
     .wall-left {
-        left: -110px;
+        left: -120px;
     }
+
     .wall-right {
-        right: -110px;
+        right: -120px;
     }
 }
 
-/* Push walls further out on small screens (e.g., phones) */
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+    .wrapper {
+        width: calc(100% - 1.5rem);
+        padding-top: calc(env(safe-area-inset-top) + 4.5rem);
+        gap: 1rem;
+    }
+
+    #story-container {
+        width: 100%;
+    }
+
+    .class-selection {
+        width: min(20rem, 100%);
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
     .wall-left {
         left: -170px;
     }
+
     .wall-right {
         right: -170px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wrapper {
+        width: calc(100% - 1rem);
+        padding-top: calc(env(safe-area-inset-top) + 4.1rem);
+    }
+
+    #story-container {
+        font-size: 1.45rem;
+    }
+
+    .input-box input {
+        font-size: 1.2rem;
+    }
+
+    .wall-left {
+        left: -205px;
+    }
+
+    .wall-right {
+        right: -205px;
     }
 }
