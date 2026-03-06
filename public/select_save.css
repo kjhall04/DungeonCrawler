@@ -13,13 +13,14 @@ body {
 .wrapper {
     position: relative;
     z-index: 1;
-    width: min(1100px, calc(100% - 3rem));
+    width: min(860px, calc(100% - 2rem));
     min-height: 100vh;
-    padding: calc(env(safe-area-inset-top) + 4.75rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
+    padding: calc(env(safe-area-inset-top) + 3.5rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    justify-content: center;
+    gap: 1.5rem;
 }
 
 #title {
@@ -29,31 +30,27 @@ body {
 }
 
 #save-slots-container {
-    width: 100%;
+    width: min(100%, 760px);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex: 1;
 }
 
 .save-slots {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, minmax(13rem, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
 }
 
 .save-slot-wrapper {
-    min-height: 16rem;
+    min-height: 14rem;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding: 1.25rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    padding: 0.75rem 0.35rem;
     box-sizing: border-box;
 }
 
@@ -88,7 +85,7 @@ body {
 .save-details {
     width: 100%;
     min-height: 5.2rem;
-    margin-top: 1rem;
+    margin-top: 0.8rem;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
@@ -120,10 +117,8 @@ body {
 }
 
 .logout-container {
-    width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: auto;
 }
 
 .logout-button {
@@ -162,11 +157,11 @@ body {
 
 @media (max-width: 1024px) {
     .wrapper {
-        width: calc(100% - 2.5rem);
+        width: calc(100% - 2rem);
     }
 
     .save-slots {
-        grid-template-columns: repeat(2, minmax(13rem, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .wall-left {
@@ -181,7 +176,7 @@ body {
 @media (max-width: 768px) {
     .wrapper {
         width: calc(100% - 1.5rem);
-        padding-top: calc(env(safe-area-inset-top) + 4.2rem);
+        padding-top: calc(env(safe-area-inset-top) + 3rem);
         gap: 1.25rem;
     }
 
@@ -195,7 +190,7 @@ body {
     }
 
     .logout-container {
-        margin-top: 0.5rem;
+        margin-top: 0.25rem;
     }
 
     .wall-left {
@@ -210,7 +205,7 @@ body {
 @media (max-width: 480px) {
     .wrapper {
         width: calc(100% - 1rem);
-        padding-top: calc(env(safe-area-inset-top) + 4rem);
+        padding-top: calc(env(safe-area-inset-top) + 2.5rem);
         padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
     }
 
