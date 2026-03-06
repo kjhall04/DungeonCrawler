@@ -70,22 +70,101 @@
 
         <div id="inventory-menu" style="display: none;">
             <h2 id="inventory-title">Inventory</h2>
+
             <div class="inventory-section">
                 <h3>Items</h3>
-                <ul>
-                    {% for item, quantity in inventory.items() %}
-                        {% if item != 'equipment' and quantity %}
-                            <li>{{ item|replace('_', ' ')|title }} x{{ quantity }}</li>
-                        {% endif %}
-                    {% endfor %}
+                <ul class="inventory-list">
+                    {% if inventory_items %}
+                        {% for item in inventory_items %}
+                            <li class="inventory-entry">
+                                <div class="inventory-entry-copy">
+                                    <span>{{ item['name']|replace('_', ' ')|title }} x{{ item['quantity'] }}</span>
+                                    {% if item['value'] %}
+                                        <span class="inventory-meta">Value: {{ item['value'] }} gold</span>
+                                    {% endif %}
+                                </div>
+                                <div class="inventory-entry-actions">
+                                    {% if item['usable'] %}
+                                        <form action="/game_action" method="POST">
+                                            <button type="submit" name="action" value="use_item::{{ item['name'] }}" class="inline-action">&lt; Use &gt;</button>
+                                        </form>
+                                    {% endif %}
+                                    {% if merchant and item['sellable'] %}
+                                        <form action="/game_action" method="POST">
+                                            <button type="submit" name="action" value="merchant_sell::{{ item['name'] }}" class="inline-action">&lt; Sell &gt;</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li>No usable items collected</li>
+                    {% endif %}
                 </ul>
             </div>
+
+            <div class="inventory-section">
+                <h3>Equipped</h3>
+                <ul class="inventory-list">
+                    <li class="inventory-entry equipped-entry">
+                        <div class="inventory-entry-copy">
+                            <span>Weapon</span>
+                            {% if equipped_loadout['weapon']['name'] %}
+                                <span class="inventory-meta">
+                                    {{ equipped_loadout['weapon']['name']|replace('_', ' ')|title }}
+                                    {% if equipped_loadout['weapon']['attack'] %} | ATK +{{ equipped_loadout['weapon']['attack'] }}{% endif %}
+                                    {% if equipped_loadout['weapon']['defense'] %} | DEF +{{ equipped_loadout['weapon']['defense'] }}{% endif %}
+                                </span>
+                            {% else %}
+                                <span class="inventory-meta">Nothing equipped</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    <li class="inventory-entry equipped-entry">
+                        <div class="inventory-entry-copy">
+                            <span>Armor</span>
+                            {% if equipped_loadout['armor']['name'] %}
+                                <span class="inventory-meta">
+                                    {{ equipped_loadout['armor']['name']|replace('_', ' ')|title }}
+                                    {% if equipped_loadout['armor']['attack'] %} | ATK +{{ equipped_loadout['armor']['attack'] }}{% endif %}
+                                    {% if equipped_loadout['armor']['defense'] %} | DEF +{{ equipped_loadout['armor']['defense'] }}{% endif %}
+                                </span>
+                            {% else %}
+                                <span class="inventory-meta">Nothing equipped</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
             <div class="inventory-section">
                 <h3>Equipment</h3>
-                <ul>
-                    {% if inventory['equipment'] %}
-                        {% for equipment in inventory['equipment'] %}
-                            <li>{{ equipment|replace('_', ' ')|title }}</li>
+                <ul class="inventory-list">
+                    {% if equipment_items %}
+                        {% for equipment in equipment_items %}
+                            <li class="inventory-entry">
+                                <div class="inventory-entry-copy">
+                                    <span>{{ equipment['name']|replace('_', ' ')|title }}</span>
+                                    <span class="inventory-meta">
+                                        {{ equipment['slot']|title }}
+                                        {% if equipment['attack'] %} | ATK +{{ equipment['attack'] }}{% endif %}
+                                        {% if equipment['defense'] %} | DEF +{{ equipment['defense'] }}{% endif %}
+                                        {% if equipment['value'] %} | Value: {{ equipment['value'] }} gold{% endif %}
+                                    </span>
+                                </div>
+                                <div class="inventory-entry-actions">
+                                    <form action="/game_action" method="POST">
+                                        <button type="submit" name="action" value="toggle_equipment::{{ equipment['name'] }}" class="inline-action">
+                                            &lt; {{ 'Unequip' if equipment['equipped'] else 'Equip' }} &gt;
+                                        </button>
+                                    </form>
+                                    {% if merchant %}
+                                        <form action="/game_action" method="POST">
+                                            <button type="submit" name="action" value="merchant_sell::{{ equipment['name'] }}" class="inline-action">&lt; Sell &gt;</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </li>
                         {% endfor %}
                     {% else %}
                         <li>No equipment collected</li>
@@ -100,9 +179,13 @@
 
         <div id="health-defense-display">
             <p>Health: {{ health }}/{{ max_health }}</p>
+            <p>Gold: {{ player_gold }}</p>
             <p>Defense: {{ player_defense }}</p>
+            <p>Attack Bonus: +{{ player_attack_bonus }}</p>
             <p>Level: {{ player_level }}</p>
+            <p>XP: {{ player_experience }}/{{ next_level_experience }}</p>
             <p>Floor: {{ dungeon_floor }}</p>
+            <p>Potions: {{ inventory.get('health potion', 0) }}</p>
         </div>
 
         <h1 id="title">One More Descent</h1>
@@ -125,6 +208,35 @@
             <h3>{{ enemy.name }}</h3>
             <p>Health: {{ enemy.health }}</p>
             <p>Defense: {{ enemy.defense }}</p>
+        </div>
+        {% endif %}
+
+        {% if merchant and not enemy %}
+        <div id="merchant-container">
+            <h3>The Merchant</h3>
+            <p class="merchant-copy">Your Gold: {{ player_gold }} | Merchant Gold: {{ merchant.gold_amount }}</p>
+            <div class="merchant-wares">
+                {% if merchant.inventory %}
+                    {% for item in merchant.inventory %}
+                        <div class="merchant-entry">
+                            <div class="merchant-entry-copy">
+                                <span>{{ item['name']|replace('_', ' ')|title }}</span>
+                                <span class="inventory-meta">
+                                    {% if item.get('quantity') %}Qty: {{ item['quantity'] }} | {% endif %}
+                                    Price: {{ item.get('value', 0) }} gold
+                                    {% if item.get('attack') %} | ATK +{{ item['attack'] }}{% endif %}
+                                    {% if item.get('defense') %} | DEF +{{ item['defense'] }}{% endif %}
+                                </span>
+                            </div>
+                            <form action="/game_action" method="POST">
+                                <button type="submit" name="action" value="merchant_buy::{{ item['name'] }}" class="inline-action merchant-action">&lt; Buy &gt;</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="merchant-copy">The merchant's shelves are empty for now.</p>
+                {% endif %}
+            </div>
         </div>
         {% endif %}
         

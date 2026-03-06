@@ -3,11 +3,18 @@ import json
 from flask import Blueprint, jsonify, redirect, request, session, url_for
 
 from backend.app.db import supabase
-from backend.app.game_action import build_enemy_for_room, get_movement_actions, get_skill_actions, persist_game_state, render_game
+from backend.app.game_action import build_enemy_for_room, build_merchant_for_room, persist_game_state, render_current_room, set_room_state
 from backend.game.player import Player
 from backend.game.dungeon import Dungeon
 
 game_api = Blueprint('game_api', __name__)
+
+
+def _parse_int(value, default):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 @game_api.route('/api/dungeon', methods=['POST'])
 def generate_dungeon():
@@ -23,10 +30,10 @@ def generate_dungeon():
     player_save_id = response.data[0]['id']
 
     data = request.get_json(silent=True) or {}
-    width = data.get('width', 10)
-    height = data.get('height', 10)
-    num_rooms = data.get('num_rooms', 15)
-    floor_level = data.get('floor_level', 1)
+    width = max(3, _parse_int(data.get('width', 10), 10))
+    height = max(3, _parse_int(data.get('height', 10), 10))
+    num_rooms = max(2, _parse_int(data.get('num_rooms', 15), 15))
+    floor_level = max(1, _parse_int(data.get('floor_level', 1), 1))
 
     # Generate a new dungeon
     dungeon = Dungeon(width, height, num_rooms, floor_level)
@@ -86,11 +93,14 @@ def load_save(save_slot):
         return redirect(url_for('auth.select_save'))
 
     enemy, enemy_description = build_enemy_for_room(dungeon, player.player_location)
+    merchant, _ = build_merchant_for_room(dungeon, player.player_location)
     if enemy:
         room_state = dungeon.room_enemies.get(str(player.player_location), {})
-        if room_state.get('loot') is None:
-            room_state['loot'] = enemy.loot
-            dungeon.room_enemies[str(player.player_location)] = room_state
+        enemy_state = room_state.get('enemy') if isinstance(room_state, dict) and 'enemy' in room_state else room_state
+        if enemy_state.get('loot') is None:
+            enemy_state['loot'] = enemy.loot
+            merchant_state = room_state.get('merchant') if isinstance(room_state, dict) else None
+            set_room_state(dungeon, player.player_location, enemy=enemy_state, merchant=merchant_state)
             persist_game_state(player, dungeon, user_id, save_slot)
         session['enemy'] = {
             'name': enemy.name,
@@ -102,19 +112,13 @@ def load_save(save_slot):
         }
     else:
         session.pop('enemy', None)
-
-    if enemy:
-        narrative = enemy_description or f"A {enemy.name} appears!"
-        actions = get_skill_actions(player)
-    else:
-        narrative = dungeon.get_room_description(player)
-        actions = get_movement_actions(player, dungeon)
-
-    return render_game(
-        player, dungeon,
-        narrative=narrative,
-        actions=actions,
+    if not persist_game_state(player, dungeon, user_id, save_slot):
+        return redirect(url_for('auth.select_save'))
+    return render_current_room(
+        player,
+        dungeon,
         saved=False,
         enemy=enemy,
-        enemy_description=enemy_description
+        enemy_description=enemy_description,
+        merchant=merchant,
     )

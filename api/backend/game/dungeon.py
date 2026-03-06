@@ -1,4 +1,5 @@
 from backend.app.db import supabase
+from backend.game.data_utils import load_json_file, resolve_progression_key
 import os
 import json
 import random as rand
@@ -28,6 +29,40 @@ class Dungeon():
         self.merchant_location = []
         self.floor_level = floor_level
         self.previous_description = None
+        self.position_to_id = {}
+
+    @staticmethod
+    def _extract_enemy_data(room_state):
+        if not room_state or not isinstance(room_state, dict):
+            return None
+        if 'enemy' in room_state:
+            return room_state.get('enemy')
+        required_keys = {'name', 'health', 'max_health', 'defense', 'skills'}
+        if required_keys.issubset(room_state.keys()):
+            return room_state
+        return None
+
+    @staticmethod
+    def _extract_merchant_data(room_state):
+        if not room_state or not isinstance(room_state, dict):
+            return None
+        return room_state.get('merchant')
+
+    def _set_room_state(self, room_id, enemy=None, merchant=None):
+        state = {}
+        if enemy:
+            state['enemy'] = enemy
+        if merchant:
+            state['merchant'] = merchant
+        self.room_enemies[str(room_id)] = state
+
+    def _create_merchant_state(self):
+        from backend.game.merchant import Merchant
+
+        merchant = Merchant(self)
+        merchant.generate_inventory(self)
+        description = merchant.load_description()
+        return merchant.to_state(), description
 
     @classmethod
     def load_from_db(cls, user_id: int, save_slot: int):
@@ -145,7 +180,8 @@ class Dungeon():
         self.add_merchant()
         self.place_enemies()
         self.room_enemy_descriptions = {}
-        for room_id, enemy_data in self.room_enemies.items():
+        for room_id, room_state in self.room_enemies.items():
+            enemy_data = self._extract_enemy_data(room_state)
             if enemy_data:
                 self.room_enemy_descriptions[room_id] = self._generate_enemy_description(enemy_data['name'])
 
@@ -180,36 +216,49 @@ class Dungeon():
         """Randomly select a room to be the merchant location."""
         if rand.random() < MERCHANT_CHANCE:
             merchant_candidates = [k for k in self.room_positions.keys() if k not in (self.start_location[0], self.exit_location[0])]
-            merchant_id = rand.choice(merchant_candidates)
-            self.merchant_location = (merchant_id, self.room_positions[merchant_id])
+            if merchant_candidates:
+                merchant_id = rand.choice(merchant_candidates)
+                self.merchant_location = (merchant_id, self.room_positions[merchant_id])
+            else:
+                self.merchant_location = None
 
     def place_enemies(self):
         """Place enemies in rooms (except start/exit) during dungeon generation."""
         self.room_enemies = {}
-        floor_key = f"floor_{self.floor_level}"
+        merchant_room_id = str(self.merchant_location[0]) if self.merchant_location else None
         try:
-            with open(ENEMIES, 'r') as file:
-                enemies_data = json.load(file)[floor_key]
+            enemy_data = load_json_file(ENEMIES)
+            floor_key = resolve_progression_key(enemy_data, 'floor_', self.floor_level)
+            enemies_data = enemy_data[floor_key]
+
             for room_id in self.room_positions:
-                if room_id not in (self.start_location[0], self.exit_location[0]):
-                    if rand.random() < ENEMY_CHANCE:
-                        enemy_name = rand.choice(list(enemies_data.keys()))
-                        data = enemies_data[enemy_name]
-                        self.room_enemies[room_id] = {
-                            "name": enemy_name,
-                            "health": data["health"],
-                            "max_health": data["health"],
-                            "defense": data["defense"],
-                            "skills": data["skills"]
-                        }
-                    else:
-                        self.room_enemies[room_id] = None
+                if room_id == merchant_room_id:
+                    merchant_state, description = self._create_merchant_state()
+                    self._set_room_state(room_id, merchant=merchant_state)
+                    if description:
+                        self.room_descriptions[str(room_id)] = description
+                    continue
+
+                if room_id in (self.start_location[0], self.exit_location[0]):
+                    self._set_room_state(room_id)
+                    continue
+
+                if rand.random() < ENEMY_CHANCE:
+                    enemy_name = rand.choice(list(enemies_data.keys()))
+                    data = enemies_data[enemy_name]
+                    self._set_room_state(room_id, enemy={
+                        "name": enemy_name,
+                        "health": data["health"],
+                        "max_health": data["health"],
+                        "defense": data["defense"],
+                        "skills": data["skills"]
+                    })
                 else:
-                    self.room_enemies[room_id] = None
+                    self._set_room_state(room_id)
         except Exception as e:
             print(f"Error placing enemies: {e}")
             for room_id in self.room_positions:
-                self.room_enemies[room_id] = None
+                self._set_room_state(room_id)
 
 
     def get_valid_directions(self, room_id):
@@ -226,7 +275,7 @@ class Dungeon():
         for dx, dy, direction in [(0, -1, 'north'), (0, 1, 'south'), (1, 0, 'east'), (-1, 0, 'west')]:
             neighbor_pos = (x + dx, y + dy)
             neighbor_id = self.position_to_id.get(neighbor_pos)
-            if neighbor_id is not None:
+            if neighbor_id is not None and neighbor_id in self.rooms.get(room_id, []):
                 directions[direction] = str(neighbor_id)
 
         return directions
@@ -254,10 +303,9 @@ class Dungeon():
     def _generate_room_description(self, room_id, type_key, filename):
         """Helper method to generate a room description."""
         try:
-            with open(filename, 'r') as file:
-                description_data = json.load(file)
+            description_data = load_json_file(filename)
 
-            floor_key = f"floor_{self.floor_level}"
+            floor_key = resolve_progression_key(description_data, 'floor_', self.floor_level)
             if floor_key in description_data and type_key in description_data[floor_key]:
                 descriptions = description_data[floor_key][type_key]
 
@@ -279,10 +327,9 @@ class Dungeon():
     def _generate_enemy_description(self, enemy_name, filename=DESCRIPTIONS):
         """Generate a random description for a given enemy on this floor."""
         try:
-            with open(filename, 'r') as file:
-                description_data = json.load(file)
+            description_data = load_json_file(filename)
 
-            floor_key = f"floor_{self.floor_level}"
+            floor_key = resolve_progression_key(description_data, 'floor_', self.floor_level)
             if floor_key in description_data and "enemies" in description_data[floor_key]:
                 enemy_descriptions = description_data[floor_key]["enemies"].get(enemy_name)
                 if enemy_descriptions:
@@ -294,10 +341,9 @@ class Dungeon():
     def add_entrance_exit_descriptions(self, filename=DESCRIPTIONS):
         """Add entrance and exit descriptions to the dungeon."""
         try:
-            with open(filename, 'r') as file:
-                description_data = json.load(file)
+            description_data = load_json_file(filename)
 
-            floor_key = f"floor_{self.floor_level}"
+            floor_key = resolve_progression_key(description_data, 'floor_', self.floor_level)
             if floor_key in description_data:
                 if "entrances" in description_data[floor_key]:
                     entrance_descriptions = description_data[floor_key]["entrances"]

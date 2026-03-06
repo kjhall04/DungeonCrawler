@@ -26,39 +26,49 @@ def create_account(username: str, email: str, password: str, confirm_password: s
     Returns:
         dict: A success message or an error message
     """
-    # Check if username already 
-    response = supabase.table('users').select('*').eq('username', username).execute()
-    if response.data:
-        return {'error': 'Username already exists', 'username': username, 'email': email}
-    
-    # Validate email
-    if not validate_email(email):
-        return {'error': 'Invalid email format', 'username': username, 'email': email}
-    
-    # Check if email already exists
-    response = supabase.table('users').select('*').eq('email', email).execute()
-    if response.data:
-        return {'error': 'Email already in use', 'username': username, 'email': email}
-    
-    # Validate password
-    if not validate_password(password):
-        return {'error': 'Password must be at least 8 characters long', 'username': username, 'email': email}
-   
-    if password != confirm_password:
-        return {'error': 'Passwords do not match', }
-    
-    # Hash the password and insert the new user
-    hashed_password = generate_password_hash(password)
-    response = supabase.table('users').insert({
-        'username': username,
-        'email': email,
-        'password' : hashed_password
-    }).execute()
+    try:
+        # Check if username already 
+        response = supabase.table('users').select('*').eq('username', username).execute()
+        if response.data:
+            return {'error': 'Username already exists', 'username': username, 'email': email}
+        
+        # Validate email
+        if not validate_email(email):
+            return {'error': 'Invalid email format', 'username': username, 'email': email}
+        
+        # Check if email already exists
+        response = supabase.table('users').select('*').eq('email', email).execute()
+        if response.data:
+            return {'error': 'Email already in use', 'username': username, 'email': email}
+        
+        # Validate password
+        if not validate_password(password):
+            return {'error': 'Password must be at least 8 characters long', 'username': username, 'email': email}
+       
+        if password != confirm_password:
+            return {'error': 'Passwords do not match', 'username': username, 'email': email}
+        
+        # Hash the password and insert the new user
+        hashed_password = generate_password_hash(password)
+        response = supabase.table('users').insert({
+            'username': username,
+            'email': email,
+            'password' : hashed_password
+        }).execute()
 
-    if not response.data:
-        return {'error': 'Failed to create account'}
-    
-    return {'success': 'Account created successfully'}
+        if not response.data:
+            return {'error': 'Failed to create account', 'username': username, 'email': email}
+        
+        return {'success': 'Account created successfully'}
+    except Exception as exc:
+        error_text = str(exc).lower()
+        if 'users' in error_text and ('does not exist' in error_text or 'relation' in error_text):
+            message = "Supabase table 'users' is missing in the new database."
+        elif 'permission' in error_text or 'row-level security' in error_text or 'not allowed' in error_text:
+            message = "Supabase rejected the request. Use a server-side key in Vercel and check database permissions."
+        else:
+            message = "Account creation failed because the Supabase connection or schema is not ready."
+        return {'error': message, 'username': username, 'email': email}
 
 def login(username: str, password: str):
     """
@@ -71,12 +81,15 @@ def login(username: str, password: str):
     Returns:
         dict: A success message or an error message
     """
-    response = supabase.table('users').select('*').eq('username', username).execute()
-    if not response.data:
-        return {'error': 'Invalid username or password'}
-    
-    user = response.data[0]
-    if not check_password_hash(user['password'], password):
-        return {'error': 'Invalid username or password'}
-    
-    return {'success': 'Login successful', 'user_id': user['id']}
+    try:
+        response = supabase.table('users').select('*').eq('username', username).execute()
+        if not response.data:
+            return {'error': 'Invalid username or password'}
+        
+        user = response.data[0]
+        if not check_password_hash(user['password'], password):
+            return {'error': 'Invalid username or password'}
+        
+        return {'success': 'Login successful', 'user_id': user['id']}
+    except Exception:
+        return {'error': 'Login failed because the Supabase connection or schema is not ready'}

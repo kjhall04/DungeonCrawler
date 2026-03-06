@@ -4,9 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask
 
-from backend.app.game_api import game_api
-from backend.app.routes import auth_routes, limiter
-
 BASE_DIR = Path(__file__).resolve().parents[3]
 ENV_FILE = BASE_DIR / ".env"
 
@@ -21,6 +18,8 @@ def _env_flag(name: str, default: bool = False) -> bool:
 def create_app():
     """Create and configure the flask app."""
     load_dotenv(ENV_FILE)
+    from backend.app.game_api import game_api
+    from backend.app.routes import auth_routes, limiter
 
     debug_enabled = _env_flag("FLASK_DEBUG")
     is_production = os.getenv("VERCEL_ENV") == "production" or os.getenv("FLASK_ENV") == "production"

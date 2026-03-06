@@ -137,7 +137,8 @@ body {
 
 #narrative-container,
 #interaction-container,
-#enemy-container {
+#enemy-container,
+#merchant-container {
     width: min(52rem, 100%);
     padding: 1rem 1.25rem;
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -149,6 +150,11 @@ body {
 #interaction-container {
     border-color: rgba(255, 215, 0, 0.3);
     background: rgba(255, 215, 0, 0.06);
+}
+
+#merchant-container {
+    border-color: rgba(153, 206, 255, 0.25);
+    background: rgba(153, 206, 255, 0.06);
 }
 
 #narrative,
@@ -163,9 +169,19 @@ body {
     font-size: clamp(1.45rem, 1.1rem + 0.9vw, 2rem);
 }
 
+#merchant-container h3 {
+    margin: 0 0 0.5rem;
+    font-size: clamp(1.45rem, 1.1rem + 0.9vw, 2rem);
+}
+
 #enemy-container p {
     margin: 0.2rem 0;
     font-size: clamp(1.15rem, 0.95rem + 0.6vw, 1.4rem);
+}
+
+.merchant-copy {
+    margin: 0;
+    font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.35rem);
 }
 
 #game-actions-container,
@@ -242,6 +258,82 @@ body {
 .inventory-section li {
     font-size: clamp(1.05rem, 0.9rem + 0.5vw, 1.3rem);
     margin-bottom: 0.35rem;
+}
+
+.inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.inventory-entry,
+.merchant-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.inventory-entry-copy,
+.merchant-entry-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.15rem;
+}
+
+.inventory-entry-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.inventory-meta {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: clamp(0.9rem, 0.8rem + 0.35vw, 1.05rem);
+    line-height: 1.1;
+}
+
+.inline-action {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: clamp(1rem, 0.9rem + 0.45vw, 1.15rem);
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.inline-action:hover {
+    color: #c6c6c6;
+    transform: scale(1.03);
+}
+
+.merchant-action {
+    color: #ffd700;
+}
+
+.merchant-action:hover {
+    color: #b89a11;
+}
+
+.merchant-wares {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+}
+
+.equipped-entry {
+    background: rgba(255, 215, 0, 0.05);
+    border-color: rgba(255, 215, 0, 0.18);
 }
 
 #ui-overlay {
@@ -322,6 +414,11 @@ body.inventory-open #inventory-button {
         padding: 1.4rem 1.1rem;
     }
 
+    .inventory-entry,
+    .merchant-entry {
+        align-items: flex-start;
+    }
+
     .wall-left {
         left: -165px;
     }
@@ -344,7 +441,8 @@ body.inventory-open #inventory-button {
 
     #narrative-container,
     #interaction-container,
-    #enemy-container {
+    #enemy-container,
+    #merchant-container {
         padding: 0.85rem 1rem;
     }
 
@@ -360,6 +458,26 @@ body.inventory-open #inventory-button {
 
     .descend-action-wrapper {
         min-height: 0;
+    }
+
+    .inventory-entry,
+    .merchant-entry {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .inventory-entry-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .inventory-entry-actions form,
+    .merchant-entry form {
+        width: 100%;
+    }
+
+    .inline-action {
+        width: 100%;
     }
 
     .wall-left {

@@ -1,6 +1,7 @@
-import json
-import random as rand
 import os
+import random as rand
+
+from backend.game.data_utils import load_json_file, resolve_progression_key
 
 BASE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 ENEMIES = os.path.join(BASE_DIRECTORY, '..', 'data', 'enemies.json')
@@ -22,10 +23,9 @@ class Enemy():
     def create_enemy(cls, enemy_name, dungeon, filename=ENEMIES):
         """Loads enemy data to create an enemy."""
         try:
-            with open(filename, 'r') as file:
-                enemy_data = json.load(file)
+            enemy_data = load_json_file(filename)
             
-            floor_key = 'floor_' + str(dungeon.floor_level)
+            floor_key = resolve_progression_key(enemy_data, 'floor_', dungeon.floor_level)
             if floor_key in enemy_data and enemy_name in enemy_data[floor_key]:
                 data = enemy_data[floor_key][enemy_name]
                 return cls(
@@ -60,13 +60,12 @@ class Enemy():
             dict: A dictionary of dropped items.
         """
         try:
-            with open(filename, 'r') as file:
-                loot_data = json.load(file)
+            loot_data = load_json_file(filename)
 
             loot_drops = {}
 
             # Determine the loot level based on the dungeon floor
-            level_key = f"level_{dungeon.floor_level}"
+            level_key = resolve_progression_key(loot_data['items'], 'level_', dungeon.floor_level)
 
             # Random number of different default items
             num_items = rand.randint(default_min, default_max)
@@ -140,10 +139,9 @@ class Enemy():
     def load_description(self, player, filename=DESCRIPTIONS):
         """Loads and returns a non-repeating string based on the floor and enemy."""
         try:
-            with open(filename, 'r') as file:
-                description_data = json.load(file)
+            description_data = load_json_file(filename)
 
-            floor_key = f"floor_{player.dungeon_level}"
+            floor_key = resolve_progression_key(description_data, 'floor_', player.dungeon_floor)
             enemy_key = self.name
 
             if floor_key in description_data and enemy_key in description_data[floor_key]['enemies']:
@@ -164,9 +162,3 @@ class Enemy():
 
         except FileNotFoundError:
             return False
-
-        
-
-if __name__ == '__main__':
-
-    enemy = Enemy.test_generation()

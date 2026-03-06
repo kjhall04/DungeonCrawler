@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from flask import Blueprint, redirect, render_template, request, session, url_for
@@ -9,16 +8,18 @@ from backend.app.auth import create_account, login
 from backend.app.db import supabase
 from backend.app.game_action import (
     build_enemy_for_room,
-    get_movement_actions,
-    get_skill_actions,
+    build_merchant_for_room,
     handle_combat_action,
     handle_descend_action,
     handle_heal_action,
+    handle_inventory_action,
+    handle_merchant_action,
     handle_move_action,
     persist_game_state,
-    render_game,
+    render_current_room,
 )
 from backend.game.dungeon import Dungeon
+from backend.game.data_utils import load_json_file
 from backend.game.player import Player
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -26,6 +27,13 @@ DESCRIPTIONS_FILE = DATA_DIR / "descriptions.json"
 
 auth_routes = Blueprint('auth', __name__)
 limiter = Limiter(key_func=get_remote_address, storage_uri="memory://")
+
+
+def _parse_int(value, default=None):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 @auth_routes.route('/')
 def index():
@@ -59,7 +67,8 @@ def login_route():
 @auth_routes.route('/logout', methods=['GET'])
 def logout_route():
     """Log out the current user."""
-    session.pop('user_id', None)
+    for key in ('user_id', 'save_slot', 'player_name', 'player_class', 'enemy', 'just_defeated_enemy'):
+        session.pop(key, None)
     return redirect(url_for('auth.login_route'))
 
 @auth_routes.route('/create_account', methods=['GET', 'POST'])
@@ -98,12 +107,19 @@ def select_save():
         return redirect(url_for('auth.login_route'))
 
     if request.method == 'POST':
-        save_slot = int(request.form.get('save_slot'))
+        save_slot = _parse_int(request.form.get('save_slot'))
         action = request.form.get('action')
+
+        if save_slot not in (1, 2, 3):
+            save_slots = get_save_slots(user_id)
+            return render_template('select_save.html', save_slots=save_slots, error='Invalid save slot')
 
         if action == 'delete':
             # Delete the selected save slot
+            supabase.table('dungeons').delete().eq('user_id', user_id).eq('save_slot', save_slot).execute()
             supabase.table('player_saves').delete().eq('user_id', user_id).eq('save_slot', save_slot).execute()
+            if session.get('save_slot') == save_slot:
+                session.pop('save_slot', None)
             return redirect(url_for('auth.select_save'))
 
         if action == 'select':
@@ -184,15 +200,15 @@ def create_character():
         return redirect(url_for('auth.select_save'))
 
     # Load the story sequence from descriptions.json
-    with open(DESCRIPTIONS_FILE, 'r', encoding='utf-8') as file:
-        descriptions = json.load(file)
+    descriptions = load_json_file(str(DESCRIPTIONS_FILE))
 
     story = descriptions.get('player_creation', {})
 
     name_step = 4
     class_step = 6
     final_step = 9
-    step = int(request.args.get('step', 1))
+    step = _parse_int(request.args.get('step', 1), 1)
+    step = max(1, min(step, final_step))
 
     if step == 1:
         session.pop('player_name', None)
@@ -282,154 +298,104 @@ def game_action():
     action = request.form.get('action')
     saved = str(request.args.get('saved', '')).lower() == 'true'
 
-    # --- Enemy state management ---
     enemy, enemy_description = build_enemy_for_room(dungeon, player.player_location)
-    if enemy:
-        enemy_description = dungeon.room_enemy_descriptions.get(str(player.player_location))
-        narrative = enemy_description or f"A {enemy.name} appears!"
+    merchant, _ = build_merchant_for_room(dungeon, player.player_location)
 
     just_defeated_enemy = session.pop('just_defeated_enemy', False)  
 
-    # --- Room entry or after save ---
     if not action or saved:
         if just_defeated_enemy:
-            narrative = dungeon.get_room_description(player)
-            actions = get_movement_actions(player, dungeon)
-            return render_game(
-                player, dungeon,
-                narrative=narrative,
-                actions=actions,
+            return render_current_room(
+                player,
+                dungeon,
                 saved=saved,
-                enemy=None,
-                enemy_description=None
+                narrative_override=dungeon.get_room_description(player),
             )
-        if enemy:
-            dungeon.room_enemies[str(player.player_location)] = {
-                "name": enemy.name,
-                "health": enemy.health,
-                "max_health": enemy.max_health,
-                "defense": enemy.defense,
-                "skills": enemy.skills,
-                "loot": enemy.loot,
-            }
-            narrative = enemy_description or f"A {enemy.name} appears!"
-            actions = get_skill_actions(player)
-        else:
-            narrative = dungeon.get_room_description(player)
-            actions = get_movement_actions(player, dungeon)
         if not persist_game_state(player, dungeon, user_id, save_slot):
             return redirect(url_for('auth.select_save'))
-        return render_game(
-            player, dungeon,
-            narrative=narrative,
-            actions=actions,
-            saved=saved,
-            enemy=enemy,
-            enemy_description=enemy_description
-        )
-
-    # --- Combat actions ---
-    if action and action.startswith('skill_') and enemy:
-        result = handle_combat_action(player, dungeon, enemy, enemy_description, action, user_id, save_slot, saved)
-        if isinstance(result, tuple):
-            # Enemy not defeated, continue combat
-            _, interaction = result
-            narrative = interaction if interaction else (enemy_description or f"A {enemy.name} appears!")
-            actions = get_skill_actions(player)
-            return render_game(
-                player, dungeon,
-                narrative=narrative,
-                actions=actions,
-                saved=saved,
-                enemy=enemy,
-                enemy_description=enemy_description,
-                interaction=interaction
-            )
-        else:
-            # Enemy defeated, result is a render_template response
-            return result
-
-    # --- Healing action ---
-    elif action == 'heal':
-        interaction = handle_heal_action(player, enemy)
-        if enemy:
-            dungeon.room_enemies[str(player.player_location)] = {
-                "name": enemy.name,
-                "health": enemy.health,
-                "max_health": enemy.max_health,
-                "defense": enemy.defense,
-                "skills": enemy.skills,
-                "loot": enemy.loot,
-            }
-        if not persist_game_state(player, dungeon, user_id, save_slot):
-            return redirect(url_for('auth.select_save'))
-        narrative = interaction if interaction else (enemy_description or f"A {enemy.name} appears!")
-        actions = get_skill_actions(player)
-        return render_game(
-            player, dungeon,
-            narrative=narrative,
-            actions=actions,
+        return render_current_room(
+            player,
+            dungeon,
             saved=saved,
             enemy=enemy,
             enemy_description=enemy_description,
-            interaction=interaction
+            merchant=merchant,
         )
 
-    # --- Movement actions ---
-    elif action and action.startswith('move_'):
+    if action and action.startswith('skill_') and enemy:
+        result = handle_combat_action(player, dungeon, enemy, enemy_description, action, user_id, save_slot, saved)
+        if isinstance(result, tuple):
+            _, interaction = result
+            return render_current_room(
+                player,
+                dungeon,
+                saved=saved,
+                interaction=interaction,
+                enemy=enemy,
+                enemy_description=enemy_description,
+            )
+        return result
+
+    if action == 'heal':
+        result = handle_heal_action(player, dungeon, enemy, user_id, save_slot, saved)
+        if hasattr(result, 'status_code'):
+            return result
+        return render_current_room(
+            player,
+            dungeon,
+            saved=saved,
+            interaction=result,
+        )
+
+    if action and action.startswith('move_'):
         direction = action.split('_')[1]
         move_result = handle_move_action(player, dungeon, direction, user_id, save_slot, saved)
         if move_result:
             return move_result
-        else:
-            # Invalid direction
-            narrative = "Invalid direction."
-            actions = get_movement_actions(player, dungeon)
-            return render_game(
-                player, dungeon,
-                narrative=narrative,
-                actions=actions,
-                saved=saved
-            )
-
-    # --- Descend action ---
-    elif action == 'descend_next_floor':
-        return handle_descend_action(player, user_id, save_slot, saved)
-
-    # --- Inventory action ---
-    elif action == 'inventory':
-        return redirect(url_for('auth.inventory'))
-    
-    # --- After Combat action ---
-    elif action == 'continue_after_event':
-        # Advance to the next state, e.g., show room description after enemy defeated
-        narrative = dungeon.get_room_description(player)
-        actions = get_movement_actions(player, dungeon)
-        return render_game(
-            player, dungeon,
-            narrative=narrative,
-            actions=actions,
+        return render_current_room(
+            player,
+            dungeon,
             saved=saved,
-            enemy=None,
-            enemy_description=None,
+            interaction="Invalid direction.",
         )
 
-    # --- Final action rendering ---
-    if enemy:
-        narrative = enemy_description or f"A {enemy.name} appears!"
-        actions = get_skill_actions(player)
-    else:
-        narrative = dungeon.get_room_description(player)
-        actions = get_movement_actions(player, dungeon)
+    if action == 'descend_next_floor':
+        return handle_descend_action(player, user_id, save_slot, saved)
+
+    if action == 'inventory':
+        return redirect(url_for('auth.inventory'))
+
+    if action == 'continue_after_event':
+        return render_current_room(
+            player,
+            dungeon,
+            saved=saved,
+            narrative_override=dungeon.get_room_description(player),
+        )
+
+    if action and (action.startswith('use_item::') or action.startswith('toggle_equipment::')):
+        return handle_inventory_action(player, dungeon, enemy, action, user_id, save_slot, saved)
+
+    if action and action.startswith('merchant_'):
+        if not merchant or enemy:
+            return render_current_room(
+                player,
+                dungeon,
+                saved=saved,
+                interaction="There's no merchant available right now.",
+                enemy=enemy,
+                enemy_description=enemy_description,
+            )
+        return handle_merchant_action(player, dungeon, merchant, action, user_id, save_slot, saved)
 
     if not persist_game_state(player, dungeon, user_id, save_slot):
         return redirect(url_for('auth.select_save'))
 
-    return render_game(
-        player, dungeon,
-        narrative=narrative,
-        actions=actions,
+    return render_current_room(
+        player,
+        dungeon,
         saved=saved,
         enemy=enemy,
-        enemy_description=enemy_description
+        enemy_description=enemy_description,
+        merchant=merchant,
     )
