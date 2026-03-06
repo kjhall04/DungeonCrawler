@@ -1,4 +1,4 @@
-from backend.app.db import SUPABASE_KEY_ROLE, supabase
+from backend.app.db import SUPABASE_ANON_KEY, SUPABASE_KEY_ROLE, SUPABASE_SECRET_KEY, supabase
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
 
@@ -17,11 +17,21 @@ def _describe_supabase_error(exc: Exception, default_message: str) -> str:
         or 'unauthorized' in error_text
     ):
         if SUPABASE_KEY_ROLE == 'anon':
-            return "Supabase rejected the request because the server is using the anon key. Set SUPABASE_SERVICE_ROLE_KEY in Vercel."
+            if SUPABASE_SECRET_KEY and not SUPABASE_ANON_KEY:
+                return (
+                    "Supabase rejected the request because SUPABASE_SECRET_KEY is set to an anon/publishable key. "
+                    "Replace it with the real secret key from Supabase."
+                )
+            return "Supabase rejected the request because the server is using a publishable/anon key. Set SUPABASE_SECRET_KEY in Vercel."
         return "Supabase rejected the request. Check the server-side key and database permissions."
 
     if SUPABASE_KEY_ROLE == 'anon':
-        return "Supabase rejected the request because the server is using the anon key. Set SUPABASE_SERVICE_ROLE_KEY in Vercel."
+        if SUPABASE_SECRET_KEY and not SUPABASE_ANON_KEY:
+            return (
+                "Supabase rejected the request because SUPABASE_SECRET_KEY is set to an anon/publishable key. "
+                "Replace it with the real secret key from Supabase."
+            )
+        return "Supabase rejected the request because the server is using a publishable/anon key. Set SUPABASE_SECRET_KEY in Vercel."
 
     return default_message
 

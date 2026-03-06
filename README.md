@@ -96,10 +96,11 @@ DungeonCrawler/
     - Create a `.env` file in the project root with your Supabase credentials:
       ```
       SUPABASE_URL=your_supabase_url
-      SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+      SUPABASE_SECRET_KEY=your_supabase_secret_key
       FLASK_SECRET_KEY=your_flask_secret
       ```
-    - `SUPABASE_KEY` is the anon key and is not sufficient for this server-side app when the `users` table is protected by Supabase permissions or RLS.
+    - `SUPABASE_KEY` is the publishable/anon key and is not sufficient for this server-side app when the `users` table is protected by Supabase permissions or RLS.
+    - The modern server-side key usually starts with `sb_secret_`. Legacy projects may still use `SUPABASE_SERVICE_ROLE_KEY`.
 
 4. **Run the Flask app:**
     ```sh
@@ -111,7 +112,7 @@ DungeonCrawler/
 
 ## Deployment
 
-- **Vercel:** Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FLASK_SECRET_KEY` in the project environment variables.
+- **Vercel:** Set `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and `FLASK_SECRET_KEY` in the project environment variables.
 - **Static files** are served from the `public` directory.
 
 ---
