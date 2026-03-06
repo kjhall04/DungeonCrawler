@@ -93,12 +93,13 @@ DungeonCrawler/
     ```
 
 3. **Configure environment variables:**
-    - Create a `.env` file in `api/` with your Supabase credentials:
+    - Create a `.env` file in the project root with your Supabase credentials:
       ```
       SUPABASE_URL=your_supabase_url
-      SUPABASE_KEY=your_supabase_key
+      SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
       FLASK_SECRET_KEY=your_flask_secret
       ```
+    - `SUPABASE_KEY` is the anon key and is not sufficient for this server-side app when the `users` table is protected by Supabase permissions or RLS.
 
 4. **Run the Flask app:**
     ```sh
@@ -110,8 +111,8 @@ DungeonCrawler/
 
 ## Deployment
 
-- **Vercel:** The project includes a `vercel.json` for deploying the Python API on Vercel.
-- **Static files** are served from the `frontend/static` directory.
+- **Vercel:** Set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `FLASK_SECRET_KEY` in the project environment variables.
+- **Static files** are served from the `public` directory.
 
 ---
 

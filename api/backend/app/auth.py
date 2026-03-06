@@ -1,6 +1,29 @@
-from backend.app.db import supabase
+from backend.app.db import SUPABASE_KEY_ROLE, supabase
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
+
+
+def _describe_supabase_error(exc: Exception, default_message: str) -> str:
+    error_text = str(exc).lower()
+
+    if 'users' in error_text and ('does not exist' in error_text or 'relation' in error_text):
+        return "Supabase table 'users' is missing in the database."
+
+    if (
+        'permission' in error_text
+        or 'row-level security' in error_text
+        or 'not allowed' in error_text
+        or 'forbidden' in error_text
+        or 'unauthorized' in error_text
+    ):
+        if SUPABASE_KEY_ROLE == 'anon':
+            return "Supabase rejected the request because the server is using the anon key. Set SUPABASE_SERVICE_ROLE_KEY in Vercel."
+        return "Supabase rejected the request. Check the server-side key and database permissions."
+
+    if SUPABASE_KEY_ROLE == 'anon':
+        return "Supabase rejected the request because the server is using the anon key. Set SUPABASE_SERVICE_ROLE_KEY in Vercel."
+
+    return default_message
 
 def validate_password(password: str) -> bool:
     """Validate password strength."""
@@ -61,13 +84,10 @@ def create_account(username: str, email: str, password: str, confirm_password: s
         
         return {'success': 'Account created successfully'}
     except Exception as exc:
-        error_text = str(exc).lower()
-        if 'users' in error_text and ('does not exist' in error_text or 'relation' in error_text):
-            message = "Supabase table 'users' is missing in the new database."
-        elif 'permission' in error_text or 'row-level security' in error_text or 'not allowed' in error_text:
-            message = "Supabase rejected the request. Use a server-side key in Vercel and check database permissions."
-        else:
-            message = "Account creation failed because the Supabase connection or schema is not ready."
+        message = _describe_supabase_error(
+            exc,
+            "Account creation failed because the Supabase connection or schema is not ready.",
+        )
         return {'error': message, 'username': username, 'email': email}
 
 def login(username: str, password: str):
@@ -91,5 +111,10 @@ def login(username: str, password: str):
             return {'error': 'Invalid username or password'}
         
         return {'success': 'Login successful', 'user_id': user['id']}
-    except Exception:
-        return {'error': 'Login failed because the Supabase connection or schema is not ready'}
+    except Exception as exc:
+        return {
+            'error': _describe_supabase_error(
+                exc,
+                'Login failed because the Supabase connection or schema is not ready',
+            )
+        }
