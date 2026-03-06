@@ -41,4 +41,12 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     )
 
 # Create Supabase client
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+try:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+except Exception as exc:
+    if str(exc) == "Invalid API key" and SUPABASE_KEY.startswith("sb_secret_"):
+        raise ValueError(
+            "The installed supabase Python client does not support sb_secret keys. "
+            "Upgrade the 'supabase' package in api/requirements.txt and redeploy."
+        ) from exc
+    raise
