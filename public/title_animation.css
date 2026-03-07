@@ -19,16 +19,31 @@ body {
 }
 
 #title-animation {
-    display: inline-block;
+    display: inline-grid;
+    position: relative;
     max-width: 100%;
     font-size: clamp(2.5rem, 8vw, 7.5rem);
     line-height: 0.95;
+    margin: 0;
+}
+
+#title-animation::before {
+    content: attr(data-text);
+    grid-area: 1 / 1;
+    visibility: hidden;
+    white-space: nowrap;
+}
+
+#title-animation .title-copy {
+    grid-area: 1 / 1;
+    display: inline-block;
     white-space: nowrap;
     overflow: hidden;
     border-right: 2px solid #fff;
     width: 0;
-    animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
-    animation-fill-mode: forwards;
+    animation:
+        typing 3s steps(16, end) forwards,
+        blink-caret 0.75s step-end 4 forwards;
 }
 
 @keyframes typing {
@@ -37,8 +52,8 @@ body {
 }
 
 @keyframes blink-caret {
-    from, to { border-color: #fff; }
-    to { border-color: transparent; }
+    0%, 49% { border-color: #fff; }
+    50%, 100% { border-color: transparent; }
 }
 
 .wall-svg {
