@@ -48,12 +48,17 @@
 <body>
     <div class="svg-left">
         <img src="/images/Wall_Left.svg" alt="Wall Left" class="wall-svg wall-left">
+        <div id="utility-controls">
+            <button id="pause-button" type="button" aria-label="Open pause menu" onclick="togglePauseMenu()">
+                <i class='bx bx-pause'></i>
+            </button>
+            <button id="inventory-button" type="button" aria-label="Open inventory" onclick="toggleInventoryMenu()">
+                <img src="/images/treasure_chest.svg" alt="Inventory" class="inventory-icon">
+            </button>
+        </div>
     </div>
     <div class="wrapper">
         <div id="ui-overlay"></div>
-        <button id="pause-button" type="button" aria-label="Open pause menu" onclick="togglePauseMenu()">
-            <i class='bx bx-pause'></i>
-        </button>
 
         <div id="pause-menu" style="display: none;">
             <h2 id="paused">Paused</h2>
@@ -173,110 +178,110 @@
             </div>
         </div>
 
-        <button id="inventory-button" type="button" aria-label="Open inventory" onclick="toggleInventoryMenu()">
-            <img src="/images/treasure_chest.svg" alt="Inventory" class="inventory-icon">
-        </button>
+        <header class="game-header">
+            <h1 id="title">One More Descent</h1>
+            {% if saved %}
+                <p id="game-saved-message">Game Saved</p>
+            {% endif %}
 
-        <div id="health-defense-display">
-            <p>Health: {{ health }}/{{ max_health }}</p>
-            <p>Gold: {{ player_gold }}</p>
-            <p>Defense: {{ player_defense }}</p>
-            <p>Attack Bonus: +{{ player_attack_bonus }}</p>
-            <p>Level: {{ player_level }}</p>
-            <p>XP: {{ player_experience }}/{{ next_level_experience }}</p>
-            <p>Floor: {{ dungeon_floor }}</p>
-            <p>Potions: {{ inventory.get('health potion', 0) }}</p>
-        </div>
-
-        <h1 id="title">One More Descent</h1>
-        {% if saved %}
-            <p id="game-saved-message">Game Saved</p>
-        {% endif %}
-
-        <div id="narrative-container">
-            <p id="narrative">{{ narrative|replace('\n', '<br>')|safe }}</p>
-        </div>
-
-        {% if interaction %}
-        <div id="interaction-container">
-            <p id="interaction">{{ interaction|replace('\n', '<br>')|safe }}</p>
-        </div>
-        {% endif %}
-
-        {% if enemy %}
-        <div id="enemy-container">
-            <h3>{{ enemy.name }}</h3>
-            <p>Health: {{ enemy.health }}</p>
-            <p>Defense: {{ enemy.defense }}</p>
-        </div>
-        {% endif %}
-
-        {% if merchant and not enemy %}
-        <div id="merchant-container">
-            <h3>The Merchant</h3>
-            <p class="merchant-copy">Your Gold: {{ player_gold }} | Merchant Gold: {{ merchant.gold_amount }}</p>
-            <div class="merchant-wares">
-                {% if merchant.inventory %}
-                    {% for item in merchant.inventory %}
-                        <div class="merchant-entry">
-                            <div class="merchant-entry-copy">
-                                <span>{{ item['name']|replace('_', ' ')|title }}</span>
-                                <span class="inventory-meta">
-                                    {% if item.get('quantity') %}Qty: {{ item['quantity'] }} | {% endif %}
-                                    Price: {{ item.get('value', 0) }} gold
-                                    {% if item.get('attack') %} | ATK +{{ item['attack'] }}{% endif %}
-                                    {% if item.get('defense') %} | DEF +{{ item['defense'] }}{% endif %}
-                                </span>
-                            </div>
-                            <form action="/game_action" method="POST">
-                                <button type="submit" name="action" value="merchant_buy::{{ item['name'] }}" class="inline-action merchant-action">&lt; Buy &gt;</button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="merchant-copy">The merchant's shelves are empty for now.</p>
-                {% endif %}
+            <div id="health-defense-display">
+                <p>Health: {{ health }}/{{ max_health }}</p>
+                <p>Gold: {{ player_gold }}</p>
+                <p>Defense: {{ player_defense }}</p>
+                <p>Attack Bonus: +{{ player_attack_bonus }}</p>
+                <p>Level: {{ player_level }}</p>
+                <p>XP: {{ player_experience }}/{{ next_level_experience }}</p>
+                <p>Floor: {{ dungeon_floor }}</p>
+                <p>Potions: {{ inventory.get('health potion', 0) }}</p>
             </div>
-        </div>
-        {% endif %}
-        
-        <div id="game-actions-container">
-            <form action="/game_action" method="POST" class="game-actions-form">
-                <div class="game-actions">
-                    {% for action in actions %}
-                        {% if action.is_descend is not defined %}
-                            {% if action.enabled is defined %}
-                                {% if action.enabled %}
+        </header>
+
+        <main id="game-main">
+            <div id="narrative-container">
+                <p id="narrative">{{ narrative|replace('\n', '<br>')|safe }}</p>
+            </div>
+
+            {% if interaction %}
+            <div id="interaction-container">
+                <p id="interaction">{{ interaction|replace('\n', '<br>')|safe }}</p>
+            </div>
+            {% endif %}
+
+            {% if enemy %}
+            <div id="enemy-container">
+                <h3>{{ enemy.name }}</h3>
+                <p>Health: {{ enemy.health }}</p>
+                <p>Defense: {{ enemy.defense }}</p>
+            </div>
+            {% endif %}
+
+            {% if merchant and not enemy %}
+            <div id="merchant-container">
+                <h3>The Merchant</h3>
+                <p class="merchant-copy">Your Gold: {{ player_gold }} | Merchant Gold: {{ merchant.gold_amount }}</p>
+                <div class="merchant-wares">
+                    {% if merchant.inventory %}
+                        {% for item in merchant.inventory %}
+                            <div class="merchant-entry">
+                                <div class="merchant-entry-copy">
+                                    <span>{{ item['name']|replace('_', ' ')|title }}</span>
+                                    <span class="inventory-meta">
+                                        {% if item.get('quantity') %}Qty: {{ item['quantity'] }} | {% endif %}
+                                        Price: {{ item.get('value', 0) }} gold
+                                        {% if item.get('attack') %} | ATK +{{ item['attack'] }}{% endif %}
+                                        {% if item.get('defense') %} | DEF +{{ item['defense'] }}{% endif %}
+                                    </span>
+                                </div>
+                                <form action="/game_action" method="POST">
+                                    <button type="submit" name="action" value="merchant_buy::{{ item['name'] }}" class="inline-action merchant-action">&lt; Buy &gt;</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="merchant-copy">The merchant's shelves are empty for now.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div id="game-actions-container">
+                <form action="/game_action" method="POST" class="game-actions-form">
+                    <div class="game-actions">
+                        {% for action in actions %}
+                            {% if action.is_descend is not defined %}
+                                {% if action.enabled is defined %}
+                                    {% if action.enabled %}
+                                        <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
+                                            &lt; {{ action['label'] }} &gt;
+                                        </button>
+                                    {% else %}
+                                        <span class="disabled-action">&lt; {{ action['label'] }} &gt;</span>
+                                    {% endif %}
+                                {% else %}
                                     <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
                                         &lt; {{ action['label'] }} &gt;
                                     </button>
-                                {% else %}
-                                    <span class="disabled-action">&lt; {{ action['label'] }} &gt;</span>
                                 {% endif %}
-                            {% else %}
-                                <button type="submit" name="action" value="{{ action['value'] }}" class="game-action">
+                            {% endif %}
+                        {% endfor %}
+                        {% if enemy_defeated_transition %}
+                            <button type="submit" name="action" value="continue_after_event" class="game-action">
+                                &lt; Continue &gt;
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="descend-action-wrapper">
+                        {% for action in actions %}
+                            {% if action.is_descend is defined and action.is_descend %}
+                                <button type="submit" name="action" value="{{ action['value'] }}" class="game-action descend-action">
                                     &lt; {{ action['label'] }} &gt;
                                 </button>
                             {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if enemy_defeated_transition %}
-                        <button type="submit" name="action" value="continue_after_event" class="game-action">
-                            &lt; Continue &gt;
-                        </button>
-                    {% endif %}
-                </div>
-                <div class="descend-action-wrapper">
-                    {% for action in actions %}
-                        {% if action.is_descend is defined and action.is_descend %}
-                            <button type="submit" name="action" value="{{ action['value'] }}" class="game-action descend-action">
-                                &lt; {{ action['label'] }} &gt;
-                            </button>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </form>
-        </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+        </main>
     </div>
     <div class="svg-right">
         <img src="/images/Wall_Right.svg" alt="Wall Right" class="wall-svg wall-right">

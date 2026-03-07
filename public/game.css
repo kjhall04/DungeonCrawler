@@ -1,3 +1,8 @@
+:root {
+    --wall-left-offset: 0px;
+    --wall-right-offset: 0px;
+}
+
 html,
 body {
     min-height: 100%;
@@ -9,11 +14,36 @@ body {
     background: #000;
     color: #fff;
     font-family: "Bebas Neue", sans-serif;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
     overflow-x: hidden;
+}
+
+.svg-left,
+.svg-right {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    z-index: 0;
+}
+
+.svg-left {
+    left: var(--wall-left-offset);
+    aspect-ratio: 484.76 / 928.17;
+    pointer-events: none;
+}
+
+.svg-right {
+    right: var(--wall-right-offset);
+    aspect-ratio: 467.31 / 919.8;
+    pointer-events: none;
+}
+
+.wall-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 .wrapper {
@@ -21,25 +51,33 @@ body {
     z-index: 1;
     width: min(820px, calc(100% - 2rem));
     min-height: 100vh;
-    padding: calc(env(safe-area-inset-top) + 5.5rem) 0 calc(env(safe-area-inset-bottom) + 2.25rem);
+    padding: calc(env(safe-area-inset-top) + 1rem) 0 calc(env(safe-area-inset-bottom) + 2rem);
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
+    gap: 1rem;
     text-align: center;
+}
+
+.game-header {
+    width: min(42rem, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
 }
 
 #title {
     margin: 0;
-    font-size: clamp(1.9rem, 2vw + 1rem, 2.75rem);
-    letter-spacing: 0.05em;
+    font-size: clamp(1.35rem, 0.95rem + 1vw, 1.95rem);
+    letter-spacing: 0.08em;
 }
 
 #game-saved-message {
     margin: 0;
     color: #ffd700;
-    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem);
+    font-size: clamp(1rem, 0.9rem + 0.55vw, 1.35rem);
 }
 
 #health-defense-display {
@@ -48,7 +86,7 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.35rem 1.25rem;
     justify-content: center;
-    font-size: clamp(1.15rem, 0.9rem + 0.9vw, 1.5rem);
+    font-size: clamp(1.05rem, 0.9rem + 0.7vw, 1.35rem);
     text-align: left;
 }
 
@@ -57,90 +95,22 @@ body {
     line-height: 1.15;
 }
 
-#pause-button,
-#inventory-button {
-    position: fixed;
-    top: calc(env(safe-area-inset-top) + 1rem);
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-    color: #fff;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-#pause-button {
-    left: clamp(1rem, 3vw, 2.5rem);
-    font-size: clamp(3rem, 5vw, 4.25rem);
-}
-
-#inventory-button {
-    right: clamp(1rem, 3vw, 2.5rem);
-    padding: 0;
-}
-
-#pause-button:hover,
-#inventory-button:hover,
-.pause-option:hover,
-.game-action:hover,
-.descend-action:hover {
-    color: gray;
-    transform: scale(1.05);
-}
-
-.inventory-icon {
-    width: clamp(2.8rem, 4vw, 3.5rem);
-    height: clamp(2.8rem, 4vw, 3.5rem);
-    filter: invert(100%);
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-#inventory-button:hover .inventory-icon {
-    filter: invert(65%);
-}
-
-#pause-menu,
-#inventory-menu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: min(24rem, calc(100vw - 2rem));
-    max-height: min(80vh, 40rem);
-    overflow-y: auto;
-    padding: 1.75rem 1.5rem;
-    border-radius: 1rem;
-    background: rgba(0, 0, 0, 0.96);
-    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.55);
-    z-index: 9999;
-    text-align: center;
-}
-
-#paused,
-#inventory-title {
-    margin: 0 0 1rem;
-    font-size: clamp(2rem, 1.6rem + 1vw, 2.7rem);
-}
-
-.pause-option {
-    width: 100%;
-    margin-top: 0.35rem;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: clamp(1.5rem, 1.1rem + 1vw, 2.1rem);
-    font-family: "Bebas Neue", sans-serif;
-    cursor: pointer;
-    transition: color 0.3s ease, transform 0.2s ease;
+#game-main {
+    width: min(42rem, 100%);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
 }
 
 #narrative-container,
 #interaction-container,
 #enemy-container,
 #merchant-container {
-    width: min(42rem, 100%);
-    padding: 0.2rem 0;
+    width: 100%;
+    padding: 0.15rem 0;
     box-sizing: border-box;
 }
 
@@ -182,6 +152,12 @@ body {
 #game-actions-container,
 .game-actions-form {
     width: min(34rem, 100%);
+}
+
+.game-actions-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .game-actions {
@@ -229,6 +205,92 @@ body {
 
 .descend-action:hover {
     color: #a88b00;
+}
+
+#utility-controls {
+    position: absolute;
+    left: calc(100% - 1rem);
+    bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    pointer-events: auto;
+    z-index: 10;
+}
+
+#pause-button,
+#inventory-button {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+#pause-button {
+    font-size: clamp(2.7rem, 4vw, 3.5rem);
+}
+
+#inventory-button:hover,
+#pause-button:hover,
+.pause-option:hover,
+.game-action:hover,
+.descend-action:hover {
+    color: gray;
+    transform: scale(1.05);
+}
+
+.inventory-icon {
+    width: clamp(2.65rem, 3.7vw, 3.25rem);
+    height: clamp(2.65rem, 3.7vw, 3.25rem);
+    filter: invert(100%);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+#inventory-button:hover .inventory-icon {
+    filter: invert(65%);
+}
+
+#pause-menu,
+#inventory-menu {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(24rem, calc(100vw - 2rem));
+    max-height: min(80vh, 40rem);
+    overflow-y: auto;
+    padding: 1.75rem 1.5rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.96);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.55);
+    z-index: 9999;
+    text-align: center;
+}
+
+#paused,
+#inventory-title {
+    margin: 0 0 1rem;
+    font-size: clamp(2rem, 1.6rem + 1vw, 2.7rem);
+}
+
+.pause-option {
+    width: 100%;
+    margin-top: 0.35rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: clamp(1.5rem, 1.1rem + 1vw, 2.1rem);
+    font-family: "Bebas Neue", sans-serif;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .inventory-section {
@@ -341,63 +403,44 @@ body.inventory-open #ui-overlay {
     display: block;
 }
 
-body.pause-open .wrapper > *:not(#pause-menu):not(#pause-button):not(#ui-overlay),
-body.inventory-open .wrapper > *:not(#inventory-menu):not(#inventory-button):not(#ui-overlay) {
+body.pause-open .wrapper > *:not(#pause-menu):not(#ui-overlay),
+body.inventory-open .wrapper > *:not(#inventory-menu):not(#ui-overlay) {
     pointer-events: none !important;
     filter: blur(2px) grayscale(0.5);
     transition: none !important;
 }
 
+body.pause-open #utility-controls,
+body.inventory-open #utility-controls,
 body.pause-open #pause-button,
+body.pause-open #inventory-button,
+body.inventory-open #pause-button,
 body.inventory-open #inventory-button {
     pointer-events: auto !important;
     filter: none !important;
     z-index: 10000;
 }
 
-.wall-svg {
-    position: fixed;
-    top: 0;
-    height: 100vh;
-    width: auto;
-    z-index: 0;
-    pointer-events: none;
-}
-
-.wall-left {
-    left: 0;
-}
-
-.wall-right {
-    right: 0;
-}
-
 @media (max-width: 1024px) {
+    :root {
+        --wall-left-offset: -120px;
+        --wall-right-offset: -120px;
+    }
+
     .wrapper {
         width: min(46rem, calc(100% - 2rem));
-        padding-top: calc(env(safe-area-inset-top) + 5rem);
-    }
-
-    .wall-left {
-        left: -120px;
-    }
-
-    .wall-right {
-        right: -120px;
     }
 }
 
 @media (max-width: 768px) {
-    .wrapper {
-        width: calc(100% - 1.5rem);
-        padding-top: calc(env(safe-area-inset-top) + 4.75rem);
-        gap: 0.85rem;
+    :root {
+        --wall-left-offset: -165px;
+        --wall-right-offset: -165px;
     }
 
-    #health-defense-display {
-        width: min(24rem, 100%);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.35rem 1rem;
+    .wrapper {
+        width: calc(100% - 1.5rem);
+        gap: 0.9rem;
     }
 
     #pause-menu,
@@ -410,24 +453,30 @@ body.inventory-open #inventory-button {
         align-items: flex-start;
     }
 
-    .wall-left {
-        left: -165px;
-    }
-
-    .wall-right {
-        right: -165px;
+    #utility-controls {
+        left: calc(100% - 0.85rem);
+        gap: 0.5rem;
     }
 }
 
 @media (max-width: 480px) {
-    .wrapper {
-        width: calc(100% - 1rem);
-        padding-top: calc(env(safe-area-inset-top) + 4.15rem);
-        padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);
+    :root {
+        --wall-left-offset: -205px;
+        --wall-right-offset: -205px;
     }
 
-    #pause-button {
-        font-size: 3rem;
+    .wrapper {
+        width: calc(100% - 1rem);
+        padding-top: calc(env(safe-area-inset-top) + 0.75rem);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 1.35rem);
+    }
+
+    .game-header {
+        gap: 0.55rem;
+    }
+
+    #game-main {
+        gap: 0.65rem;
     }
 
     #narrative-container,
@@ -471,11 +520,8 @@ body.inventory-open #inventory-button {
         width: 100%;
     }
 
-    .wall-left {
-        left: -205px;
-    }
-
-    .wall-right {
-        right: -205px;
+    #utility-controls {
+        left: calc(100% - 0.65rem);
+        bottom: calc(env(safe-area-inset-bottom) + 1rem);
     }
 }
